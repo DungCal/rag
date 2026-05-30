@@ -1,0 +1,94 @@
+# PDF RAG with FAISS, BGE-M3, and LangChain Hugging Face
+
+This project builds a simple RAG indexing and retrieval pipeline for PDF files.
+It now includes a lightweight query router before retrieval:
+
+- Greeting node: detects inputs like `hi` or `hello`, then ends
+- Off-topic node: rejects queries that are not relevant to the indexed document
+- Retrieval node: runs normal similarity search for relevant document questions
+
+- Input: PDF file
+- Embedding model: `BAAI/bge-m3`
+- Chunking: LangChain `RecursiveCharacterTextSplitter`
+- Main LLM for answer generation: `google/gemma-4-26B-A4B-it` via `langchain-huggingface`
+- Vector store: FAISS
+- Output: top matching chunks with source page metadata, with optional generated answers
+
+## Install
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Create `.env` in the project root:
+
+```bash
+HF_TOKEN=your_hugging_face_token_here
+```
+
+The app will read `HF_TOKEN` from the process environment first, then fall back to `.env`.
+
+## Index a PDF
+
+```bash
+python indexing.py index --pdf path\to\document.pdf --index-dir storage
+```
+
+Optional flags:
+
+- `--chunk-size 900`
+- `--chunk-overlap 150`
+- `--use-fp16`
+
+## Query the index
+
+```bash
+python indexing.py query --index-dir storage --query "What are the main topics?"
+```
+
+Generate an answer with the main LLM:
+
+```bash
+python indexing.py query --index-dir storage --query "What are the main topics?" --generate-answer
+```
+
+Optional router flag:
+
+- `--off-topic-threshold 0.35`
+- `--llm-model google/gemma-4-26B-A4B-it`
+
+JSON output:
+
+```bash
+python indexing.py query --index-dir storage --query "What are the main topics?" --as-json
+```
+
+Example routed outputs:
+
+- `hi` -> `greeting`
+- unrelated question -> `off_topic`
+- document question -> `retrieval`
+
+As of May 30, 2026, this project is configured to use `langchain-huggingface` with `google/gemma-4-26B-A4B-it` and `HF_TOKEN`.
+
+## Files written
+
+- `storage/faiss.index`: FAISS dense vector index
+- `storage/metadata.json`: chunk text and source metadata
+
+## Run the chunk statistics app
+
+This project also includes a Streamlit app for exploring chunk metadata and chunk size distribution.
+
+```bash
+streamlit run app/app.py
+```
+
+The app lets you:
+
+- inspect summary statistics for indexed chunks
+- visualize chunk counts by character-length bins
+- browse chunks by source file and page number
+- view each chunk's content and stored metadata
