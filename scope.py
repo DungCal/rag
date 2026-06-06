@@ -69,31 +69,13 @@ def build_prompt(prompt_template_path: Path, context: str) -> str:
 def write_result(
     results_dir: Path,
     *,
-    prompt: str,
     response_text: str,
-    sampled_records: list[dict[str, Any]],
 ) -> Path:
     results_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_path = results_dir / f"scope_result_{timestamp}.txt"
 
-    sampled_summary = "\n".join(
-        [
-            f"- chunk_id={item.get('chunk_id', 'unknown')} page={item.get('page_number', 'unknown')} source={item.get('source_file', 'unknown')}"
-            for item in sampled_records
-        ]
-    )
-
-    output_text = "\n\n".join(
-        [
-            "Generated summary:",
-            response_text.strip(),
-            "Sampled chunks:",
-            sampled_summary,
-            "Prompt used:",
-            prompt,
-        ]
-    ).strip()
+    output_text = response_text.strip()
 
     output_path.write_text(output_text + "\n", encoding="utf-8")
     return output_path
@@ -131,13 +113,19 @@ def main() -> None:
     generator = HuggingFaceAnswerGenerator(
         model_name=args.model_name,
     )
+
+    file_name = "output_prompt.txt"
+
+    # 3. Open the file in write mode ("w") and write the string
+    with open(file_name, "w", encoding="utf-8") as file:
+        file.write(prompt)
+
+
     response_text = generator.generate_text(prompt)
 
     output_path = write_result(
         results_dir,
-        prompt=prompt,
         response_text=response_text,
-        sampled_records=sampled_records,
     )
 
     print(f"Sampled {len(sampled_records)} chunks from {metadata_path.resolve()}")

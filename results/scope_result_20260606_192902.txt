@@ -1,0 +1,16 @@
+Generated summary:
+
+These document chunks consist of various sections from a tractor operator manual, covering technical specifications, maintenance, and operation. The text includes a table of contents and an index for navigating the manual. Operational details describe tractor instruments, such as various indicator lamps (4WD, differential lock, and back-up), and seat adjustment procedures, including safety warnings regarding seat belts. Maintenance instructions provide specific steps for replacing engine oil filters, venting the fuel system, and changing fuel pre-filters. Additionally, the chunks detail the use of a touch monitor for media, camera views, and Bluetooth phone calls. Finally, comprehensive troubleshooting tables are provided to address issues related to engine power, oil warning lamps, and air conditioner malfunctions, listing potential causes and necessary remedies for each symptom.
+
+Sampled chunks:
+
+- chunk_id=5 page=4 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=102 page=61 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=165 page=99 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=233 page=137 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=235 page=139 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=281 page=163 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=291 page=170 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=348 page=222 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=355 page=226 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=421 page=253 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf

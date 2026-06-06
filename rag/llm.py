@@ -18,6 +18,7 @@ def _load_api_key_from_env_file(env_path: Path = ENV_FILE_PATH) -> str | None:
             continue
         key, value = line.split("=", 1)
         if key.strip() == "HF_TOKEN":
+
             resolved = value.strip().strip('"').strip("'")
             return resolved or None
 
@@ -31,7 +32,8 @@ class HuggingFaceAnswerGenerator:
         api_key: str | None = None,
     ) -> None:
         try:
-            from langchain_huggingface import HuggingFaceEndpoint
+            from langchain_core.prompts import ChatPromptTemplate
+            from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
         except ImportError as exc:
             raise ImportError(
                 "langchain_huggingface is required for Hugging Face generation. "
@@ -46,12 +48,31 @@ class HuggingFaceAnswerGenerator:
         self.client = HuggingFaceEndpoint(
             repo_id=model_name,
             huggingfacehub_api_token=resolved_api_key,
-            task="text-generation",
+            task="conversational",
+            max_new_tokens=256,
+            temperature=0.1,
+            do_sample=False,
         )
+        self.chat_model = ChatHuggingFace(llm=self.client)
+        self.freeform_prompt = ChatPromptTemplate.from_messages(
+            [
+                ("user", "{prompt}"),
+            ]
+        )
+        self.freeform_chain = self.freeform_prompt | self.chat_model
 
     def generate_text(self, prompt: str, max_tokens: int = 220) -> str:
-        response = self.client.bind(max_new_tokens=max_tokens).invoke(prompt)
-        return str(response).strip()
+        response = self.freeform_chain.invoke(
+            {
+                "prompt": prompt,
+            },
+            config={
+                "configurable": {
+                    "max_new_tokens": max_tokens,
+                }
+            },
+        )
+        return str(response.content).strip()
 
     def answer(self, query: str, results: list[dict[str, object]]) -> str:
         if not results:
