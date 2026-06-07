@@ -1,0 +1,335 @@
+Generated summary:
+
+These document chunks from a tractor operator manual provide critical safety protocols, technical operational guidance, and digital interface instructions. A significant portion focuses on safety, emphasizing the mandatory use of seat belts and certified Roll Over Protection Structures (ROPS), proper parking procedures, and precautions when using chemicals or operating on slopes. Technical warnings cover Diesel Particulate Filter (DPF) regeneration processes and the necessity of using correct hardware for ROPS maintenance. Additionally, the text describes the tractor's digital systems, including the touch monitor’s ability to display three-point linkage data, error codes, and customizable UI themes. Finally, the telematics system is detailed, explaining how the machine manages emergency notifications for rollovers or geofence breaches, tracks error history, and monitors consumable lifespans. Together, these sections ensure operator safety and efficient management of the tractor's mechanical and electronic components.
+
+Sampled chunks:
+
+- chunk_id=28 page=17 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=48 page=30 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=54 page=33 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=64 page=36 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=94 page=55 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=137 page=80 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=275 page=160 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=298 page=175 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=301 page=178 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=325 page=202 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+
+Prompt used:
+
+You are an expert document analysis assistant. Your task is to analyze the following text chunks retrieved from a user's document and provide a cohesive summary.
+
+Instructions:
+1. Synthesize the core themes and main points across all the provided chunks.
+2. Write a descriptive summary explaining exactly what these specific chunks are about.
+3. Length constraint: Your summary MUST be strictly between 100 and 150 words.
+4. Grounding: Base your summary ONLY on the provided text chunks. Do not hallucinate or use outside knowledge. 
+5. If the chunks contain conflicting information or seem entirely unrelated, acknowledge that briefly rather than forcing a false narrative.
+
+<context>
+Chunk ID: 28
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 17
+Text:
+clearance for the ROPS fatal injuries.
+WARNING
+
+If the ROPS is removed or replaced, 
+make certain that the proper hardware 
+is used to replace the ROPS and the 
+recommended torque values are 
+applied to the attaching bolts.
+WARNING
+
+---
+
+Chunk ID: 48
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 30
+Text:
+operator to loose of control of the 
+tractor.
+Always take into consideration the total 
+weight of the implements and their 
+loads.
+
+Before you leave the driving seat when a 
+trailers is hitched to the tractor, 
+remember to put all the controls in 
+neutral, apply the parking brake, switch 
+off the engine, engage first gear (if the 
+tractor has a mechanical transmission) 
+and remove the key from the starter 
+switch.
+If the tractor is not parked on level 
+ground, always place chocks under the 
+wheels of both the tractor and the 
+trailer.
+CAUTION
+
+---
+
+Chunk ID: 54
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 33
+Text:
+SAFETY PRECAUTIONS
+B
+B
+In summary, ensure at all times that the 
+safety of the operator and any other 
+worker is paramount.
+Ensure no one is between the tractor 
+and a towed vehicle (trailer or 
+implement).
+When spraying or using chemicals, 
+please ensure that clothing and 
+protective equipment is worn which 
+prevents respiratory or skin problems.
+For full details consult the manufacturer 
+of the chemicals.
+To avoid lengthy exposure to noise 
+ensure that ear protection is worn.
+If adjustment to the tractor or 
+machinery need to be made ensure the 
+tractor or machine are turned off 
+beforehand.
+Use of certified Roll Over Protection 
+Structure (ROPS) is a must while 
+operating a tractor.
+Use of seat belt is a must while 
+operating a tractor.
+The manufacturer of your tractor has 
+made every effort to make it as safe as is 
+humanly possible.
+Beyond this point it is the responsibility
+
+---
+
+Chunk ID: 64
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 36
+Text:
+Never drive down-hill at high speed 
+or with the transmission in neutral.
+Use of the braking capacity of the 
+engine as well as the service brakes.
+Do not try to change gear going up 
+or down a steep slope, select the 
+correct gear before starting.
+13. Take care when traveling uphill 
+with a heavy implement to ensure 
+that it does not overbalance and tip 
+up the front end.
+14. Never remove or modify the seat 
+belt.
+15. Never remove, modify or repair the 
+ROPS frame.
+Please remember that a little bit of
+extra care can prevent serious injury
+or death and avoid damage to your
+tractor.
+
+---
+
+Chunk ID: 94
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 55
+Text:
+TRACTOR INSTRUMENTS
+C
+C
+<2nd stage DPF regeneration warning>
+Operation of the tractor without DPF 
+regeneration after the DPF regeneration 
+lamp is on for a while, the engine torque 
+will be reduced by 25%.
+<1st stage DPF regeneration warning>
+If particle material is accumulated on 
+diesel particulate filter(DPF) at certain 
+level, DPF regeneration warning lamp 
+will be on.
+DPF regeneration warning lamp will be 
+off as soon as DPF regeneration process 
+is done.
+▶DPF REGENERATION PROCESS AND LAMPS
+This lamp is on during DPF regeneration 
+process.
+7
+
+Be careful with muffler and exhaust gas 
+during DPF regeneration process since 
+they are extremely hot.
+WARNING
+
+Perform DPF regeneration process when 
+DPF warning lamp is on.
+The engine RPM may go down until DPF 
+regeneration process is done.
+WARNING
+
+---
+
+Chunk ID: 137
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 80
+Text:
+with the knob (4).
+When lowering or lifting an 
+implement, use the lever (2) only to 
+keep the settings. 
+
+When leaving from the tractor, lowering 
+a implement and stop the engine to 
+prevent from unexpected an accident.
+WARNING
+
+---
+
+Chunk ID: 275
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 160
+Text:
+TOUCH MONITOR
+F
+2
+•
+Please read the manual carefully before using the product.
+•
+Specification of the product may change without any 
+notification for improvement.
+•
+Installation of unauthorized software may cause serious 
+malfunction of the product.
+•
+TYM has no responsibilities for any troubles such as a loss of 
+data or disclosing a personal information due to 
+unauthorized software or usage.
+•
+Functions which use CPU or RAM highly affect overall 
+performance of the product.
+•
+Services or functions of the product may be closed or 
+changed without a notification due to service provider’s 
+situation.
+•
+Images or icons used in this manual may differ from an actual 
+screen due to software or firmware update.
+▶BEFORE USING THE PRODUCT
+•
+Contents of this manual may change without a notification 
+for a product improvement.
+•
+Images used in this manual may differ from the actual 
+product.
+
+---
+
+Chunk ID: 298
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 175
+Text:
+F
+TOUCH MONITOR
+F
+17
+Information related to three point linkage is displayed.
+①
+Current working depth level.
+②
+Maximum lift height of position lever.
+③
+Ratio of position/draft sensitivity.
+④
+Lowering speed of position lever/switch.
+⑤
+Current position of three point linkage.
+▶THREE POINT LINKAGE
+A list of error codes is displayed in real time.
+①
+Current error codes are displayed.
+You can see more codes by scrolling the list up or down if 
+there are more than 6 error codes.
+(Error codes above are examples.)
+▶ERROR CODE DISPLAY
+5
+4
+3
+1
+6
+2
+1
+
+---
+
+Chunk ID: 301
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 178
+Text:
+TOUCH MONITOR
+F
+20
+Change UI theme of the touch monitor.
+①
+In bright theme, background color becomes white, text 
+color becomes black.
+②
+In dark theme, background color becomes black, text color 
+becomes white.
+③
+In auto theme, UI theme changes automatically depending 
+on ambient brightness.
+▶UI THEME SETTING
+Set time of the touch monitor.
+①
+Automatically set time with GPS.
+②
+Set time manually.
+▶TIME SETTING
+1
+3
+2
+1
+2
+
+---
+
+Chunk ID: 325
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 202
+Text:
+TELEMATICS
+G
+22
+▶EMERGENCY NOTIFICATION
+You can see a history of emergency 
+events such as rollover and geofence.
+⚠When emergency events occurs, push 
+message will be delivered.
+▶Emergency notification
+•
+Rollover
+When the machine rolls over, a 
+notification will be delivered.
+•
+Geofence
+When the machine leaves geofence, 
+A notification will be delivered.
+▶Error
+•
+Error
+When error occurs, a notification will 
+be delivered.
+▶Maintenance
+•
+Consumable lifespans are sorted 
+into 3 levels : Change / Check / Good.
+▶MANAGEMENT
+In the management menu, you can see 
+emergency notifications, check error-
+handling situations and manage 
+consumables.
+5. MACHINE MANAGEMENT
+</context>
+
+Provide only the final summary below:
