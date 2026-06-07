@@ -1,0 +1,411 @@
+You are an expert document analysis assistant. Your task is to analyze the following text chunks retrieved from a user's document and provide a cohesive summary.
+
+Instructions:
+1. Synthesize the core themes and main points across all the provided chunks.
+2. Write a descriptive summary explaining exactly what these specific chunks are about.
+3. Length constraint: Your summary MUST be strictly between 100 and 150 words.
+4. Grounding: Base your summary ONLY on the provided text chunks. Do not hallucinate or use outside knowledge. 
+5. If the chunks contain conflicting information or seem entirely unrelated, acknowledge that briefly rather than forcing a false narrative.
+
+<context>
+Chunk ID: 17
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 13
+Text:
+the drawbar end.
+When spare parts are required, always 
+specify the tractor and engine serial 
+number when ordering these parts.
+This will facilitate faster delivery and 
+help ensure that the correct parts for 
+your particular tractor is received.
+The word, ’tractor’ has been derived 
+from ‘traction’ which means pulling.
+A tractor is required to pull or haul an 
+equipment, implement or trolley which 
+are coupled to the tractor body through 
+suitable linkage.
+A tractor can also be used as a prime 
+mover as it has a power outlet source 
+which is also called Power Take or PTO 
+shaft.
+In this book the operating, maintenance 
+and storage instructions for all models 
+of TYM diesel tractors has been 
+complied. This material has been 
+prepared in detail to help you in the 
+better understanding of maintenance 
+and efficient operation of the machine.
+If you need any information not given in
+
+---
+
+Chunk ID: 105
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 63
+Text:
+TRACTOR INSTRUMENTS
+C
+C
+▶ENGINE OIL PRESSURE 
+WARNING LAMP
+This is illuminated when the engine oil 
+pressure or oil amount is insufficient 
+during driving.
+This may come on during the engine 
+warming up.
+15
+
+When the oil pressure warning lamp 
+comes on, this indicates malfunction of 
+the lubrication system.
+Check the engine oil immediately and 
+have your vehicle serviced by your 
+workshop as necessary.
+WARNING
+ENGINE OIL PRESSURE
+WARNING LAMP
+▶AIR CLEANER WARNING LAMP
+▶WATER IN FUEL WARNING LAMP
+When a certain amount of water is 
+collected in the fuel filter, this lamp 
+comes on.
+In this case, stop the engine 
+immediately and drain water from the 
+fuel filter.
+This comes on when the air cleaner is 
+clogged by foreign materials.
+When this comes on, open the cover and 
+clean the inside of the cleaner.
+Also, blow air through the filter in the 
+opposite direction of air flow to clean it
+
+---
+
+Chunk ID: 106
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 63
+Text:
+clean the inside of the cleaner.
+Also, blow air through the filter in the 
+opposite direction of air flow to clean it 
+or replace the filter with a new one.
+WATER IN FUEL WARNING LAMP
+AIR CLEANER WARNING LAMP
+
+If keeping driving with this warning 
+lamp illuminated, the engine power can 
+be dropped.
+IMPORTANT
+
+If the water-in-fuel warning lamp comes 
+on, drain water from the fuel filter as 
+soon as possible.
+WARNING
+
+---
+
+Chunk ID: 176
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 105
+Text:
+OPERATION
+D
+D
+▶TIPS FOR DRIVING ON SLOPE
+1.
+Set sub shift lever in low speed 
+position on a slope to prevent 
+engine from stopping.
+2.
+Keep driving speed low on a 
+downhill road.
+3.
+Do not set sub shift lever in neutral 
+position on a downhill road.
+▶START ON STEEP SLOPE
+1.
+Depress the brake pedals.
+2.
+Place sub shift lever in the low 
+speed position.
+3.
+Set engine at the mid speed with 
+the throttle lever.
+4.
+Depress the throttle pedal or use 
+throttle lever to increase engine 
+revolution.
+5.
+Release the brake pedal at the same 
+time.
+▶PARKING THE TRACTOR
+1.
+Stop the tractor completely in level 
+ground.
+2.
+If an implement is attached to the 
+vehicle, lower it.
+3.
+Set the levers in neutral position.
+4.
+Apply the parking brake.
+5.
+Remove the key from the key switch.
+5
+
+After parking, make sure to apply the 
+parking brake.
+
+Avoid parking on a slope if possible.
+
+---
+
+Chunk ID: 205
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 121
+Text:
+OPERATION
+D
+D
+Keep the clearance between the rear 
+wheels as large as possible for safety of 
+the tractor.
+Do not lift anything only with one side of 
+the tractor. If so, the tractor may fall on 
+its side.
+Make sure to distribute the load evenly.
+21
+
+Do not let anyone ride a loader for work, 
+such as spreading fertilizer.
+He/she may fall off the loader, leading 
+to an injury or even death.
+
+Always lower the loader to the ground 
+before leaving the tractor.
+WARNING
+
+This chapter only provides brief 
+descriptions and instructions for a 
+rotavator and loader.
+Therefore, for detailed operational 
+instructions and other descriptions, 
+refer to the user's manual of each 
+implement.
+IMPORTANT
+
+---
+
+Chunk ID: 221
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 131
+Text:
+MAINTENANCE
+E
+E
+4.
+Sit on the driver's seat, turn the 
+start switch to the "ON“ position 
+and check:
+- Fuel gauge for proper operation
+- Fuel level
+- UREA Level gauge
+- Engine oil and charge warning 
+lamps for blinking operation
+- Turn signal lamp
+- Horn operation
+- Brake pedal free play
+- Clutch pedal play
+5.
+Start the engine, drive the tractor 
+slowly and check:
+- Emission color
+- Brake pedal operation
+- One brake pedal operation
+- Heaviness and vibration of 
+steering wheel
+- Coolant gauge operation
+- Hydraulic operation of 3-point link
+▶INSPECTING ITEMS
+Inspect each part in the following order:
+1.
+Check the items that were faulty 
+yesterday
+2.
+Go around the tractor and check:
+- Lamps for proper illumination and 
+damage
+- Tires for inflation pressure, crack, 
+damage and wear
+- Rotating parts, including tires, for 
+loose bolts and nuts
+- Transmission fluid level
+
+---
+
+Chunk ID: 273
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 158
+Text:
+Keep the following instructions when 
+using the tractor after its long-term 
+storage.
+1.
+Inspect the tractor thoroughly 
+before driving it.
+2.
+To keep performance and life of the 
+engine, idle the engine for approx. 
+30 minutes after starting it.
+
+If leaving the battery connected to the 
+tractor, turn off its switch to cut electric 
+power.
+
+If wiring is damaged by rodents, its 
+short circuit can start a fire.
+CAUTION
+
+For engine lubrication, run the engine at 
+1,500 ~ 2,000 RPM for 5 to 10 minutes 
+once a month.
+
+Remove the key from the tractor and 
+store it separately.
+IMPORTANT
+
+---
+
+Chunk ID: 300
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 177
+Text:
+F
+TOUCH MONITOR
+F
+19
+Turn on/off internal speaker, or adjust the sound volume.
+①
+Activate/Deactivate internal speakers.
+②
+Decrease a step of sound volume.
+③
+Current level of sound volume.
+④
+Increase a step of sound volume.
+⑤
+Decrease a step of phone call volume.
+⑥
+Current level of phone call volume.
+⑦
+Increase a step of phone call volume.
+▶SPEAKER VOLUME ADJUSTMENT
+Adjust the screen brightness.
+①
+Switch to auto brightness mode.
+②
+Switch to manual brightness mode.
+③
+Decrease a step of brightness.
+④
+Current level of brightness.
+⑤
+Increase a step of brightness.
+▶SCREEN BRIGHTNESS ADJUSTMENT
+1
+5
+6
+7
+2
+3
+4
+2
+1
+5
+4
+3
+
+---
+
+Chunk ID: 392
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 246
+Text:
+· · · · · · · · · · · · · · · · · D - 10
+· · · · · · · · · · · · · · · · · · · · · A - 6
+· · · · · · · · · · · · · · · · · · F - 12
+· · · · · · · · · · · · · · · · · · · · · · F - 12
+· · · · · · · · · · · · · · · · · · · · · · E - 17
+· · · · · · · · · · · · · · · · · · · · · · · · · G - 20
+· · · · · · · · · · · · · · · · · · · E - 16
+· · · · · · · · · · · · · · · C - 15
+· · · · · · · · · · · · · · · · · D - 22
+· · · · · · · · · · H - 8
+· · · · · · · · · B - 5
+· · · · · · · · · · · · · · · · · · · · · · · · · · · · J - 2
+· · · · · · · · · · · · · · · · G - 36
+· · · · · · · · · · · · · · · · · · · · · · · · · · · F - 15
+· · · · · · · · · · · · · · · · · · · · · · · · · · C - 23
+· · · · · · · · · · · · · · · · C - 11
+APS(AUTO POWER SHIFT) SETTING
+AUTOMATIC ENGINE OFF
+AVOID HIGH PRESSURE FLUIDS
+•
+B
+BACK SIDE OF THE TRACTOR
+BACK UP SWITCH
+BACK-UP LAMP
+BATTERY
+BATTERY CHARGING CHECK
+
+---
+
+Chunk ID: 423
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 253
+Text:
+TIPS FOR DRIVING ON SLOPE
+TIRE PRESSURE
+TOP LINK
+TOP LINK EXTRACTION SWITCH
+TOP LINK RETRACTION SWITCH
+TOP MENU
+TOUCH MONITOR
+TOWING SAFELY
+TOWING THE TRACTOR
+TOWING WITH ENGINE OFF
+TOWING WITH ENGINE RUNNING
+TRACTOR IDENTIFICATION
+SHUTTLE RESPONSE SET DIAL
+SIDE WINDOW LEVER
+SIGN UP
+SIGN UP & LOGIN
+SIGNAL SIGNS
+SOFTWARE UPDATE
+SPEAKER VOLUME ADJUSTMENT
+SPECIFICATIONS
+SPEEDO METER
+STANDARD FOR FARMWORK
+START & STOP OF ENGINE
+START ON STEEP SLOPE
+START SWITCH
+STATISTICAL CHART OF USAGE
+STATUS OF CONNECTION
+STATUS OF MACHINE
+STATUS OF THE TRACTOR
+STAY CLEAR OF ROTATING SHAFTS
+STEERING WHEEL TROUBLESHOOTING
+STOPPING ENGINE
+STORING THE TRACTOR
+SUB SHIFT LEVER
+SUN VISOR
+SWITCH PANEL
+SWITCHES
+SYSTEM GENERAL
+· · · · · · · · · · · · · · · · · · · F - 18, G- 36
+· · · · · · · · · · · · · · · · · · · F - 18
+· · · · · · · · · · · · · · · · · · · · · · · · · C - 9
+</context>
+
+Provide only the final summary below:

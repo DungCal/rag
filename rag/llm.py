@@ -19,6 +19,7 @@ def _load_api_key_from_env_file(env_path: Path = ENV_FILE_PATH) -> str | None:
             continue
         key, value = line.split("=", 1)
         if key.strip() == "HF_TOKEN":
+
             resolved = value.strip().strip('"').strip("'")
             return resolved or None
 
@@ -32,7 +33,7 @@ class HuggingFaceAnswerGenerator:
         api_key: str | None = None,
     ) -> None:
         try:
-            from huggingface_hub import InferenceClient
+            from langchain_huggingface import HuggingFaceEndpoint
         except ImportError as exc:
             raise ImportError(
                 "huggingface_hub is required for Hugging Face inference. "
@@ -44,37 +45,15 @@ class HuggingFaceAnswerGenerator:
             raise ValueError("Missing HF_TOKEN in the environment or .env file for Hugging Face inference access")
 
         self.model_name = model_name
-        self.client = InferenceClient(api_key=resolved_api_key)
-        self.mode = "chat"
-
-    @staticmethod
-    def _extract_chat_text(response: Any) -> str:
-        choices = getattr(response, "choices", None)
-        if not choices:
-            return str(response).strip()
-
-        first_choice = choices[0]
-        message = getattr(first_choice, "message", None)
-        content = getattr(message, "content", None)
-        if isinstance(content, str):
-            return content.strip()
-        if content is not None:
-            return str(content).strip()
-
-        return str(response).strip()
+        self.client = HuggingFaceEndpoint(
+            repo_id=model_name,
+            huggingfacehub_api_token=resolved_api_key,
+            task="text-generation",
+        )
 
     def generate_text(self, prompt: str, max_tokens: int = 220) -> str:
-        response = self.client.chat_completion(
-            model=self.model_name,
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-            max_tokens=max_tokens,
-        )
-        return self._extract_chat_text(response)
+        response = self.client.bind(max_new_tokens=max_tokens).invoke(prompt)
+        return str(response).strip()
 
     def answer(self, query: str, results: list[dict[str, object]]) -> str:
         if not results:

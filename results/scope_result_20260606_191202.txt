@@ -1,0 +1,358 @@
+Generated summary:
+
+These document chunks from a tractor operator manual provide essential guidance on safety, maintenance, and digital systems. The text defines critical warning signs—including Danger, Warning, and Caution—to prevent injury or death. Safety instructions cover the correct transport and towing of the tractor, alongside a detailed list of "Don'ts" regarding engine operation, refueling, and hydraulic use. Maintenance sections emphasize environmental protection through proper oil disposal and machine decommissioning. Additionally, the manual details technical operations for the touch monitor and the telematics system. This digital component includes instructions for user registration, managing notifications, and monitoring real-time machine status, such as battery voltage, fuel levels, and engine hours. Users are also informed about telematics subscription requirements and the permanent nature of account deletion.
+
+Sampled chunks:
+
+- chunk_id=2 page=2 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=31 page=19 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=47 page=30 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=76 page=41 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=272 page=158 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=303 page=180 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=308 page=185 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=314 page=191 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=321 page=198 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=333 page=210 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+
+Prompt used:
+
+You are an expert document analysis assistant. Your task is to analyze the following text chunks retrieved from a user's document and provide a cohesive summary.
+
+Instructions:
+1. Synthesize the core themes and main points across all the provided chunks.
+2. Write a descriptive summary explaining exactly what these specific chunks are about.
+3. Length constraint: Your summary MUST be strictly between 100 and 150 words.
+4. Grounding: Base your summary ONLY on the provided text chunks. Do not hallucinate or use outside knowledge. 
+5. If the chunks contain conflicting information or seem entirely unrelated, acknowledge that briefly rather than forcing a false narrative.
+
+<context>
+Chunk ID: 2
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 2
+Text:
+WARNING SIGNS
+The following warning signs in this manual draw additional attention to items of importance for the safe and 
+correct operation of the tractor.
+SIGNS
+MEANING OF THE SIGN
+This indicates that a condition may result in harm, serious injury or death to 
+you or other persons if the warning is not heeded.
+Follow the advice provided with the warning signs.
+Hazard or unsafe practice that can lead to severe injury or death.
+Hazard or unsafe practice that can lead in injury or death.
+Instructions for the correct operation of the machine which, if followed, will 
+ensure that it performs at its best.
+All information, illustrations and specifications in this manual are based on latest information available at the 
+time of publication. The right is reserved to make change at any time without a notice.
+DANGER
+IMPORTANT
+WARNING
+CAUTION
+
+---
+
+Chunk ID: 31
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 19
+Text:
+B. SAFETY PRECAUTIONS
+1.
+SAFETY INSTRUCTIONS
+2.
+SAFE OPERATION OF TRACTOR
+3.
+DOs & DON’Ts
+4.
+SAFETY DECALS
+5.
+UNIVERSAL SYMBOLS
+· · · · · · · · · · · · · · · · · · · B – 2
+· · · · · · · · · · B – 15
+· · · · · · · · · · · · · · · · · · · · · · · · · · · B – 22
+· · · · · · · · · · · · · · · · · · · · · · · · · B – 24
+· · · · · · · · · · · · · · · · · · · · B – 29
+
+---
+
+Chunk ID: 47
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 30
+Text:
+SAFETY PRECAUTIONS
+B
+12
+▶TRANSPORT TRACTOR BY 
+TRUCK
+Always secure the tractor to the loader 
+bed with chains.
+Before transporting the tractor on a low 
+loader or on a railway wagon, make 
+sure that the engine hood, doors, 
+openable roof (if present) and windows 
+are all closed and securely fastened.
+Never tow the tractor at speeds in 
+excess of 10km/h.
+An operator must stay in the operator 
+position to steer and brake the tractor.
+▶TOWING SAFELY
+Maintain a suitable speed taking into 
+account the weight of the trailed load 
+and the gradient, remembering that 
+braking distances will be greater than 
+with just the tractor.
+Trailed loads with or without brakes 
+that are too heavy for the tractor or that 
+towed at too high speed may cause the 
+operator to loose of control of the 
+tractor.
+Always take into consideration the total 
+weight of the implements and their 
+loads.
+
+
+---
+
+Chunk ID: 76
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 41
+Text:
+SAFETY PRECAUTIONS
+B
+B
+DON’T - Move the hydraulic levers 
+rearward.
+DON’T - Ride the brake.
+This will result in excessive 
+wear of the brake lining.
+DON’T - Use the independent brakes for 
+making turns on the highway or 
+at high speeds.
+DON’T - Refuel the tractor with the 
+engine running.
+DON’T - Mount or dismount from the 
+right side of the tractor.
+DON’T - Temper the hydraulic control 
+levers’ upper limit stops.
+DON’T - Use draft control lever for 
+lifting of implements.
+DON’T - Start the engine with the PTO 
+engaged.
+DON’T - Use the throttle lever while 
+driving on roads.
+▶DON’Ts – FOR SAFE OPERATION
+DON’T - Run the engine with the air 
+cleaner disconnected.
+DON’T - Start the tractor in an enclosed 
+building unless the doors and 
+windows are open for proper 
+ventilation.
+DON’T - Operate the tractor or engine 
+while lubricating or cleaning.
+DON’T - Allow the tractor to run out of
+
+---
+
+Chunk ID: 272
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 158
+Text:
+MAINTENANCE
+E
+32
+▶USAGE AND DISPOSAL
+It is recommended to keep the 
+followings to protect the environment:
+1.
+Avoid overloading work as it can 
+lead to incomplete combustion and 
+emissions that can pollute the air.
+2.
+When changing oil, including 
+engine oil, transmission fluid, 
+hydraulic oil and coolant, be careful 
+not to spill it and discard used oil 
+according to the applicable law.
+Used oil should be treated with care 
+and discarded properly as it can 
+contaminate soil and water.
+3.
+When this or other machine's life is 
+expired, do not neglect or discard it 
+on your own, but contact your 
+dealer so that the approved service 
+provider can discard the machine 
+according to the laws.
+▶USE AFTER LONG-TERM 
+STORAGE
+Keep the following instructions when 
+using the tractor after its long-term 
+storage.
+1.
+Inspect the tractor thoroughly 
+before driving it.
+2.
+
+---
+
+Chunk ID: 303
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 180
+Text:
+TOUCH MONITOR
+F
+22
+You can reset the touch monitor or check the hardware and 
+software version of touch monitor.
+①
+Show the hardware and software version of touch monitor.
+②
+Factory reset the touch monitor.
+▶SYSTEM GENERAL
+Power switch is used to turn the screen on/off or reboot the 
+system.
+•
+Switch the screen on/off: Press the switch shortly.
+•
+Reboot the system: Press the switch for 3 sec.
+▶POWER SWITCH
+POWER SWITCH
+
+---
+
+Chunk ID: 308
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 185
+Text:
+TELEMATICS
+G
+G
+Read and agree to the Terms and 
+Conditions.
+Check the agreement box①to proceed.
+▶SIGN UP
+To use the app, ‘Sign up’ is required. 
+Click on the ‘Sign up’ ①to proceed to 
+registration.
+Tap the ‘Permissions’①to change the 
+permission policy to access to device’s 
+location.
+5
+1
+1
+1
+
+---
+
+Chunk ID: 314
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 191
+Text:
+TELEMATICS
+G
+G
+▶NOTIFICATION
+Notifications are categorized by 
+emergency, general, error, consumables 
+replacement and notice.
+Tap the ‘more’①icon to change the 
+machine name.
+▶USE OTHER MACHINE
+You can select machine for mobile 
+connection among registered machines.
+11
+1
+
+---
+
+Chunk ID: 321
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 198
+Text:
+TELEMATICS
+G
+18
+▶BATTERY
+Battery icon shows the current voltage 
+of the battery
+•
+Red: 11.5V or less
+When battery icon becomes red, charge 
+the battery.
+Following machine status items are 
+displayed.
+①
+Battery voltage
+②
+Fuel level
+③
+Coolant temperature
+④
+Parking brake
+⑤
+Shuttle direction
+⑥
+PTO
+⑦
+Air cleaner
+⑧
+Transmission oil temperature
+⑨
+Urea level
+⑩
+Engine hours
+⚠Items updated real-time:
+Parking brake, shuttle direction, PTO, air 
+cleaner
+⚠Items updated every 1 minute:
+Battery, fuel level, coolant temperature, 
+transmission oil temperature, urea level
+⚠Items updated every 1 hour:
+Engine hours
+▶MACHINE STATUS
+⚠Displayed machine status items may vary 
+depending on machine model.
+4. STATUS OF MACHINE
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+
+---
+
+Chunk ID: 333
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 210
+Text:
+TELEMATICS
+G
+30
+⚠Once the account is deleted, all user 
+information cannot be recovered.
+⚠Deleted ID cannot be reused or created.
+▶DELETE ACCOUNT
+Tap ‘Delete’①to remove all user 
+information from the telematics service. 
+Telematics service is provided free of 
+charge for 5 years from machine 
+purchases. To continue using the 
+service, a telematics service renewal is 
+required with a monthly subscription 
+fee. 
+⚠Current machine location, route to 
+machine, work sheet and other services 
+can be provided only upon agreement of 
+Terms of Use and Location services.
+⚠If you disagree to device’s location service, 
+the application will automatically shut 
+down.
+1
+</context>
+
+Provide only the final summary below:

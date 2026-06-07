@@ -1,0 +1,488 @@
+Generated summary:
+
+These document chunks from a tractor operator's manual provide essential guidance on safety, operation, and maintenance. Safety instructions emphasize preventing acid burns from batteries, avoiding explosions, and using rollover protective structures (ROPS) with seat belts. The text outlines critical operational procedures, such as managing engine speed, using brakes correctly on slopes, and handling the PTO safely. Technical details include descriptions of universal symbols, tractor instruments like the tachometer and hour meter, and the "Touch Monitor" which displays engine and transmission data. Maintenance protocols cover checking oil levels, changing front axle and transmission fluids, and calibrating sensors. Additionally, the chunks provide specific warnings regarding rotating parts and the importance of following manual instructions to prevent accidents. Collectively, these sections serve as a comprehensive resource for the safe and effective management of the tractor.
+
+Sampled chunks:
+
+- chunk_id=41 page=25 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=63 page=36 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=84 page=47 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=97 page=57 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=209 page=123 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=228 page=135 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=262 page=153 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=293 page=172 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=370 page=232 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+- chunk_id=391 page=246 source=D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+
+Prompt used:
+
+You are an expert document analysis assistant. Your task is to analyze the following text chunks retrieved from a user's document and provide a cohesive summary.
+
+Instructions:
+1. Synthesize the core themes and main points across all the provided chunks.
+2. Write a descriptive summary explaining exactly what these specific chunks are about.
+3. Length constraint: Your summary MUST be strictly between 100 and 150 words.
+4. Grounding: Base your summary ONLY on the provided text chunks. Do not hallucinate or use outside knowledge. 
+5. If the chunks contain conflicting information or seem entirely unrelated, acknowledge that briefly rather than forcing a false narrative.
+
+<context>
+Chunk ID: 41
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 25
+Text:
+SAFETY PRECAUTIONS
+B
+B
+If you spill acid on yourself:
+1.
+Flush your skin or eyes with water 
+for 10 ~ 15 minutes.
+2.
+Get medical attention immediately.
+▶PREVENT ACID BURNS
+Sulfuric acid in battery electrolyte is 
+poisonous.
+It is strong enough to burn skin, cause 
+holes in clothing and cause blindness if 
+found entry into eyes.
+For adequate safety always:
+•
+Fill batteries in a well-ventilated area.
+•
+Wear eye protection and acid proof 
+hand gloves.
+•
+Avoid breathing direct fumes when 
+electrolyte is added.
+•
+Do not add water to electrolyte as it 
+may splash off causing severe burns.
+▶PREVENT BATTERY EXPLOSION
+Keep sparks, lighted matches and open 
+flame away from the top of battery.
+Battery gas can explode.
+Never check battery charge by placing a 
+metal object across the poles.
+7
+
+---
+
+Chunk ID: 63
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 36
+Text:
+ACCIDENTS
+A careful operator is the best operator.
+Most accidents can be avoided by 
+observing certain precautions.
+Read and take the following 
+precautions before operating the 
+tractor to prevent accidents.
+Tractor should be operated only by 
+those who are responsible and properly 
+trained to do so.
+<THE TRACTOR>
+1.
+Read the operator’s manual 
+carefully before using the tractor.
+Lack of operating knowledge can 
+lead to accidents.
+2.
+Use an approved rollover bar and 
+seat belt for safe operation. 
+Overturning of a tractor without a 
+rollover bar can result in death or 
+injury.
+3.
+Do not remove ROPS (Roll Over 
+Protective Structure).
+Always use the seat belt.
+4.
+Fiberglass canopy does not give any
+comes first.
+Never drive down-hill at high speed 
+or with the transmission in neutral.
+Use of the braking capacity of the 
+engine as well as the service brakes.
+
+---
+
+Chunk ID: 84
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 47
+Text:
+SAFETY PRECAUTIONS
+B
+B
+29
+Some of the universal symbols have been shown below with an indication of their meaning.
+DESCRIPTION
+SYMBOL
+DESCRIPTION
+SYMBOL
+DESCRIPTION
+SYMBOL
+ENGINE SPEED (REV/MIN X 100)
+PRESSURED, OPEN SLOWLY
+CORROSIVE SUBSTANCE
+HOURES, RECORED
+CONTINUOUS VARIABLE
+SLOW OR MINIMUM SETTING
+ENGINE COOLANT TEMPERATURE
+DANGER, WARNING, CAUTION
+FAST OR MAXIMUM SETTING
+FUEL LEVEL
+HAZARD WARNING
+TRANSMISSION OIL PRESSURE
+ENGINE STOP CONTROL
+NEUTRAL
+TURN SIGNAL
+LIGHTS
+FAN
+TRANSMISSION OIL 
+TEMPERATURE
+HORN
+POWER TAKE OFF ENGAGED
+PARKING BRAKE
+ENGINE OIL PRESSURE
+POWER TAKE OFF DISENGAGED
+WORKING LAMP
+AIR FILTER CONTAMINATED
+RAISE LIFT ARM
+DIFFERENTIAL LOCK
+BATTERY CHARGE
+LOWER LIFT ARM
+REFER TO OPERATOR’S MANUAL
+5. UNIVERSAL SYMBOLS
+
+---
+
+Chunk ID: 97
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 57
+Text:
+TRACTOR INSTRUMENTS
+C
+C
+▶SPEEDO METER
+This indicates the driving speed of the 
+tractor.
+▶HOUR METER
+This indicates the total time of use.
+•
+Black digits –
+Whole number for hours of use.
+•
+Red digit –
+Decimal place for hours of use.
+There are 6 digits for the hour meter.
+The last digit indicates one tenth hours.
+ex.) The time of use illustrated above is 
+234 hours and 30 minutes.
+▶TACHO METER
+This indicates the engine RPM (Rotation 
+Per Minute).
+The green arrow indicates the engine 
+speed at the standard 540 RPM speed of 
+the PTO.
+9
+
+The engine can be damaged if 
+increasing its speed too fast.
+IMPORTANT
+
+---
+
+Chunk ID: 209
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 123
+Text:
+acids from combustion products, 
+prevention of coke and soot deposits on 
+the engine parts) are assumed by the
+additives. The properties of the base oil 
+are also decisive for the quality of the
+▶OIL SYSTEM TIP
+1.
+Always use recommended grade of 
+oil.
+2.
+Every day before starting the engine, 
+check the oil level with a dipstick & 
+refill between the minimum & 
+maximum level.
+3.
+Charge the engine oil.
+Replace filter & O-ring, as & when 
+required.
+▶BRAKE TIP
+1.
+If the tractor has to be stopped for a 
+long period, it is advisable to bring 
+the transmission in neutral position.
+2.
+Do not override the brake pedals.
+3.
+While coming down from a slope, 
+reduce the engine throttle & use 
+low gear.
+Do not depend only on the brakes 
+for stoppage.
+23
+
+---
+
+Chunk ID: 228
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 135
+Text:
+MAINTENANCE
+E
+E
+▶CHECKING AND CHANGING 
+FRONT AXLE OIL
+<Inspection>
+1.
+Unscrew the drain plug on bottom 
+of the front axle and each side of 
+wheels.
+2.
+Check front axle oil is filled up to 
+the oil level.
+3.
+If insufficient, add more oil.
+<Changing>
+1.
+Unscrew the drain plug on the 
+lower section of the transmission to 
+drain contaminated transmission 
+fluid.
+Since hot fluid flows out of the 
+engine first, be careful not to get 
+burnt.
+2.
+After draining fluid, tighten the 
+transmission fluid drain plug.
+3.
+Add the specified amount of the 
+specified transmission fluid through 
+the filler hole.
+9
+
+If transmission fluid gets on your skin, it 
+can irritate the skin and cause a skin 
+condition.
+Make sure to clean your skin with soap 
+and water or hand cleaner thoroughly.
+CAUTION
+
+Do not add fluid over the upper limit 
+level.
+
+Check the fluid before starting the
+
+---
+
+Chunk ID: 262
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 153
+Text:
+the indicator on the meter panel 
+simultaneously.
+▶CALIBRATION FOR 
+REPLACEMENT OF SENSOR 
+ATTACHED LIFT ARM OR 
+ELECTRIC LIFT CONTROLLER
+1.
+Start the engine, confirm that 44 of 
+status led(calibration mode) is on.
+2.
+Lift 3 point linkage up by pressing 
+external 3P lifting switch.
+3.
+Keep pressing 3P lifting switch even 
+3 point linkage is top position until 
+status led stops blinking.
+4.
+Once status led stops blinking, 
+pressing 3P lowering switch to 
+lower 3 point linkage.
+5.
+Keep pressing 3P lowering switch 
+even 3 point linkage is bottom 
+position until status led stops 
+blinking.
+6.
+Once status led stops blinks, wait 
+for the status turning on.
+7.
+Once status led is turned on, stop 
+the engine for 5 sec, and start 
+switch to on position for 5 sec.
+27
+
+---
+
+Chunk ID: 293
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 172
+Text:
+TOUCH MONITOR
+F
+14
+Information related to the engine is displayed.
+①
+The engine RPM.
+②
+The engine load.
+③
+A coolant temperature.
+④
+Ambient temperature. (some errors included.)
+⑤
+Exhaust gas temperature.
+⑥
+Engine oil pressure.
+⑦
+Urea temperature.
+⑧
+Level of urea.
+⑨
+Urea consumption.
+⑩
+Fuel consumption.
+⑪
+Level of fuel.
+⑫
+Battery voltage.
+▶ENGINE
+Information related to transmission is displayed.
+①
+Current shift of main and sub shift lever.
+②
+Current states of 4WD, differential lock, PTO rotating, one 
+side brake, reverse drive shift and creep shift.
+③
+Current temperature or transmission oil.
+④
+State of AUTO PTO.
+⑤
+Current load of transmission in 3 levels of low, mid and high.
+▶TRANSMISSION
+6
+9
+12
+3
+5
+8
+11
+2
+4
+7
+10
+1
+1
+2
+4
+5
+3
+7
+6
+
+---
+
+Chunk ID: 370
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 232
+Text:
+STANDARD FOR FARMWORK
+I
+6
+•
+If the safety frame was removed for 
+specialized work, restore it 
+immediately.
+Be careful to touch dangerous area such 
+as power transmission gear, rotating 
+unit, etc. Put on a protective cover.
+Do neither modify nor remove the safety 
+device.
+When checking and replacing the blade 
+to plow the ground
+•
+Stop the engine.
+•
+Prevent the rotary from falling by 
+turning the fall adjusting handle to 
+stop hydraulic pressure.
+•
+Apply the parking brake.
+•
+Do not stand between tractor and 
+rotary.
+When working with rotary
+•
+Do not put your hands near the 
+rotating part such as blade axle and 
+universal joint.
+Manage PTO
+•
+Stop PTO before stopping the engine.
+•
+Do not remove the PTO protective 
+cover or protective panel for 
+operating machine.
+•
+Do not use PTO adaptor in order to 
+extend the PTO coupler or universal 
+joint to outside of PTO protective 
+cover.
+
+---
+
+Chunk ID: 391
+Source file: D:\Rag_pipeline\t130sp_na_operator_manual.pdf
+Page number: 246
+Text:
+INDEX
+K
+•
+0 ~ 9
+3P OIL FLOW CONTROL
+4WD AUTO SWITCH
+4WD LAMP
+4WD SWITCH
+•
+A
+A/C, HEATER CONTROL PANEL
+ABNORMAL OPERATION DURING DPF 
+REGENERATION PROCESS
+ABOUT THIS MANUAL
+ACCEPT / REJECT A CALL
+ACCEPTING A CALL
+ADJUSTING TREAD
+AIR CLEANER
+AIR CLEANER SERVICING
+AIR CLEANER WARNING LAMP
+AIR CLEANING SYSTEM TIP
+AIR CONDITIONER TROUBLESHOOTING
+ALWAYS USE SAFETY LIGHTS AND DEVICES
+APPENDIX
+APPLICATION INFORMATION
+APS SHIFT RANGE AND INITIAL MAIN SHIFT 
+POSITION
+APS SWITCH
+APS(Auto Power Shift) LAMP
+2
+· · · · · · · · · · · · · · · · · · · C - 42
+· · · · · · · · · · · · · · · · · · · · · · C - 34
+· · · · · · · · · · · · · · · · · · · · · · · · · · · C - 13
+· · · · · · · · · · · · · · · · · · · · · · · · · C - 35
+· · · · · · · · · · · · · · · C - 48
+· · · · · · · · · · · · · · · · · D - 10
+· · · · · · · · · · · · · · · · · · · · · A - 6
+· · · · · · · · · · · · · · · · · · F - 12
+</context>
+
+Provide only the final summary below:
