@@ -71,6 +71,26 @@ Example routed outputs:
 - unrelated question -> `off_topic`
 - document question -> `retrieval`
 
+## Sync FAISS vectors into Pinecone
+
+```bash
+python vector_databases/pinecone.py --pinecone-index-name your-index
+```
+
+This reads vectors back from `storage/faiss.index`, aligns them with `storage/metadata.json`, and upserts them into a Pinecone index namespace.
+
+## Run the routed pipeline
+
+```bash
+python pipeline.py --query "What does the DPF warning lamp mean?" --pinecone-index-name your-index
+```
+
+Behavior:
+
+- `greeting` -> returns the greeting node response
+- `off_topic` -> returns the off-topic node response
+- `related` -> queries Pinecone using the BGE-M3 embedding path from `rag/pdf_rag.py`
+
 As of May 30, 2026, this project is configured to use `langchain-huggingface` with `google/gemma-4-26B-A4B-it` and `HF_TOKEN`.
 
 ## Files written
