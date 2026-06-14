@@ -6,10 +6,11 @@ from pathlib import Path
 from typing import Any
 
 from rag.pdf_rag import DEFAULT_MODEL_NAME, PDFRAG
-from routers.prompt_query_router import PromptRouteDecision
+from pipelines.agent_pipeline.routers.prompt_query_router import PromptRouteDecision
 
 
-ENV_FILE_PATH = Path(__file__).resolve().parent.parent / ".env"
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+ENV_FILE_PATH = PROJECT_ROOT / ".env"
 DEFAULT_PINECONE_NAMESPACE = "default"
 ROUTING_MESSAGES = {
     "Greeting query detected. Routing ended without document retrieval.",

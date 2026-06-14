@@ -7,7 +7,8 @@ from pathlib import Path
 from rag.llm import DEFAULT_LLM_MODEL, _load_api_key_from_env_file
 
 
-DEFAULT_ROUTE_PROMPT_PATH = Path("prompts/route_node_prompt.txt")
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_ROUTE_PROMPT_PATH = PROJECT_ROOT / "prompts" / "route_node_prompt.txt"
 DEFAULT_DOCUMENT_SCOPE = (
     "The document is a TYM diesel tractor operator manual. "
     "It covers general tractor construction, safety precautions, instrument controls, "

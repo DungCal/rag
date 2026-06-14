@@ -7,9 +7,10 @@ from pathlib import Path
 from rag.llm import DEFAULT_LLM_MODEL, _load_api_key_from_env_file
 
 
-DEFAULT_GREETING_PROMPT_PATH = Path("prompts/greeting_node_prompt.txt")
-DEFAULT_OFF_TOPIC_PROMPT_PATH = Path("prompts/off_topic_node_prompt.txt")
-DEFAULT_SCOPE_FILE_PATH = Path("results/scope_result_20260606_193507.txt")
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_GREETING_PROMPT_PATH = PROJECT_ROOT / "prompts" / "greeting_node_prompt.txt"
+DEFAULT_OFF_TOPIC_PROMPT_PATH = PROJECT_ROOT / "prompts" / "off_topic_node_prompt.txt"
+DEFAULT_SCOPE_FILE_PATH = PROJECT_ROOT / "results" / "scope_result_20260606_193507.txt"
 
 
 def load_default_scope(scope_file: str | Path = DEFAULT_SCOPE_FILE_PATH) -> str:

@@ -2,19 +2,23 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from rag.llm import DEFAULT_LLM_MODEL
-from rag.pdf_rag import DEFAULT_MODEL_NAME
-from retriever.retriever_node import RetrieverNode
-from routers.greeting_node import GreetingNode
-from routers.off_topic_node import OffTopicNode
-from routers.prompt_query_router import DEFAULT_DOCUMENT_SCOPE, PromptQueryRouter
-from routers.prompt_response_nodes import load_default_scope
+from pipelines.agent_pipeline.routers.greeting_node import GreetingNode
+from pipelines.agent_pipeline.routers.off_topic_node import OffTopicNode
+from pipelines.agent_pipeline.routers.prompt_query_router import DEFAULT_DOCUMENT_SCOPE, PromptQueryRouter
+from pipelines.agent_pipeline.routers.prompt_response_nodes import load_default_scope
 
 
-DEFAULT_SCOPE_FILE = Path("results/scope_result_20260606_193507.txt")
+DEFAULT_SCOPE_FILE = PROJECT_ROOT / "results" / "scope_result_20260606_193507.txt"
 DEFAULT_PINECONE_NAMESPACE = "default"
+DEFAULT_EMBEDDING_MODEL_NAME = "BAAI/bge-m3"
 
 
 def _load_scope(scope: str | None, scope_file: str | None) -> str:
@@ -36,11 +40,15 @@ def _load_scope(scope: str | None, scope_file: str | None) -> str:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run the routed RAG pipeline")
     parser.add_argument("--query", required=True, help="User query to classify")
-    parser.add_argument("--prompt-path", default="prompts/route_node_prompt.txt", help="Path to the router prompt template")
+    parser.add_argument(
+        "--prompt-path",
+        default=str(PROJECT_ROOT / "prompts" / "route_node_prompt.txt"),
+        help="Path to the router prompt template",
+    )
     parser.add_argument("--scope", default=None, help="Document scope text to inject into the router prompt")
     parser.add_argument("--scope-file", default=None, help="Path to a text file containing the document scope")
     parser.add_argument("--model-name", default=DEFAULT_LLM_MODEL, help="Hugging Face model used for routing")
-    parser.add_argument("--embedding-model-name", default=DEFAULT_MODEL_NAME, help="Embedding model used for Pinecone retrieval")
+    parser.add_argument("--embedding-model-name", default=DEFAULT_EMBEDDING_MODEL_NAME, help="Embedding model used for Pinecone retrieval")
     parser.add_argument("--pinecone-index-name", required=False, help="Pinecone index name for retrieval route")
     parser.add_argument("--pinecone-namespace", default=DEFAULT_PINECONE_NAMESPACE, help="Pinecone namespace for retrieval route")
     parser.add_argument("--top-k", type=int, default=5, help="Number of Pinecone matches to return for retrieval route")
@@ -67,6 +75,8 @@ def main() -> None:
     elif decision.route == "off_topic":
         node_result = OffTopicNode(scope=scope, model_name=args.model_name).run(args.query)
     else:
+        from pipelines.agent_pipeline.retriever.retriever_node import RetrieverNode
+
         if not args.pinecone_index_name:
             raise ValueError("--pinecone-index-name is required when the route is retrieval")
         retriever = RetrieverNode(

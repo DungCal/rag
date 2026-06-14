@@ -9,6 +9,7 @@ from typing import Any
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PIPELINE_ENTRYPOINT = PROJECT_ROOT / "pipelines" / "agent_pipeline" / "pipeline.py"
 DEFAULT_PROMPT_PATH = PROJECT_ROOT / "prompts" / "route_node_prompt.txt"
 
 
@@ -34,7 +35,7 @@ def build_parser() -> argparse.ArgumentParser:
 def build_pipeline_command(args: argparse.Namespace) -> list[str]:
     command = [
         sys.executable,
-        str(PROJECT_ROOT / "pipeline.py"),
+        str(PIPELINE_ENTRYPOINT),
         "--query",
         args.query,
         "--prompt-path",
@@ -95,7 +96,7 @@ def main() -> None:
             pipeline_payload = json.loads(completed.stdout)
         except json.JSONDecodeError as exc:
             payload["passed"] = False
-            payload["failures"] = [f"pipeline.py returned non-JSON stdout: {exc}"]
+            payload["failures"] = [f"pipeline entrypoint returned non-JSON stdout: {exc}"]
         else:
             passed, failures = evaluate_result(pipeline_payload, args)
             payload["passed"] = passed
@@ -103,7 +104,7 @@ def main() -> None:
             payload["pipeline_result"] = pipeline_payload
     else:
         payload["passed"] = False
-        payload["failures"] = [f"pipeline.py exited with return code {completed.returncode}"]
+        payload["failures"] = [f"pipeline entrypoint exited with return code {completed.returncode}"]
 
     if args.as_json:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
