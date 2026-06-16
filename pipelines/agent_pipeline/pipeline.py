@@ -4,6 +4,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
@@ -12,7 +13,10 @@ if str(PROJECT_ROOT) not in sys.path:
 from rag.llm import DEFAULT_LLM_MODEL
 from pipelines.agent_pipeline.routers.greeting_node import GreetingNode
 from pipelines.agent_pipeline.routers.off_topic_node import OffTopicNode
-from pipelines.agent_pipeline.routers.prompt_query_router import DEFAULT_DOCUMENT_SCOPE, PromptQueryRouter
+from pipelines.agent_pipeline.routers.prompt_query_router import (
+    DEFAULT_DOCUMENT_SCOPE,
+    PromptQueryRouter,
+)
 from pipelines.agent_pipeline.routers.prompt_response_nodes import load_default_scope
 
 
@@ -37,6 +41,126 @@ def _load_scope(scope: str | None, scope_file: str | None) -> str:
     return DEFAULT_DOCUMENT_SCOPE
 
 
+class RoutedRAGPipeline:
+    def __init__(
+        self,
+        *,
+        prompt_path: str,
+        scope: str,
+        model_name: str,
+        embedding_model_name: str,
+        pinecone_index_name: str | None,
+        pinecone_namespace: str,
+        top_k: int,
+        use_fp16: bool,
+    ) -> None:
+        try:
+            from langchain_core.runnables import RunnableBranch, RunnableLambda
+        except ImportError as exc:
+            raise ImportError(
+                "langchain-core is required for the LangChain pipeline orchestration. "
+                "Install dependencies with `pip install -r requirements.txt`."
+            ) from exc
+
+        self.prompt_path = prompt_path
+        self.scope = scope
+        self.model_name = model_name
+        self.embedding_model_name = embedding_model_name
+        self.pinecone_index_name = pinecone_index_name
+        self.pinecone_namespace = pinecone_namespace
+        self.top_k = top_k
+        self.use_fp16 = use_fp16
+
+        self._router = PromptQueryRouter(
+            prompt_path=self.prompt_path,
+            scope=self.scope,
+            model_name=self.model_name,
+        )
+        self._greeting_node = GreetingNode(scope=self.scope, model_name=self.model_name)
+        self._off_topic_node = OffTopicNode(scope=self.scope, model_name=self.model_name)
+        self._retriever = None
+
+        self._chain = (
+            RunnableLambda(self._build_state)
+            | RunnableBranch(
+                (lambda state: state["decision"].route == "greeting", RunnableLambda(self._run_greeting)),
+                (lambda state: state["decision"].route == "off_topic", RunnableLambda(self._run_off_topic)),
+                RunnableLambda(self._run_retrieval),
+            )
+            | RunnableLambda(self._build_payload)
+        )
+
+    def invoke(self, query: str, *, include_prompt: bool = False) -> dict[str, Any]:
+        return self._chain.invoke({
+            "query": query,
+            "include_prompt": include_prompt,
+        })
+
+    def _build_state(self, inputs: dict[str, Any]) -> dict[str, Any]:
+        query = str(inputs["query"]).strip()
+        if not query:
+            raise ValueError("User query must not be empty")
+
+        decision = self._router.route(query)
+        return {
+            "query": query,
+            "include_prompt": bool(inputs.get("include_prompt", False)),
+            "decision": decision,
+            "node_result": None,
+            "retriever_result": None,
+        }
+
+    def _run_greeting(self, state: dict[str, Any]) -> dict[str, Any]:
+        state["node_result"] = self._greeting_node.run(state["query"])
+        return state
+
+    def _run_off_topic(self, state: dict[str, Any]) -> dict[str, Any]:
+        state["node_result"] = self._off_topic_node.run(state["query"])
+        return state
+
+    def _run_retrieval(self, state: dict[str, Any]) -> dict[str, Any]:
+        if not self.pinecone_index_name:
+            raise ValueError("--pinecone-index-name is required when the route is retrieval")
+
+        if self._retriever is None:
+            from pipelines.agent_pipeline.retriever.retriever_node import RetrieverNode
+
+            self._retriever = RetrieverNode(
+                index_name=self.pinecone_index_name,
+                namespace=self.pinecone_namespace,
+                model_name=self.embedding_model_name,
+                top_k=self.top_k,
+                use_fp16=self.use_fp16,
+            )
+
+        state["retriever_result"] = self._retriever.run(state["decision"], state["query"])
+        return state
+
+    @staticmethod
+    def _build_payload(state: dict[str, Any]) -> dict[str, Any]:
+        decision = state["decision"]
+        node_result = state["node_result"]
+        retriever_result = state["retriever_result"]
+
+        payload: dict[str, Any] = {
+            "route": decision.route,
+            "label": decision.label,
+            "message": decision.message,
+            "raw_output": decision.raw_output,
+        }
+        if node_result is not None:
+            payload["response"] = node_result.response
+            payload["node_raw_output"] = node_result.raw_output
+        if retriever_result is not None:
+            payload["retrieval_query"] = retriever_result.query
+            payload["results"] = retriever_result.results
+        if state["include_prompt"]:
+            payload["prompt"] = decision.prompt
+            if node_result is not None:
+                payload["node_prompt"] = node_result.prompt
+        return payload
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run the routed RAG pipeline")
     parser.add_argument("--query", required=True, help="User query to classify")
@@ -48,9 +172,17 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--scope", default=None, help="Document scope text to inject into the router prompt")
     parser.add_argument("--scope-file", default=None, help="Path to a text file containing the document scope")
     parser.add_argument("--model-name", default=DEFAULT_LLM_MODEL, help="Hugging Face model used for routing")
-    parser.add_argument("--embedding-model-name", default=DEFAULT_EMBEDDING_MODEL_NAME, help="Embedding model used for Pinecone retrieval")
+    parser.add_argument(
+        "--embedding-model-name",
+        default=DEFAULT_EMBEDDING_MODEL_NAME,
+        help="Embedding model used for Pinecone retrieval",
+    )
     parser.add_argument("--pinecone-index-name", required=False, help="Pinecone index name for retrieval route")
-    parser.add_argument("--pinecone-namespace", default=DEFAULT_PINECONE_NAMESPACE, help="Pinecone namespace for retrieval route")
+    parser.add_argument(
+        "--pinecone-namespace",
+        default=DEFAULT_PINECONE_NAMESPACE,
+        help="Pinecone namespace for retrieval route",
+    )
     parser.add_argument("--top-k", type=int, default=5, help="Number of Pinecone matches to return for retrieval route")
     parser.add_argument("--use-fp16", action="store_true", help="Use fp16 for the embedding model when supported")
     parser.add_argument("--as-json", action="store_true", help="Print the pipeline result as JSON")
@@ -61,74 +193,42 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = build_parser().parse_args()
     scope = _load_scope(args.scope, args.scope_file)
-    router = PromptQueryRouter(
+    pipeline = RoutedRAGPipeline(
         prompt_path=args.prompt_path,
         scope=scope,
         model_name=args.model_name,
+        embedding_model_name=args.embedding_model_name,
+        pinecone_index_name=args.pinecone_index_name,
+        pinecone_namespace=args.pinecone_namespace,
+        top_k=args.top_k,
+        use_fp16=args.use_fp16,
     )
-    decision = router.route(args.query)
-    node_result = None
-    retriever_result = None
-
-    if decision.route == "greeting":
-        node_result = GreetingNode(scope=scope, model_name=args.model_name).run(args.query)
-    elif decision.route == "off_topic":
-        node_result = OffTopicNode(scope=scope, model_name=args.model_name).run(args.query)
-    else:
-        from pipelines.agent_pipeline.retriever.retriever_node import RetrieverNode
-
-        if not args.pinecone_index_name:
-            raise ValueError("--pinecone-index-name is required when the route is retrieval")
-        retriever = RetrieverNode(
-            index_name=args.pinecone_index_name,
-            namespace=args.pinecone_namespace,
-            model_name=args.embedding_model_name,
-            top_k=args.top_k,
-            use_fp16=args.use_fp16,
-        )
-        retriever_result = retriever.run(decision, args.query)
-
-    payload = {
-        "route": decision.route,
-        "label": decision.label,
-        "message": decision.message,
-        "raw_output": decision.raw_output,
-    }
-    if node_result is not None:
-        payload["response"] = node_result.response
-        payload["node_raw_output"] = node_result.raw_output
-    if retriever_result is not None:
-        payload["retrieval_query"] = retriever_result.query
-        payload["results"] = retriever_result.results
-    if args.print_prompt:
-        payload["prompt"] = decision.prompt
-        if node_result is not None:
-            payload["node_prompt"] = node_result.prompt
+    payload = pipeline.invoke(args.query, include_prompt=args.print_prompt)
 
     if args.as_json:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return
 
-    print(f"route={decision.route}")
-    print(f"label={decision.label}")
-    print(f"raw_output={decision.raw_output}")
-    print(decision.message)
-    if node_result is not None:
+    print(f"route={payload['route']}")
+    print(f"label={payload['label']}")
+    print(f"raw_output={payload['raw_output']}")
+    print(payload["message"])
+    if "response" in payload:
         print("-" * 80)
-        print(node_result.response)
-    if retriever_result is not None:
+        print(payload["response"])
+    if "results" in payload:
         print("-" * 80)
-        print(f"retrieval_query={retriever_result.query}")
-        for item in retriever_result.results:
+        print(f"retrieval_query={payload['retrieval_query']}")
+        for item in payload["results"]:
             print(f"score={item['score']:.4f} page={item.get('page_number')} chunk={item.get('chunk_id')}")
             print(item.get("text", ""))
             print("-" * 80)
     if args.print_prompt:
         print("-" * 80)
-        print(decision.prompt)
-        if node_result is not None:
+        print(payload["prompt"])
+        if "node_prompt" in payload:
             print("-" * 80)
-            print(node_result.prompt)
+            print(payload["node_prompt"])
 
 
 if __name__ == "__main__":
