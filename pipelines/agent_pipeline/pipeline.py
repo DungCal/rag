@@ -18,6 +18,7 @@ from pipelines.agent_pipeline.routers.prompt_query_router import (
     PromptQueryRouter,
 )
 from pipelines.agent_pipeline.routers.prompt_response_nodes import load_default_scope
+from pipelines.agent_pipeline.rerank import DEFAULT_RERANKER_MODEL_NAME
 
 
 DEFAULT_SCOPE_FILE = PROJECT_ROOT / "results" / "scope_result_20260606_193507.txt"
@@ -53,6 +54,13 @@ class RoutedRAGPipeline:
         pinecone_namespace: str,
         top_k: int,
         use_fp16: bool,
+        enable_rerank: bool,
+        reranker_model_name: str,
+        reranker_batch_size: int,
+        reranker_max_length: int,
+        reranker_instruction: str | None,
+        reranker_use_fp16: bool,
+        reranker_apply_sigmoid: bool,
     ) -> None:
         try:
             from langchain_core.runnables import RunnableBranch, RunnableLambda
@@ -70,6 +78,13 @@ class RoutedRAGPipeline:
         self.pinecone_namespace = pinecone_namespace
         self.top_k = top_k
         self.use_fp16 = use_fp16
+        self.enable_rerank = enable_rerank
+        self.reranker_model_name = reranker_model_name
+        self.reranker_batch_size = reranker_batch_size
+        self.reranker_max_length = reranker_max_length
+        self.reranker_instruction = reranker_instruction
+        self.reranker_use_fp16 = reranker_use_fp16
+        self.reranker_apply_sigmoid = reranker_apply_sigmoid
 
         self._router = PromptQueryRouter(
             prompt_path=self.prompt_path,
@@ -79,6 +94,8 @@ class RoutedRAGPipeline:
         self._greeting_node = GreetingNode(scope=self.scope, model_name=self.model_name)
         self._off_topic_node = OffTopicNode(scope=self.scope, model_name=self.model_name)
         self._retriever = None
+        self._reranker = None
+        self._retriever_judge = None
 
         self._chain = (
             RunnableLambda(self._build_state)
@@ -108,6 +125,8 @@ class RoutedRAGPipeline:
             "decision": decision,
             "node_result": None,
             "retriever_result": None,
+            "rerank_result": None,
+            "judge_result": None,
         }
 
     def _run_greeting(self, state: dict[str, Any]) -> dict[str, Any]:
@@ -134,6 +153,32 @@ class RoutedRAGPipeline:
             )
 
         state["retriever_result"] = self._retriever.run(state["decision"], state["query"])
+        if self.enable_rerank and state["retriever_result"] is not None:
+            if self._reranker is None:
+                from pipelines.agent_pipeline.rerank.rerank_node import RerankNode
+
+                self._reranker = RerankNode(
+                    model_name=self.reranker_model_name,
+                    batch_size=self.reranker_batch_size,
+                    max_length=self.reranker_max_length,
+                    instruction=self.reranker_instruction,
+                    use_fp16=self.reranker_use_fp16,
+                    apply_sigmoid=self.reranker_apply_sigmoid,
+                )
+            if self._retriever_judge is None:
+                from pipelines.agent_pipeline.retriever_judge.retriever_judge_node import RetrieverJudgeNode
+
+                self._retriever_judge = RetrieverJudgeNode(top_k=self.top_k)
+
+            state["rerank_result"] = self._reranker.run(
+                state["retriever_result"].query,
+                state["retriever_result"].results,
+            )
+            state["judge_result"] = self._retriever_judge.run(
+                query=state["retriever_result"].query,
+                retriever_results=state["retriever_result"].results,
+                rerank_results=state["rerank_result"].results,
+            )
         return state
 
     @staticmethod
@@ -141,6 +186,8 @@ class RoutedRAGPipeline:
         decision = state["decision"]
         node_result = state["node_result"]
         retriever_result = state["retriever_result"]
+        rerank_result = state["rerank_result"]
+        judge_result = state["judge_result"]
 
         payload: dict[str, Any] = {
             "route": decision.route,
@@ -153,7 +200,15 @@ class RoutedRAGPipeline:
             payload["node_raw_output"] = node_result.raw_output
         if retriever_result is not None:
             payload["retrieval_query"] = retriever_result.query
+            payload["retriever_results"] = retriever_result.results
             payload["results"] = retriever_result.results
+        if rerank_result is not None:
+            payload["reranking_enabled"] = True
+            payload["rerank_results"] = rerank_result.results
+        if judge_result is not None:
+            payload["judge_results"] = judge_result.results
+            payload["judge_comparisons"] = judge_result.pairwise_comparisons
+            payload["results"] = judge_result.results
         if state["include_prompt"]:
             payload["prompt"] = decision.prompt
             if node_result is not None:
@@ -185,6 +240,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--top-k", type=int, default=5, help="Number of Pinecone matches to return for retrieval route")
     parser.add_argument("--use-fp16", action="store_true", help="Use fp16 for the embedding model when supported")
+    parser.add_argument("--enable-rerank", action="store_true", help="Rerank Pinecone matches with Qwen")
+    parser.add_argument(
+        "--reranker-model-name",
+        default=DEFAULT_RERANKER_MODEL_NAME,
+        help="Qwen reranker model used after Pinecone retrieval",
+    )
+    parser.add_argument("--reranker-batch-size", type=int, default=8, help="Batch size for reranking")
+    parser.add_argument("--reranker-max-length", type=int, default=4096, help="Max sequence length for reranking")
+    parser.add_argument("--reranker-instruction", default=None, help="Optional custom instruction for the reranker")
+    parser.add_argument("--reranker-fp16", action="store_true", help="Use fp16 for the reranker when supported")
+    parser.add_argument("--reranker-sigmoid", action="store_true", help="Convert reranker scores to 0-1 probabilities")
     parser.add_argument("--as-json", action="store_true", help="Print the pipeline result as JSON")
     parser.add_argument("--print-prompt", action="store_true", help="Include the rendered prompt in the output")
     return parser
@@ -202,6 +268,13 @@ def main() -> None:
         pinecone_namespace=args.pinecone_namespace,
         top_k=args.top_k,
         use_fp16=args.use_fp16,
+        enable_rerank=args.enable_rerank,
+        reranker_model_name=args.reranker_model_name,
+        reranker_batch_size=args.reranker_batch_size,
+        reranker_max_length=args.reranker_max_length,
+        reranker_instruction=args.reranker_instruction,
+        reranker_use_fp16=args.reranker_fp16,
+        reranker_apply_sigmoid=args.reranker_sigmoid,
     )
     payload = pipeline.invoke(args.query, include_prompt=args.print_prompt)
 
@@ -219,10 +292,49 @@ def main() -> None:
     if "results" in payload:
         print("-" * 80)
         print(f"retrieval_query={payload['retrieval_query']}")
-        for item in payload["results"]:
-            print(f"score={item['score']:.4f} page={item.get('page_number')} chunk={item.get('chunk_id')}")
-            print(item.get("text", ""))
+        if payload.get("reranking_enabled"):
+            print("retriever_results")
             print("-" * 80)
+            for item in payload.get("retriever_results", []):
+                print(f"score={item['score']:.4f} page={item.get('page_number')} chunk={item.get('chunk_id')}")
+                print(item.get("text", ""))
+                print("-" * 80)
+            print("rerank_results")
+            print("-" * 80)
+            for item in payload.get("rerank_results", []):
+                print(
+                    "retrieval_score={retrieval_score:.4f} rerank_score={rerank_score:.4f} "
+                    "retrieval_rank={retrieval_rank} rerank_rank={rerank_rank} "
+                    "page={page} chunk={chunk}".format(
+                        retrieval_score=item.get("retrieval_score", item.get("score", 0.0)),
+                        rerank_score=item.get("rerank_score", 0.0),
+                        retrieval_rank=item.get("retrieval_rank"),
+                        rerank_rank=item.get("rerank_rank"),
+                        page=item.get("page_number"),
+                        chunk=item.get("chunk_id"),
+                    )
+                )
+                print(item.get("text", ""))
+                print("-" * 80)
+            print("judge_results")
+            print("-" * 80)
+            for item in payload.get("judge_results", []):
+                print(
+                    "source={source} relevant_score={relevant_score:.4f} "
+                    "page={page} chunk={chunk}".format(
+                        source=item.get("source"),
+                        relevant_score=item.get("relevant_score", 0.0),
+                        page=item.get("page_number"),
+                        chunk=item.get("chunk_id"),
+                    )
+                )
+                print(item.get("text", ""))
+                print("-" * 80)
+        else:
+            for item in payload["results"]:
+                print(f"score={item['score']:.4f} page={item.get('page_number')} chunk={item.get('chunk_id')}")
+                print(item.get("text", ""))
+                print("-" * 80)
     if args.print_prompt:
         print("-" * 80)
         print(payload["prompt"])

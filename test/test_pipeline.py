@@ -27,6 +27,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--pinecone-namespace", default=None, help="Pinecone namespace for retrieval route")
     parser.add_argument("--top-k", type=int, default=None, help="Number of Pinecone matches to return for retrieval route")
     parser.add_argument("--use-fp16", action="store_true", help="Use fp16 for the embedding model when supported")
+    parser.add_argument("--enable-rerank", action="store_true", help="Rerank Pinecone matches with Qwen")
+    parser.add_argument("--reranker-model-name", default=None, help="Qwen reranker model used after Pinecone retrieval")
+    parser.add_argument("--reranker-batch-size", type=int, default=None, help="Batch size for reranking")
+    parser.add_argument("--reranker-max-length", type=int, default=None, help="Max sequence length for reranking")
+    parser.add_argument("--reranker-instruction", default=None, help="Optional custom instruction for the reranker")
+    parser.add_argument("--reranker-fp16", action="store_true", help="Use fp16 for the reranker when supported")
+    parser.add_argument("--reranker-sigmoid", action="store_true", help="Convert reranker scores to 0-1 probabilities")
     parser.add_argument("--print-prompt", action="store_true", help="Request prompt output from pipeline.py")
     parser.add_argument("--as-json", action="store_true", help="Print the test result as JSON")
     return parser
@@ -58,6 +65,20 @@ def build_pipeline_command(args: argparse.Namespace) -> list[str]:
         command.extend(["--top-k", str(args.top_k)])
     if args.use_fp16:
         command.append("--use-fp16")
+    if args.enable_rerank:
+        command.append("--enable-rerank")
+    if args.reranker_model_name is not None:
+        command.extend(["--reranker-model-name", args.reranker_model_name])
+    if args.reranker_batch_size is not None:
+        command.extend(["--reranker-batch-size", str(args.reranker_batch_size)])
+    if args.reranker_max_length is not None:
+        command.extend(["--reranker-max-length", str(args.reranker_max_length)])
+    if args.reranker_instruction is not None:
+        command.extend(["--reranker-instruction", args.reranker_instruction])
+    if args.reranker_fp16:
+        command.append("--reranker-fp16")
+    if args.reranker_sigmoid:
+        command.append("--reranker-sigmoid")
     if args.print_prompt:
         command.append("--print-prompt")
     return command

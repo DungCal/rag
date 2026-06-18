@@ -82,7 +82,7 @@ This reads vectors back from `storage/faiss.index`, aligns them with `storage/me
 ## Run the routed pipeline
 
 ```bash
-python pipeline.py --query "What does the DPF warning lamp mean?" --pinecone-index-name your-index
+python pipelines/agent_pipeline/pipeline.py --query "What does the DPF warning lamp mean?" --pinecone-index-name your-index
 ```
 
 Behavior:
@@ -90,6 +90,31 @@ Behavior:
 - `greeting` -> returns the greeting node response
 - `off_topic` -> returns the off-topic node response
 - `related` -> queries Pinecone using the BGE-M3 embedding path from `rag/pdf_rag.py`
+
+Optional reranking with Qwen 0.6B:
+
+```bash
+python pipelines/agent_pipeline/pipeline.py \
+  --query "What does the DPF warning lamp mean?" \
+  --pinecone-index-name your-index \
+  --enable-rerank
+```
+
+This keeps the original Pinecone retrieval score and adds:
+
+- `retrieval_score`
+- `rerank_score`
+- `retrieval_rank`
+- `rerank_rank`
+- `rank_shift`
+
+To compare the retriever node directly against the Qwen reranker:
+
+```bash
+python rerank/evaluate_retriever_node.py \
+  --query "What does the DPF warning lamp mean?" \
+  --pinecone-index-name your-index
+```
 
 As of May 30, 2026, this project is configured to use `langchain-huggingface` with `google/gemma-4-26B-A4B-it` and `HF_TOKEN`.
 
