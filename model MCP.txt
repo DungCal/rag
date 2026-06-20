@@ -1,0 +1,67 @@
+model MCP
+
+MCP là công cụ để người dung có thể kết hợp thêm tool vào với chatbot, giả sử lấy được dữ lieu người dung từ db
+Agent chìa ra các 
+cho phep llm dua ra quyet dinh => agent rag 
+
+key pinecone: pcsk_FH7Zh_BPnLBBeB5VgcG1iT1cL2P3XoVXhunJ9W7fMdhPs1zdgwZAKHHuMTBqe5jRomTtF
+
+agent rag se tot khi co nhieu Nguon du lieu, du lieu nhieu phong ban, duoc quyen quyet dinh xu ly du lieu dau vao nhu the nao, 
+thiet ke he thong on/off cho agent rag
+
+can phai có mcp client -> cánh tay dong vai tro su dung Quoc va xeng
+luong xu ly theo step khong con chinhs xác nữa, chuyển doi thanh code theo format mcp client 
+
+
+viet multiservermcpclient, viet tool, tool dung de cho con client 
+
+
+team it: AI noi chuyen voi software engineer de giao tiep , biet co' che/ va tool de chay co che
+cac kieu deploy: docker, build image, run container; deploy function: chay file script;
+biet cac dang. infra: server va serverless
+server: can nam thong tin ve tai nguyen, cpu chay bao nhieu, co can gpu khong, ...
+serverless: 	
+
+
+guardrail: check input ng dùng, check output của output generation
+
+nội dung chặn: nội dung độc hại , người lớn
+trường response: is-safe, category (sexual/harassment, ), reason
+chặn pii: credit id, cccd, phone, cmnd, key, thông tin cá nhân'
+
+input của ng dùng đưa vào nếu có guardrail => lỗi của ng dùng, mình mà output ra => lỗi của mình 
+cách để xử lý pii: dùng regex bắt pii, sau đó dùng mask che đi, để llm không đọc được => input vào llm => judge output => output
+
+evaluation pipeline: 
+cách xây dựng bộ dữ liệu: từ 1 chunk, gen ra câu hỏi, từ câu hỏi + chunk = > gen ra câu trả lời, coi như nó là đúng, sử dụng thư viện ragas để tạo dataset, ragas có chúc năng tổng hợp lại các chunk thành các đồ thị, các chunk có nội dung tương tự nhau thì làm thành 1 node, dưới các node có các chunk tương tự nối với nhau =>giảm được số lượng chunk trong dataset ...
+
+giới hạn agent trong 1 phiên chỉ được sửu dụng dữ liệu của 1 người nào đó confirm với session chat đó
+
+docstring: dinh nghia cua mcp server: dinh
+
+tool chứa cấu trúc, dữ lieu bán cấu trúc: websearch, query sql => tool dang chu y moi nguoi c the su dung
+retry, retry nếu không ra kết quả tốt thì them web search, show cho người dùng biết dang sử dụng kết quả trên web search 
+add toogle duoc quyen su dung web search
+
+
+3 output llm lấy o buoc memory_node: session id , user input, cau tra loi cua llm, citation do llm quyet dinh 
+
+1k vector -> hybrid search -> 100 vector -> rerank -> 10 vector ->llm judge -> 3 vector
+có thể làm hệ thống de danh gia xem rerank output có cùng hệ quy chiếu với llm o bước cuối hay không
+
+
+multi term conversation: 
+deterministic 
+
+metric khác llm as a judge, metric cchỉ có 
+=> giả vờ tính metric = llm as a judge, nhung thực tế khác nhau 
+
+
+lesson learned:
+- xử lý dữ lieu that là tốt
+- confirm luồng chat có đang di dung voi ban ve chúng ta đang vẽ hay không
+- pipeline sinh dữ lieu + pipeline evaluation 
+- lật ngược lại van de, xem lại luồng chat, test từng luồng 1, 
+- mindset làm machine learning: thứ ta thấy có phải thực sự mô hình 
+- điều tệ là mô hình hoạt dong kém nhưng không biết mô hình hoạt động kém, tính khách quan trên quá trình danh gia phải duoc dam bao, không được thiên vị
+- 
