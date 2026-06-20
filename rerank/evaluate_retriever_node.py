@@ -9,25 +9,28 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from pipelines.agent_pipeline.rerank.rerank_node import RerankNode
+from pipelines.agent_pipeline.rerank.rerank_node import (
+    DEFAULT_RERANK_INPUT_TOP_K,
+    DEFAULT_RERANK_OUTPUT_TOP_K,
+    RerankNode,
+)
 from pipelines.agent_pipeline.retriever.retriever_node import RetrieverNode
-from pipelines.agent_pipeline.retriever_judge.retriever_judge_node import RetrieverJudgeNode
 from pipelines.agent_pipeline.routers.prompt_query_router import PromptRouteDecision
-from rerank.qwen_reranker import DEFAULT_RERANKER_MODEL_NAME
+from rerank.hf_reranker import DEFAULT_RERANKER_MODEL_NAME
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Compare Pinecone retriever scores with Qwen reranker scores")
+    parser = argparse.ArgumentParser(description="Compare Pinecone retriever scores with Hugging Face reranker scores")
     parser.add_argument("--query", required=True, help="User query to send into the retriever node")
     parser.add_argument("--pinecone-index-name", required=True, help="Pinecone index name for retrieval")
     parser.add_argument("--pinecone-namespace", default="default", help="Pinecone namespace for retrieval")
     parser.add_argument("--embedding-model-name", default="BAAI/bge-m3", help="Embedding model for retriever queries")
-    parser.add_argument("--top-k", type=int, default=5, help="Number of Pinecone matches to compare")
-    parser.add_argument("--reranker-model-name", default=DEFAULT_RERANKER_MODEL_NAME, help="Qwen reranker model name")
+    parser.add_argument("--top-k", type=int, default=DEFAULT_RERANK_OUTPUT_TOP_K, help="Final number of reranked results to return")
+    parser.add_argument("--reranker-model-name", default=DEFAULT_RERANKER_MODEL_NAME, help="Hugging Face reranker model name")
     parser.add_argument("--reranker-batch-size", type=int, default=8, help="Batch size for reranking")
     parser.add_argument("--reranker-max-length", type=int, default=4096, help="Max token length for reranking")
-    parser.add_argument("--reranker-instruction", default=None, help="Optional custom instruction for Qwen reranking")
-    parser.add_argument("--reranker-fp16", action="store_true", help="Use fp16 for the reranker when supported")
+    parser.add_argument("--reranker-instruction", default=None, help="Reserved reranker option kept for CLI compatibility")
+    parser.add_argument("--reranker-fp16", action="store_true", help="Reserved reranker option kept for CLI compatibility")
     parser.add_argument("--reranker-sigmoid", action="store_true", help="Convert reranker scores to 0-1 probabilities")
     parser.add_argument("--use-fp16", action="store_true", help="Use fp16 for the embedding model when supported")
     parser.add_argument("--as-json", action="store_true", help="Print the comparison payload as JSON")
@@ -40,7 +43,7 @@ def main() -> None:
         index_name=args.pinecone_index_name,
         namespace=args.pinecone_namespace,
         model_name=args.embedding_model_name,
-        top_k=args.top_k,
+        top_k=DEFAULT_RERANK_INPUT_TOP_K,
         use_fp16=args.use_fp16,
     )
     reranker = RerankNode(
@@ -50,8 +53,9 @@ def main() -> None:
         instruction=args.reranker_instruction,
         use_fp16=args.reranker_fp16,
         apply_sigmoid=args.reranker_sigmoid,
+        input_top_k=DEFAULT_RERANK_INPUT_TOP_K,
+        output_top_k=args.top_k,
     )
-    judge = RetrieverJudgeNode(top_k=args.top_k)
     decision = PromptRouteDecision(
         route="retrieval",
         label="related",
@@ -63,20 +67,15 @@ def main() -> None:
     if result is None:
         raise RuntimeError("Retriever node returned no results")
     rerank_result = reranker.run(result.query, result.results)
-    judge_result = judge.run(
-        query=result.query,
-        retriever_results=result.results,
-        rerank_results=rerank_result.results,
-    )
 
     payload = {
         "route": result.route,
         "query": result.query,
         "reranking_enabled": True,
         "retriever_results": result.results,
+        "rerank_input_results": rerank_result.input_results,
         "rerank_results": rerank_result.results,
-        "judge_comparisons": judge_result.pairwise_comparisons,
-        "results": judge_result.results,
+        "results": rerank_result.results,
     }
 
     if args.as_json:
@@ -110,19 +109,6 @@ def main() -> None:
                 rerank_rank=item.get("rerank_rank"),
                 retrieval_score=item.get("retrieval_score", item.get("score", 0.0)),
                 rerank_score=item.get("rerank_score", 0.0),
-                page=item.get("page_number"),
-                chunk=item.get("chunk_id"),
-            )
-        )
-        print(item.get("text", ""))
-        print("-" * 80)
-    print("judge_results")
-    print("-" * 80)
-    for item in payload["results"]:
-        print(
-            "source={source} relevant_score={relevant_score:.4f} page={page} chunk={chunk}".format(
-                source=item.get("source"),
-                relevant_score=item.get("relevant_score", 0.0),
                 page=item.get("page_number"),
                 chunk=item.get("chunk_id"),
             )

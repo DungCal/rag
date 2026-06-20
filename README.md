@@ -99,7 +99,7 @@ Example routed outputs:
 ## Sync FAISS vectors into Pinecone
 
 ```bash
-python vector_databases/pinecone.py --pinecone-index-name your-index
+python vector_databases/pinecone_sync.py --pinecone-index-name your-index
 ```
 
 This reads vectors back from `storage/faiss.index`, aligns them with `storage/metadata.json`, and upserts them into a Pinecone index namespace.
@@ -116,7 +116,7 @@ Behavior:
 - `off_topic` -> returns the off-topic node response
 - `related` -> queries Pinecone using the BGE-M3 embedding path from `pipelines/indexing_pipeline/pdf_rag.py`
 
-Optional reranking with Qwen 0.6B:
+Optional reranking with Hugging Face Hub `BAAI/bge-reranker-v2-m3`:
 
 ```bash
 python pipelines/agent_pipeline/pipeline.py \
@@ -133,7 +133,7 @@ This keeps the original Pinecone retrieval score and adds:
 - `rerank_rank`
 - `rank_shift`
 
-To compare the retriever node directly against the Qwen reranker:
+To compare the retriever node directly against the Hugging Face reranker:
 
 ```bash
 python rerank/evaluate_retriever_node.py \

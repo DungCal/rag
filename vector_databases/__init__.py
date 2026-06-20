@@ -1,3 +1,3 @@
-from .pinecone import sync_faiss_to_pinecone
+from .pinecone_sync import sync_faiss_to_pinecone
 
 __all__ = ["sync_faiss_to_pinecone"]

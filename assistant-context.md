@@ -75,12 +75,12 @@ Behavior:
 
 ### 4. Sync FAISS vectors into Pinecone
 
-Entry point: `vector_databases/pinecone.py`
+Entry point: `vector_databases/pinecone_sync.py`
 
 Command shape:
 
 ```bash
-python vector_databases/pinecone.py --pinecone-index-name your-index
+python vector_databases/pinecone_sync.py --pinecone-index-name your-index
 ```
 
 Behavior:
@@ -142,7 +142,7 @@ Behavior:
 - `pipelines/agent_pipeline/routers/prompt_response_nodes.py`: greeting and off-topic node response generation.
 - `pipelines/agent_pipeline/pipeline.py`: CLI wrapper around prompt-based routing plus Pinecone retrieval.
 - `pipelines/indexing_pipeline/scope.py`: scope-summary generation from sampled chunk metadata.
-- `vector_databases/pinecone.py`: FAISS-to-Pinecone sync script.
+- `vector_databases/pinecone_sync.py`: FAISS-to-Pinecone sync script.
 - `app/app.py`: Streamlit inspection app for metadata and embeddings.
 - `test/test_pipeline.py`: manual CLI-style pipeline test harness that executes `pipeline.py`, not a real unit test suite.
 
@@ -184,7 +184,7 @@ Relevant code:
 - `retriever/retriever_node.py`
 - `routers/prompt_query_router.py`
 - `routers/prompt_response_nodes.py`
-- `vector_databases/pinecone.py`
+- `vector_databases/pinecone_sync.py`
 
 If LLM-backed commands fail, verify `HF_TOKEN`.
 If Pinecone-backed commands fail, verify `PINECONE_API_KEY`.
@@ -231,13 +231,13 @@ Treat these as generated outputs unless the task is specifically about inspectin
 - Preserve the separation between:
   - embedding-based routing in `pipelines/indexing_pipeline/query_router.py`
   - prompt-based routing in `pipelines/agent_pipeline/routers/prompt_query_router.py`
-- Keep the Pinecone retrieval path isolated in `retriever/retriever_node.py` and the ingestion path isolated in `vector_databases/pinecone.py`.
+- Keep the Pinecone retrieval path isolated in `retriever/retriever_node.py` and the ingestion path isolated in `vector_databases/pinecone_sync.py`.
 - If changing chunking, embedding, or metadata shape, verify all downstream readers:
   - `pipelines/indexing_pipeline/index_store.py`
   - `pipelines/agent_pipeline/retriever/retriever_node.py`
   - `pipelines/indexing_pipeline/scope.py`
   - `app/app.py`
-  - `vector_databases/pinecone.py`
+  - `vector_databases/pinecone_sync.py`
 - If changing prompt files, verify the corresponding router/node code still formats them correctly.
 - If changing defaults for scope handling, update both:
   - `pipeline.py`
@@ -260,7 +260,7 @@ python -m compileall pipelines/indexing_pipeline pipelines/agent_pipeline vector
 python -m pipelines.indexing_pipeline.indexing --help
 python pipeline.py --help
 python -m pipelines.indexing_pipeline.scope --help
-python vector_databases/pinecone.py --help
+python vector_databases/pinecone_sync.py --help
 ```
 
 - If indexing or retrieval changed:
@@ -316,7 +316,7 @@ Any special context, assumptions, or risks.
 ## Current Task Intake
 
 ### Task
-Create `vector_databases/pinecone.py` to reload vectors and metadata from FAISS and upsert them into Pinecone. Create `pipelines/agent_pipeline/retriever/retriever_node.py` so the routed pipeline passes `greeting` and `off_topic` decisions through, but sends `related` decisions into Pinecone retrieval using the embedding model from `pipelines/indexing_pipeline/pdf_rag.py`. Rename `route_node_pipeline.py` to `pipeline.py` and update the pipeline entrypoint accordingly.
+Create `vector_databases/pinecone_sync.py` to reload vectors and metadata from FAISS and upsert them into Pinecone. Create `pipelines/agent_pipeline/retriever/retriever_node.py` so the routed pipeline passes `greeting` and `off_topic` decisions through, but sends `related` decisions into Pinecone retrieval using the embedding model from `pipelines/indexing_pipeline/pdf_rag.py`. Rename `route_node_pipeline.py` to `pipeline.py` and update the pipeline entrypoint accordingly.
 
 ### Goal
 The repo has a Pinecone sync path, a Pinecone-backed retrieval node, and a single routed entrypoint in `pipeline.py`.
