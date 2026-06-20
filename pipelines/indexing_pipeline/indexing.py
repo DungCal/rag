@@ -4,17 +4,11 @@ import argparse
 import json
 from pathlib import Path
 
-from rag import (
-    DEFAULT_LLM_MODEL,
-    DEFAULT_MODEL_NAME,
-    HuggingFaceAnswerGenerator,
-    PDFRAG,
-    build_faiss_index,
-    load_index,
-    retrieve_results,
-    save_index,
-)
-from routers import QueryRouter
+from .index_store import build_faiss_index, load_index, save_index
+from .llm import DEFAULT_LLM_MODEL, HuggingFaceAnswerGenerator
+from .pdf_rag import DEFAULT_MODEL_NAME, PDFRAG
+from .query_router import QueryRouter
+from .retriever import retrieve_results
 
 
 DEFAULT_INDEX_DIR = Path("storage")

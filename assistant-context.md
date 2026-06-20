@@ -4,7 +4,7 @@
 
 This repository is a small PDF-focused RAG prototype with two routing layers:
 
-1. An embedding-based router used by the main CLI in `indexing.py`.
+1. An embedding-based router used by the main CLI in `pipelines/indexing_pipeline/indexing.py`.
 2. An LLM prompt-based router and response nodes used by `pipeline.py` and `test/test_pipeline.py`.
 
 The indexed document in the current workspace is a TYM tractor operator manual (`t130sp_na_operator_manual.pdf`). Most prompts, defaults, and example scope text assume that document.
@@ -13,12 +13,12 @@ The indexed document in the current workspace is a TYM tractor operator manual (
 
 ### 1. Build or rebuild the vector index
 
-Entry point: `indexing.py`
+Entry point: `pipelines/indexing_pipeline/indexing.py`
 
 Command shape:
 
 ```bash
-python indexing.py index --pdf t130sp_na_operator_manual.pdf --index-dir storage
+python -m pipelines.indexing_pipeline.indexing index --pdf t130sp_na_operator_manual.pdf --index-dir storage
 ```
 
 What it does:
@@ -31,24 +31,24 @@ What it does:
 
 ### 2. Query the FAISS-backed RAG pipeline
 
-Entry point: `indexing.py`
+Entry point: `pipelines/indexing_pipeline/indexing.py`
 
 Command shape:
 
 ```bash
-python indexing.py query --index-dir storage --query "What does the DPF warning lamp mean?"
+python -m pipelines.indexing_pipeline.indexing query --index-dir storage --query "What does the DPF warning lamp mean?"
 ```
 
 Optional answer generation:
 
 ```bash
-python indexing.py query --index-dir storage --query "..." --generate-answer
+python -m pipelines.indexing_pipeline.indexing query --index-dir storage --query "..." --generate-answer
 ```
 
 Behavior:
 
 - Embeds the query with the same BGE-M3 model.
-- Uses `routers/query_router.py` for lightweight routing:
+- Uses `pipelines/indexing_pipeline/query_router.py` for lightweight routing:
   - `greeting` if the query is a simple greeting.
   - `off_topic` if top similarity is below the threshold.
   - `retrieval` otherwise.
@@ -71,7 +71,7 @@ Behavior:
 - Runs prompt-driven response nodes for:
   - `greeting`
   - `off_topic`
-- Runs Pinecone-backed retrieval for `related` by embedding the retrieval query with the same BGE-M3 path used in `rag/pdf_rag.py`.
+- Runs Pinecone-backed retrieval for `related` by embedding the retrieval query with the same BGE-M3 path used in `pipelines/indexing_pipeline/pdf_rag.py`.
 
 ### 4. Sync FAISS vectors into Pinecone
 
@@ -96,12 +96,12 @@ Important:
 
 ### 5. Generate or refresh a document scope summary
 
-Entry point: `scope.py`
+Entry point: `pipelines/indexing_pipeline/scope.py`
 
 Command shape:
 
 ```bash
-python scope.py --metadata-path storage/metadata.json
+python -m pipelines.indexing_pipeline.scope --metadata-path storage/metadata.json
 ```
 
 Behavior:
@@ -131,17 +131,17 @@ Behavior:
 
 ## Code Map
 
-- `indexing.py`: main CLI for indexing and querying.
-- `rag/pdf_rag.py`: PDF extraction, whitespace normalization, chunking, embedding.
-- `rag/index_store.py`: FAISS persistence and metadata JSON serialization.
-- `rag/retriever.py`: top-k retrieval result assembly.
-- `rag/llm.py`: Hugging Face answer-generation wrapper and `.env` token loading.
-- `retriever/retriever_node.py`: Pinecone-backed retrieval node for `related` route decisions.
-- `routers/query_router.py`: embedding-similarity router for the main CLI.
-- `routers/prompt_query_router.py`: LLM classification router using `prompts/route_node_prompt.txt`.
-- `routers/prompt_response_nodes.py`: greeting and off-topic node response generation.
-- `pipeline.py`: CLI wrapper around prompt-based routing plus Pinecone retrieval.
-- `scope.py`: scope-summary generation from sampled chunk metadata.
+- `pipelines/indexing_pipeline/indexing.py`: main CLI for indexing and querying.
+- `pipelines/indexing_pipeline/pdf_rag.py`: PDF extraction, whitespace normalization, chunking, embedding.
+- `pipelines/indexing_pipeline/index_store.py`: FAISS persistence and metadata JSON serialization.
+- `pipelines/indexing_pipeline/retriever.py`: top-k retrieval result assembly.
+- `pipelines/indexing_pipeline/llm.py`: Hugging Face answer-generation wrapper and `.env` token loading.
+- `pipelines/agent_pipeline/retriever/retriever_node.py`: Pinecone-backed retrieval node for `related` route decisions.
+- `pipelines/indexing_pipeline/query_router.py`: embedding-similarity router for the main CLI.
+- `pipelines/agent_pipeline/routers/prompt_query_router.py`: LLM classification router using `prompts/route_node_prompt.txt`.
+- `pipelines/agent_pipeline/routers/prompt_response_nodes.py`: greeting and off-topic node response generation.
+- `pipelines/agent_pipeline/pipeline.py`: CLI wrapper around prompt-based routing plus Pinecone retrieval.
+- `pipelines/indexing_pipeline/scope.py`: scope-summary generation from sampled chunk metadata.
 - `vector_databases/pinecone.py`: FAISS-to-Pinecone sync script.
 - `app/app.py`: Streamlit inspection app for metadata and embeddings.
 - `test/test_pipeline.py`: manual CLI-style pipeline test harness that executes `pipeline.py`, not a real unit test suite.
@@ -180,7 +180,7 @@ Resolution order in code:
 
 Relevant code:
 
-- `rag/llm.py`
+- `pipelines/indexing_pipeline/llm.py`
 - `retriever/retriever_node.py`
 - `routers/prompt_query_router.py`
 - `routers/prompt_response_nodes.py`
@@ -208,7 +208,7 @@ Treat these as generated outputs unless the task is specifically about inspectin
 ## Important Implementation Details
 
 - Retrieval uses cosine-style similarity implemented as inner product on L2-normalized vectors.
-- `QueryRouter` in `routers/query_router.py` always embeds first, then checks greeting/off-topic routing.
+- `QueryRouter` in `pipelines/indexing_pipeline/query_router.py` always embeds first, then checks greeting/off-topic routing.
 - Greeting detection in the embedding-based router is regex-based and intentionally narrow.
 - The prompt-based router expects the model to output exactly one label: `greeting`, `related`, or `off_topic`.
 - `pipeline.py` routes `related` decisions into Pinecone retrieval through `retriever/retriever_node.py`.
@@ -221,7 +221,7 @@ Treat these as generated outputs unless the task is specifically about inspectin
   - `pipeline.py`
   - `routers/prompt_response_nodes.py`
 - If that file is deleted or renamed, prompt-based routing can break unless `--scope` or `--scope-file` is provided.
-- `scope.py` writes `output_prompt.txt` in the repo root as a side effect.
+- `pipelines/indexing_pipeline/scope.py` writes `output_prompt.txt` in the repo root by default, unless `--output-prompt-path` is provided.
 - The README uses Windows-style virtualenv activation examples; the current environment here is Linux.
 - The repo currently has an untracked `embedding_mmodel/` directory. Do not remove or rewrite it unless the task is explicitly about that folder.
 - The user request called Pinecone storage a "collection", but the implemented path uses a Pinecone index because that is the queryable data-plane primitive in the current SDK.
@@ -229,13 +229,13 @@ Treat these as generated outputs unless the task is specifically about inspectin
 ## Editing Guidance
 
 - Preserve the separation between:
-  - embedding-based routing in `routers/query_router.py`
-  - prompt-based routing in `routers/prompt_query_router.py`
+  - embedding-based routing in `pipelines/indexing_pipeline/query_router.py`
+  - prompt-based routing in `pipelines/agent_pipeline/routers/prompt_query_router.py`
 - Keep the Pinecone retrieval path isolated in `retriever/retriever_node.py` and the ingestion path isolated in `vector_databases/pinecone.py`.
 - If changing chunking, embedding, or metadata shape, verify all downstream readers:
-  - `rag/index_store.py`
-  - `retriever/retriever_node.py`
-  - `scope.py`
+  - `pipelines/indexing_pipeline/index_store.py`
+  - `pipelines/agent_pipeline/retriever/retriever_node.py`
+  - `pipelines/indexing_pipeline/scope.py`
   - `app/app.py`
   - `vector_databases/pinecone.py`
 - If changing prompt files, verify the corresponding router/node code still formats them correctly.
@@ -251,22 +251,22 @@ After meaningful changes, use the smallest relevant check:
 - Syntax smoke test:
 
 ```bash
-python -m compileall indexing.py pipeline.py scope.py rag retriever routers vector_databases app
+python -m compileall pipelines/indexing_pipeline pipelines/agent_pipeline vector_databases app
 ```
 
 - CLI help:
 
 ```bash
-python indexing.py --help
+python -m pipelines.indexing_pipeline.indexing --help
 python pipeline.py --help
-python scope.py --help
+python -m pipelines.indexing_pipeline.scope --help
 python vector_databases/pinecone.py --help
 ```
 
 - If indexing or retrieval changed:
 
 ```bash
-python indexing.py query --index-dir storage --query "hello"
+python -m pipelines.indexing_pipeline.indexing query --index-dir storage --query "hello"
 ```
 
 - If prompt-based routing changed, run:
@@ -288,7 +288,7 @@ Note: any Pinecone-backed runtime check requires a valid `PINECONE_API_KEY` and 
   - embedding-based CLI router
   - prompt-based LLM router
 - If a user asks for retrieval behavior changes, confirm whether they mean:
-  - FAISS retrieval in `indexing.py`
+  - FAISS retrieval in `pipelines/indexing_pipeline/indexing.py`
   - Pinecone retrieval in `retriever/retriever_node.py`
 
 ## Task Intake Template
@@ -316,7 +316,7 @@ Any special context, assumptions, or risks.
 ## Current Task Intake
 
 ### Task
-Create `vector_databases/pinecone.py` to reload vectors and metadata from FAISS and upsert them into Pinecone. Create `retriever/retriever_node.py` so the routed pipeline passes `greeting` and `off_topic` decisions through, but sends `related` decisions into Pinecone retrieval using the embedding model from `rag/pdf_rag.py`. Rename `route_node_pipeline.py` to `pipeline.py` and update the pipeline entrypoint accordingly.
+Create `vector_databases/pinecone.py` to reload vectors and metadata from FAISS and upsert them into Pinecone. Create `pipelines/agent_pipeline/retriever/retriever_node.py` so the routed pipeline passes `greeting` and `off_topic` decisions through, but sends `related` decisions into Pinecone retrieval using the embedding model from `pipelines/indexing_pipeline/pdf_rag.py`. Rename `route_node_pipeline.py` to `pipeline.py` and update the pipeline entrypoint accordingly.
 
 ### Goal
 The repo has a Pinecone sync path, a Pinecone-backed retrieval node, and a single routed entrypoint in `pipeline.py`.

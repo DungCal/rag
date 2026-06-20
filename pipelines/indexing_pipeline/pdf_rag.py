@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Iterable
 
 import faiss
-import fitz  # PyMuPDF
+import fitz
 import numpy as np
 from FlagEmbedding import BGEM3FlagModel
 from langchain_text_splitters import RecursiveCharacterTextSplitter

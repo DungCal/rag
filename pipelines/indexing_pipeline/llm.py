@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
 
 
 DEFAULT_LLM_MODEL = "google/gemma-4-26B-A4B-it"
-ENV_FILE_PATH = Path(__file__).resolve().parent.parent / ".env"
+ENV_FILE_PATH = Path(__file__).resolve().parents[2] / ".env"
 
 
 def _load_api_key_from_env_file(env_path: Path = ENV_FILE_PATH) -> str | None:
@@ -19,7 +18,6 @@ def _load_api_key_from_env_file(env_path: Path = ENV_FILE_PATH) -> str | None:
             continue
         key, value = line.split("=", 1)
         if key.strip() == "HF_TOKEN":
-
             resolved = value.strip().strip('"').strip("'")
             return resolved or None
 

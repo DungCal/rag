@@ -7,12 +7,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from rag.llm import DEFAULT_LLM_MODEL, HuggingFaceAnswerGenerator
+from .llm import DEFAULT_LLM_MODEL, HuggingFaceAnswerGenerator
 
 
 DEFAULT_METADATA_PATH = Path("storage/metadata.json")
 DEFAULT_PROMPT_PATH = Path("prompts/prompt_scope.txt")
 DEFAULT_RESULTS_DIR = Path("results")
+DEFAULT_OUTPUT_PROMPT_PATH = Path("output_prompt.txt")
 
 
 def load_records(metadata_path: Path) -> list[dict[str, Any]]:
@@ -86,17 +87,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--metadata-path", default=str(DEFAULT_METADATA_PATH), help="Path to metadata.json")
     parser.add_argument("--prompt-path", default=str(DEFAULT_PROMPT_PATH), help="Path to prompt template")
     parser.add_argument("--results-dir", default=str(DEFAULT_RESULTS_DIR), help="Directory for generated output")
+    parser.add_argument(
+        "--output-prompt-path",
+        default=str(DEFAULT_OUTPUT_PROMPT_PATH),
+        help="Path for the rendered prompt snapshot",
+    )
     parser.add_argument("--sample-size", type=int, default=10, help="Number of random chunks to sample")
     parser.add_argument("--seed", type=int, default=None, help="Optional random seed for reproducible sampling")
     parser.add_argument("--model-name", default=DEFAULT_LLM_MODEL, help="Hugging Face model used for generation")
     return parser.parse_args()
 
 
-def main() -> None:
-    args = parse_args()
+def main_from_args(args: argparse.Namespace) -> None:
     metadata_path = Path(args.metadata_path)
     prompt_path = Path(args.prompt_path)
     results_dir = Path(args.results_dir)
+    output_prompt_path = Path(args.output_prompt_path)
 
     if not metadata_path.exists():
         raise FileNotFoundError(f"Metadata file not found: {metadata_path.resolve()}")
@@ -114,12 +120,7 @@ def main() -> None:
         model_name=args.model_name,
     )
 
-    file_name = "output_prompt.txt"
-
-    # 3. Open the file in write mode ("w") and write the string
-    with open(file_name, "w", encoding="utf-8") as file:
-        file.write(prompt)
-
+    output_prompt_path.write_text(prompt, encoding="utf-8")
 
     response_text = generator.generate_text(prompt)
 
@@ -129,7 +130,13 @@ def main() -> None:
     )
 
     print(f"Sampled {len(sampled_records)} chunks from {metadata_path.resolve()}")
+    print(f"Wrote rendered prompt to {output_prompt_path.resolve()}")
     print(f"Wrote result to {output_path.resolve()}")
+
+
+def main() -> None:
+    args = parse_args()
+    main_from_args(args)
 
 
 if __name__ == "__main__":

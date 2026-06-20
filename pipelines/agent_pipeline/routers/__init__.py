@@ -1,13 +1,6 @@
-from .greeting_node import GreetingNode
-from .off_topic_node import OffTopicNode
 from .prompt_query_router import PromptQueryRouter, PromptRouteDecision
-from .prompt_response_nodes import PromptNodeResult
-
-try:
-    from .query_router import QueryRouter, RouteDecision
-except ImportError:
-    QueryRouter = None
-    RouteDecision = None
+from .prompt_response_nodes import GreetingNode, OffTopicNode, PromptNodeResult
+from pipelines.indexing_pipeline.query_router import QueryRouter, RouteDecision
 
 __all__ = [
     "PromptQueryRouter",

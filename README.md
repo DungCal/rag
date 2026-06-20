@@ -30,10 +30,24 @@ HF_TOKEN=your_hugging_face_token_here
 
 The app will read `HF_TOKEN` from the process environment first, then fall back to `.env`.
 
+## Use the indexing pipeline
+
+Show available commands:
+
+```bash
+python -m pipelines.indexing_pipeline --help
+```
+
+Core subcommands:
+
+- `index`: build `storage/faiss.index` and `storage/metadata.json`
+- `query`: search the FAISS index, with optional answer generation
+- `scope`: sample metadata and write a scope summary under `results/`
+
 ## Index a PDF
 
 ```bash
-python indexing.py index --pdf path\to\document.pdf --index-dir storage
+python -m pipelines.indexing_pipeline index --pdf path\to\document.pdf --index-dir storage
 ```
 
 Optional flags:
@@ -45,13 +59,13 @@ Optional flags:
 ## Query the index
 
 ```bash
-python indexing.py query --index-dir storage --query "What are the main topics?"
+python -m pipelines.indexing_pipeline query --index-dir storage --query "What are the main topics?"
 ```
 
 Generate an answer with the main LLM:
 
 ```bash
-python indexing.py query --index-dir storage --query "What are the main topics?" --generate-answer
+python -m pipelines.indexing_pipeline query --index-dir storage --query "What are the main topics?" --generate-answer
 ```
 
 Optional router flag:
@@ -62,8 +76,19 @@ Optional router flag:
 JSON output:
 
 ```bash
-python indexing.py query --index-dir storage --query "What are the main topics?" --as-json
+python -m pipelines.indexing_pipeline query --index-dir storage --query "What are the main topics?" --as-json
 ```
+
+## Generate scope results
+
+```bash
+python -m pipelines.indexing_pipeline scope --metadata-path storage/metadata.json
+```
+
+This writes:
+
+- `output_prompt.txt` by default, or the file passed via `--output-prompt-path`
+- `results/scope_result_<timestamp>.txt`
 
 Example routed outputs:
 
@@ -89,7 +114,7 @@ Behavior:
 
 - `greeting` -> returns the greeting node response
 - `off_topic` -> returns the off-topic node response
-- `related` -> queries Pinecone using the BGE-M3 embedding path from `rag/pdf_rag.py`
+- `related` -> queries Pinecone using the BGE-M3 embedding path from `pipelines/indexing_pipeline/pdf_rag.py`
 
 Optional reranking with Qwen 0.6B:
 

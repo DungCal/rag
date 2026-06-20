@@ -4,7 +4,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-from rag.llm import DEFAULT_LLM_MODEL, _load_api_key_from_env_file
+from pipelines.indexing_pipeline.llm import DEFAULT_LLM_MODEL, _load_api_key_from_env_file
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
