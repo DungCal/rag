@@ -26,11 +26,11 @@ from pipelines.indexing_pipeline.scope import (
     DEFAULT_LLM_MODEL as DEFAULT_SCOPE_LLM_MODEL,
     main_from_args as run_scope_generation,
 )
-from pipelines.agent_pipeline.routers.prompt_query_router import (
+from pipelines.agent_pipeline.routers.routing_classification import (
     DEFAULT_DOCUMENT_SCOPE,
     PromptQueryRouter,
 )
-from pipelines.agent_pipeline.routers.prompt_response_nodes import (
+from pipelines.agent_pipeline.routers.routing_response import (
     GreetingNode,
     OffTopicNode,
     load_default_scope,

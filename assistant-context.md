@@ -67,7 +67,7 @@ python pipeline.py --query "hello" --as-json --pinecone-index-name your-index
 
 Behavior:
 
-- Uses `routers/prompt_query_router.py` to classify into `greeting`, `related`, or `off_topic`.
+- Uses `routers/routing_classification.py` to classify into `greeting`, `related`, or `off_topic`.
 - Runs prompt-driven response nodes for:
   - `greeting`
   - `off_topic`
@@ -138,8 +138,8 @@ Behavior:
 - `pipelines/indexing_pipeline/llm.py`: Hugging Face answer-generation wrapper and `.env` token loading.
 - `pipelines/agent_pipeline/retriever/retriever_node.py`: Pinecone-backed retrieval node for `related` route decisions.
 - `pipelines/indexing_pipeline/query_router.py`: embedding-similarity router for the main CLI.
-- `pipelines/agent_pipeline/routers/prompt_query_router.py`: LLM classification router using `prompts/route_node_prompt.txt`.
-- `pipelines/agent_pipeline/routers/prompt_response_nodes.py`: greeting and off-topic node response generation.
+- `pipelines/agent_pipeline/routers/routing_classification.py`: LLM classification router using `prompts/route_node_prompt.txt`.
+- `pipelines/agent_pipeline/routers/routing_response.py`: greeting and off-topic node response generation.
 - `pipelines/agent_pipeline/pipeline.py`: CLI wrapper around prompt-based routing plus Pinecone retrieval.
 - `pipelines/indexing_pipeline/scope.py`: scope-summary generation from sampled chunk metadata.
 - `vector_databases/pinecone_sync.py`: FAISS-to-Pinecone sync script.
@@ -182,8 +182,8 @@ Relevant code:
 
 - `pipelines/indexing_pipeline/llm.py`
 - `retriever/retriever_node.py`
-- `routers/prompt_query_router.py`
-- `routers/prompt_response_nodes.py`
+- `routers/routing_classification.py`
+- `routers/routing_response.py`
 - `vector_databases/pinecone_sync.py`
 
 If LLM-backed commands fail, verify `HF_TOKEN`.
@@ -219,7 +219,7 @@ Treat these as generated outputs unless the task is specifically about inspectin
 - `test/test_pipeline.py` is a runnable script, not a proper automated test module.
 - Several defaults hardcode a specific generated scope file:
   - `pipeline.py`
-  - `routers/prompt_response_nodes.py`
+  - `routers/routing_response.py`
 - If that file is deleted or renamed, prompt-based routing can break unless `--scope` or `--scope-file` is provided.
 - `pipelines/indexing_pipeline/scope.py` writes `output_prompt.txt` in the repo root by default, unless `--output-prompt-path` is provided.
 - The README uses Windows-style virtualenv activation examples; the current environment here is Linux.
@@ -230,7 +230,7 @@ Treat these as generated outputs unless the task is specifically about inspectin
 
 - Preserve the separation between:
   - embedding-based routing in `pipelines/indexing_pipeline/query_router.py`
-  - prompt-based routing in `pipelines/agent_pipeline/routers/prompt_query_router.py`
+  - prompt-based routing in `pipelines/agent_pipeline/routers/routing_classification.py`
 - Keep the Pinecone retrieval path isolated in `retriever/retriever_node.py` and the ingestion path isolated in `vector_databases/pinecone_sync.py`.
 - If changing chunking, embedding, or metadata shape, verify all downstream readers:
   - `pipelines/indexing_pipeline/index_store.py`
@@ -241,7 +241,7 @@ Treat these as generated outputs unless the task is specifically about inspectin
 - If changing prompt files, verify the corresponding router/node code still formats them correctly.
 - If changing defaults for scope handling, update both:
   - `pipeline.py`
-  - `routers/prompt_response_nodes.py`
+  - `routers/routing_response.py`
 - Prefer small, explicit changes. This repo is compact, and regressions usually come from changing shared assumptions rather than from deep abstraction issues.
 
 ## Verification Checklist

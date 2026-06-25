@@ -15,7 +15,7 @@ from pipelines.agent_pipeline.rerank.rerank_node import (
     RerankNode,
 )
 from pipelines.agent_pipeline.retriever.retriever_node import RetrieverNode
-from pipelines.agent_pipeline.routers.prompt_query_router import PromptRouteDecision
+from pipelines.agent_pipeline.routers.routing_classification import PromptRouteDecision
 from rerank.hf_reranker import DEFAULT_RERANKER_MODEL_NAME
 
 

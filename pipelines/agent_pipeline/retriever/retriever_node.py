@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from pipelines.indexing_pipeline.pdf_rag import DEFAULT_MODEL_NAME, PDFRAG
-from pipelines.agent_pipeline.routers.prompt_query_router import PromptRouteDecision
+from pipelines.agent_pipeline.routers.routing_classification import PromptRouteDecision
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
