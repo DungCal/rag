@@ -6,9 +6,23 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from loguru import logger
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
+
+LOGS_DIR = PROJECT_ROOT / "logs"
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+LOG_FILE = LOGS_DIR / "agent_pipeline.log"
+logger.add(
+    LOG_FILE,
+    rotation="10 MB",
+    retention="7 days",
+    level="INFO",
+    encoding="utf-8",
+    format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} | {message}",
+)
 
 from pipelines.indexing_pipeline.indexing import (
     DEFAULT_INDEX_DIR,
@@ -107,6 +121,18 @@ class RoutedRAGPipeline:
         self.reranker_use_fp16 = reranker_use_fp16
         self.reranker_apply_sigmoid = reranker_apply_sigmoid
 
+        logger.info(
+            "Initializing RoutedRAGPipeline: llm_model={}, embedding_model={}, reranker_model={}, "
+            "pinecone_index_name={}, pinecone_namespace={}, top_k={}, enable_rerank={}",
+            self.model_name,
+            self.embedding_model_name,
+            self.reranker_model_name,
+            self.pinecone_index_name,
+            self.pinecone_namespace,
+            self.top_k,
+            self.enable_rerank,
+        )
+
         self._router = PromptQueryRouter(
             prompt_path=self.prompt_path,
             scope=self.scope,
@@ -139,6 +165,14 @@ class RoutedRAGPipeline:
             raise ValueError("User query must not be empty")
 
         decision = self._router.route(query)
+        logger.info(
+            "Router decision: query={!r}, route={}, label={}, message={!r}, raw_output={!r}",
+            query,
+            decision.route,
+            decision.label,
+            decision.message,
+            decision.raw_output,
+        )
         return {
             "query": query,
             "include_prompt": bool(inputs.get("include_prompt", False)),
@@ -172,6 +206,22 @@ class RoutedRAGPipeline:
             )
 
         state["retriever_result"] = self._retriever.run(state["decision"], state["query"])
+        if state["retriever_result"] is not None:
+            logger.info(
+                "Retriever returned {} result(s) for query={!r}",
+                len(state["retriever_result"].results),
+                state["retriever_result"].query,
+            )
+            for idx, item in enumerate(state["retriever_result"].results, start=1):
+                logger.info(
+                    "Retriever result #{}: score={:.4f} page={} chunk_id={} text_preview={!r}",
+                    idx,
+                    item.get("score", 0.0),
+                    item.get("page_number"),
+                    item.get("chunk_id"),
+                    (item.get("text", "")[:120] + "...") if len(item.get("text", "")) > 120 else item.get("text", ""),
+                )
+
         if self.enable_rerank and state["retriever_result"] is not None:
             if self._reranker is None:
                 from pipelines.agent_pipeline.rerank.rerank_node import RerankNode
@@ -191,6 +241,24 @@ class RoutedRAGPipeline:
                 state["retriever_result"].query,
                 state["retriever_result"].results,
             )
+            if state["rerank_result"] is not None:
+                logger.info(
+                    "Reranker returned {} result(s)",
+                    len(state["rerank_result"].results),
+                )
+                for idx, item in enumerate(state["rerank_result"].results, start=1):
+                    logger.info(
+                        "Reranker result #{}: rerank_score={:.4f} retrieval_score={:.4f} "
+                        "retrieval_rank={} rerank_rank={} page={} chunk_id={} text_preview={!r}",
+                        idx,
+                        item.get("rerank_score", 0.0),
+                        item.get("retrieval_score", item.get("score", 0.0)),
+                        item.get("retrieval_rank"),
+                        item.get("rerank_rank"),
+                        item.get("page_number"),
+                        item.get("chunk_id"),
+                        (item.get("text", "")[:120] + "...") if len(item.get("text", "")) > 120 else item.get("text", ""),
+                    )
         return state
 
     @staticmethod
