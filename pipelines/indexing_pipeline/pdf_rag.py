@@ -8,11 +8,15 @@ from typing import Iterable
 import faiss
 import fitz
 import numpy as np
-from FlagEmbedding import BGEM3FlagModel
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+from .embeddings import (
+    DEFAULT_EMBEDDING_MODEL_NAME,
+    HuggingFaceInferenceEmbeddingProvider,
+)
 
-DEFAULT_MODEL_NAME = "BAAI/bge-m3"
+
+DEFAULT_MODEL_NAME = DEFAULT_EMBEDDING_MODEL_NAME
 
 
 @dataclass
@@ -24,9 +28,24 @@ class ChunkRecord:
 
 
 class PDFRAG:
-    def __init__(self, model_name: str = DEFAULT_MODEL_NAME, use_fp16: bool = False) -> None:
+    def __init__(
+        self,
+        model_name: str = DEFAULT_MODEL_NAME,
+        *,
+        provider: str | None = None,
+        use_fp16: bool = False,
+        token: str | None = None,
+    ) -> None:
         self.model_name = model_name
-        self.model = BGEM3FlagModel(model_name, use_fp16=use_fp16)
+        # use_fp16 is kept for API compatibility with the previous local FlagEmbedding
+        # provider but is ignored because inference providers handle precision server-side.
+        self.use_fp16 = use_fp16
+        self.provider = provider
+        self._provider = HuggingFaceInferenceEmbeddingProvider(
+            model_name=model_name,
+            provider=provider,
+            token=token,
+        )
 
     def extract_pdf_pages(self, pdf_path: Path) -> list[tuple[int, str]]:
         document = fitz.open(pdf_path)
@@ -89,20 +108,10 @@ class PDFRAG:
         return records
 
     def embed_texts(self, texts: Iterable[str]) -> np.ndarray:
-        encoded = self.model.encode(
-            list(texts),
-            batch_size=8,
-            max_length=8192,
-            return_dense=True,
-            return_sparse=False,
-            return_colbert_vecs=False,
-        )
-        dense_vectors = np.asarray(encoded["dense_vecs"], dtype="float32")
-        faiss.normalize_L2(dense_vectors)
-        return dense_vectors
+        return self._provider.embed_texts(texts)
 
     def embed_query(self, query: str) -> np.ndarray:
-        return self.embed_texts([query])
+        return self._provider.embed_query(query)
 
     @staticmethod
     def _normalize_whitespace(text: str) -> str:

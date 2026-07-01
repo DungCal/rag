@@ -54,6 +54,12 @@ from pipelines.agent_pipeline.rerank import (
     DEFAULT_RERANK_OUTPUT_TOP_K,
     DEFAULT_RERANKER_MODEL_NAME,
 )
+from pipelines.agent_pipeline.retriever_judge import (
+    DEFAULT_JUDGE_MIN_SCORE,
+    DEFAULT_JUDGE_PROMPT_PATH,
+    DEFAULT_JUDGE_TOP_K,
+    RetrieverJudgeNode,
+)
 
 
 DEFAULT_SCOPE_FILE = PROJECT_ROOT / "results" / "scope_result_20260606_193507.txt"
@@ -88,6 +94,7 @@ class RoutedRAGPipeline:
         pinecone_index_name: str | None,
         pinecone_namespace: str,
         top_k: int,
+        embedding_provider: str | None,
         use_fp16: bool,
         enable_rerank: bool,
         reranker_model_name: str,
@@ -96,6 +103,11 @@ class RoutedRAGPipeline:
         reranker_instruction: str | None,
         reranker_use_fp16: bool,
         reranker_apply_sigmoid: bool,
+        enable_judge: bool,
+        judge_prompt_path: str,
+        judge_model_name: str,
+        judge_top_k: int,
+        judge_min_score: int,
     ) -> None:
         try:
             from langchain_core.runnables import RunnableBranch, RunnableLambda
@@ -112,6 +124,7 @@ class RoutedRAGPipeline:
         self.pinecone_index_name = pinecone_index_name
         self.pinecone_namespace = pinecone_namespace
         self.top_k = top_k
+        self.embedding_provider = embedding_provider
         self.use_fp16 = use_fp16
         self.enable_rerank = enable_rerank
         self.reranker_model_name = reranker_model_name
@@ -120,17 +133,27 @@ class RoutedRAGPipeline:
         self.reranker_instruction = reranker_instruction
         self.reranker_use_fp16 = reranker_use_fp16
         self.reranker_apply_sigmoid = reranker_apply_sigmoid
+        self.enable_judge = enable_judge
+        self.judge_prompt_path = judge_prompt_path
+        self.judge_model_name = judge_model_name
+        self.judge_top_k = judge_top_k
+        self.judge_min_score = judge_min_score
 
         logger.info(
-            "Initializing RoutedRAGPipeline: llm_model={}, embedding_model={}, reranker_model={}, "
-            "pinecone_index_name={}, pinecone_namespace={}, top_k={}, enable_rerank={}",
+            "Initializing RoutedRAGPipeline: llm_model={}, embedding_model={}, embedding_provider={}, "
+            "reranker_model={}, pinecone_index_name={}, pinecone_namespace={}, top_k={}, enable_rerank={}, "
+            "enable_judge={}, judge_top_k={}, judge_min_score={}",
             self.model_name,
             self.embedding_model_name,
+            self.embedding_provider,
             self.reranker_model_name,
             self.pinecone_index_name,
             self.pinecone_namespace,
             self.top_k,
             self.enable_rerank,
+            self.enable_judge,
+            self.judge_top_k,
+            self.judge_min_score,
         )
 
         self._router = PromptQueryRouter(
@@ -142,6 +165,7 @@ class RoutedRAGPipeline:
         self._off_topic_node = OffTopicNode(scope=self.scope, model_name=self.model_name)
         self._retriever = None
         self._reranker = None
+        self._judge = None
 
         self._chain = (
             RunnableLambda(self._build_state)
@@ -180,6 +204,7 @@ class RoutedRAGPipeline:
             "node_result": None,
             "retriever_result": None,
             "rerank_result": None,
+            "judge_result": None,
         }
 
     def _run_greeting(self, state: dict[str, Any]) -> dict[str, Any]:
@@ -201,6 +226,7 @@ class RoutedRAGPipeline:
                 index_name=self.pinecone_index_name,
                 namespace=self.pinecone_namespace,
                 model_name=self.embedding_model_name,
+                provider=self.embedding_provider,
                 top_k=DEFAULT_RERANK_INPUT_TOP_K if self.enable_rerank else self.top_k,
                 use_fp16=self.use_fp16,
             )
@@ -259,6 +285,38 @@ class RoutedRAGPipeline:
                         item.get("chunk_id"),
                         (item.get("text", "")[:120] + "...") if len(item.get("text", "")) > 120 else item.get("text", ""),
                     )
+
+            judge_input = state["rerank_result"] or state["retriever_result"]
+            if self.enable_judge and judge_input is not None:
+                if self._judge is None:
+                    self._judge = RetrieverJudgeNode(
+                        prompt_path=self.judge_prompt_path,
+                        model_name=self.judge_model_name,
+                        top_k=self.judge_top_k,
+                        min_score=self.judge_min_score,
+                    )
+
+                state["judge_result"] = self._judge.run(
+                    judge_input.query,
+                    judge_input.results,
+                )
+                if state["judge_result"] is not None:
+                    logger.info(
+                        "Judge returned {} scored result(s)",
+                        len(state["judge_result"].results),
+                    )
+                    for idx, item in enumerate(state["judge_result"].results, start=1):
+                        judge = item.get("judge", {})
+                        logger.info(
+                            "Judge result #{}: final_score={} score_band={} page={} chunk_id={} "
+                            "text_preview={!r}",
+                            idx,
+                            judge.get("final_score"),
+                            judge.get("score_band"),
+                            item.get("page_number"),
+                            item.get("chunk_id"),
+                            (item.get("text", "")[:120] + "...") if len(item.get("text", "")) > 120 else item.get("text", ""),
+                        )
         return state
 
     @staticmethod
@@ -267,6 +325,7 @@ class RoutedRAGPipeline:
         node_result = state["node_result"]
         retriever_result = state["retriever_result"]
         rerank_result = state["rerank_result"]
+        judge_result = state["judge_result"]
 
         payload: dict[str, Any] = {
             "route": decision.route,
@@ -286,10 +345,16 @@ class RoutedRAGPipeline:
             payload["rerank_input_results"] = rerank_result.input_results
             payload["rerank_results"] = rerank_result.results
             payload["results"] = rerank_result.results
+        if judge_result is not None:
+            payload["judge_enabled"] = True
+            payload["judge_results"] = judge_result.results
+            payload["results"] = judge_result.results
         if state["include_prompt"]:
             payload["prompt"] = decision.prompt
             if node_result is not None:
                 payload["node_prompt"] = node_result.prompt
+            if judge_result is not None and judge_result.results:
+                payload["judge_prompt"] = judge_result.results[0].get("judge_prompt")
         return payload
 
 
@@ -308,6 +373,12 @@ def _add_run_arguments(parser: argparse.ArgumentParser) -> None:
         default=DEFAULT_EMBEDDING_MODEL_NAME,
         help="Embedding model used for Pinecone retrieval",
     )
+    parser.add_argument(
+        "--embedding-provider",
+        default=None,
+        help="Hugging Face Hub inference provider for embeddings (e.g. 'together', 'fireworks-ai'). "
+             "Defaults to the Hugging Face Inference API.",
+    )
     parser.add_argument("--pinecone-index-name", required=False, help="Pinecone index name for retrieval route")
     parser.add_argument(
         "--pinecone-namespace",
@@ -315,7 +386,7 @@ def _add_run_arguments(parser: argparse.ArgumentParser) -> None:
         help="Pinecone namespace for retrieval route",
     )
     parser.add_argument("--top-k", type=int, default=5, help="Final number of results to return")
-    parser.add_argument("--use-fp16", action="store_true", help="Use fp16 for the embedding model when supported")
+    parser.add_argument("--use-fp16", action="store_true", help="Kept for CLI compatibility; ignored by inference providers")
     parser.add_argument("--enable-rerank", action="store_true", help="Rerank Pinecone matches with Hugging Face Hub")
     parser.add_argument(
         "--reranker-model-name",
@@ -327,6 +398,29 @@ def _add_run_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--reranker-instruction", default=None, help="Reserved reranker option kept for CLI compatibility")
     parser.add_argument("--reranker-fp16", action="store_true", help="Reserved reranker option kept for CLI compatibility")
     parser.add_argument("--reranker-sigmoid", action="store_true", help="Convert reranker scores to 0-1 probabilities")
+    parser.add_argument("--enable-judge", action="store_true", help="Score reranked chunks with an LLM-as-a-judge")
+    parser.add_argument(
+        "--judge-prompt-path",
+        default=str(DEFAULT_JUDGE_PROMPT_PATH),
+        help="Path to the retriever judge prompt template",
+    )
+    parser.add_argument(
+        "--judge-model-name",
+        default=DEFAULT_LLM_MODEL,
+        help="Hugging Face model used for the retriever judge",
+    )
+    parser.add_argument(
+        "--judge-top-k",
+        type=int,
+        default=DEFAULT_JUDGE_TOP_K,
+        help="Maximum number of judged chunks to keep for further processing",
+    )
+    parser.add_argument(
+        "--judge-min-score",
+        type=int,
+        default=DEFAULT_JUDGE_MIN_SCORE,
+        help="Minimum judge score (0-10) a chunk must have to be kept",
+    )
     parser.add_argument("--as-json", action="store_true", help="Print the pipeline result as JSON")
     parser.add_argument("--print-prompt", action="store_true", help="Include the rendered prompt in the output")
 
@@ -349,9 +443,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="Directory for FAISS index and metadata",
     )
     index_parser.add_argument("--model-name", default=DEFAULT_INDEXING_MODEL_NAME, help="Embedding model name")
+    index_parser.add_argument(
+        "--embedding-provider",
+        default=None,
+        help="Hugging Face Hub inference provider for embeddings (e.g. 'together', 'fireworks-ai'). "
+             "Defaults to the Hugging Face Inference API.",
+    )
     index_parser.add_argument("--chunk-size", type=int, default=900, help="Chunk size in characters")
     index_parser.add_argument("--chunk-overlap", type=int, default=150, help="Chunk overlap in characters")
-    index_parser.add_argument("--use-fp16", action="store_true", help="Use fp16 for faster inference on supported hardware")
+    index_parser.add_argument("--use-fp16", action="store_true", help="Kept for CLI compatibility; ignored by inference providers")
     index_parser.set_defaults(func=command_index)
 
     query_parser = subparsers.add_parser("query", help="Query an existing FAISS index")
@@ -362,6 +462,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Directory containing FAISS index and metadata",
     )
     query_parser.add_argument("--model-name", default=DEFAULT_INDEXING_MODEL_NAME, help="Embedding model name")
+    query_parser.add_argument(
+        "--embedding-provider",
+        default=None,
+        help="Hugging Face Hub inference provider for embeddings (e.g. 'together', 'fireworks-ai'). "
+             "Defaults to the Hugging Face Inference API.",
+    )
     query_parser.add_argument("--top-k", type=int, default=5, help="Number of retrieved chunks")
     query_parser.add_argument(
         "--generate-answer",
@@ -379,7 +485,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=0.35,
         help="Minimum similarity score required to treat a query as document-relevant",
     )
-    query_parser.add_argument("--use-fp16", action="store_true", help="Use fp16 for faster inference on supported hardware")
+    query_parser.add_argument("--use-fp16", action="store_true", help="Kept for CLI compatibility; ignored by inference providers")
     query_parser.add_argument("--as-json", action="store_true", help="Print results as JSON")
     query_parser.set_defaults(func=command_query)
 
@@ -426,6 +532,7 @@ def run_agent_pipeline(args: argparse.Namespace) -> None:
         pinecone_index_name=args.pinecone_index_name,
         pinecone_namespace=args.pinecone_namespace,
         top_k=args.top_k,
+        embedding_provider=args.embedding_provider,
         use_fp16=args.use_fp16,
         enable_rerank=args.enable_rerank,
         reranker_model_name=args.reranker_model_name,
@@ -434,6 +541,11 @@ def run_agent_pipeline(args: argparse.Namespace) -> None:
         reranker_instruction=args.reranker_instruction,
         reranker_use_fp16=args.reranker_fp16,
         reranker_apply_sigmoid=args.reranker_sigmoid,
+        enable_judge=args.enable_judge,
+        judge_prompt_path=args.judge_prompt_path,
+        judge_model_name=args.judge_model_name,
+        judge_top_k=args.judge_top_k,
+        judge_min_score=args.judge_min_score,
     )
     payload = pipeline.invoke(args.query, include_prompt=args.print_prompt)
 
@@ -475,7 +587,23 @@ def run_agent_pipeline(args: argparse.Namespace) -> None:
                 )
                 print(item.get("text", ""))
                 print("-" * 80)
-        else:
+        if payload.get("judge_enabled"):
+            print("judge_results")
+            print("-" * 80)
+            for item in payload.get("judge_results", []):
+                judge = item.get("judge", {})
+                print(
+                    "judge_score={final_score} score_band={score_band} "
+                    "page={page} chunk={chunk}".format(
+                        final_score=judge.get("final_score"),
+                        score_band=judge.get("score_band"),
+                        page=item.get("page_number"),
+                        chunk=item.get("chunk_id"),
+                    )
+                )
+                print(item.get("text", ""))
+                print("-" * 80)
+        if not payload.get("reranking_enabled") and not payload.get("judge_enabled"):
             for item in payload["results"]:
                 print(f"score={item['score']:.4f} page={item.get('page_number')} chunk={item.get('chunk_id')}")
                 print(item.get("text", ""))
@@ -486,6 +614,9 @@ def run_agent_pipeline(args: argparse.Namespace) -> None:
         if "node_prompt" in payload:
             print("-" * 80)
             print(payload["node_prompt"])
+        if "judge_prompt" in payload:
+            print("-" * 80)
+            print(payload["judge_prompt"])
 
 
 def _normalize_legacy_argv(argv: list[str]) -> list[str]:

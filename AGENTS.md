@@ -18,7 +18,7 @@ If asked to change routing behavior, confirm which router.
 ## Commands
 
 ```bash
-# Index a PDF into FAISS
+# Index a PDF into FAISS (optionally --embedding-provider together)
 python -m pipelines.indexing_pipeline index --pdf path/to.pdf --index-dir storage
 
 # Query FAISS (optional --generate-answer, --off-topic-threshold 0.35)
@@ -68,7 +68,7 @@ python test/test_pipeline.py --query "hello"
 
 ## Models (all via HuggingFace Hub)
 
-- Embedding: `BAAI/bge-m3` (via `FlagEmbedding.BGEM3FlagModel`)
+- Embedding: `BAAI/bge-m3` (via `huggingface_hub.InferenceClient` with optional inference provider)
 - LLM: `google/gemma-4-26B-A4B-it` (via `langchain-huggingface`)
 - Reranker: `BAAI/bge-reranker-v2-m3` (via HF Inference API, raw HTTP)
 

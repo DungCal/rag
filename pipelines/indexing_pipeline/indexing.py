@@ -19,7 +19,11 @@ def command_index(args: argparse.Namespace) -> None:
     if not pdf_path.exists():
         raise FileNotFoundError(f"PDF not found: {pdf_path}")
 
-    rag = PDFRAG(model_name=args.model_name, use_fp16=args.use_fp16)
+    rag = PDFRAG(
+        model_name=args.model_name,
+        provider=args.embedding_provider,
+        use_fp16=args.use_fp16,
+    )
     records = rag.build_records_from_pdf(
         pdf_path,
         chunk_size=args.chunk_size,
@@ -39,7 +43,11 @@ def command_index(args: argparse.Namespace) -> None:
 
 def command_query(args: argparse.Namespace) -> None:
     index, records = load_index(Path(args.index_dir))
-    rag = PDFRAG(model_name=args.model_name, use_fp16=args.use_fp16)
+    rag = PDFRAG(
+        model_name=args.model_name,
+        provider=args.embedding_provider,
+        use_fp16=args.use_fp16,
+    )
     query_vector = rag.embed_query(args.query)
     router = QueryRouter(off_topic_threshold=args.off_topic_threshold)
     decision = router.route(args.query, query_vector, index)
@@ -101,15 +109,27 @@ def build_parser() -> argparse.ArgumentParser:
     index_parser.add_argument("--pdf", required=True, help="Path to the input PDF file")
     index_parser.add_argument("--index-dir", default=str(DEFAULT_INDEX_DIR), help="Directory for FAISS index and metadata")
     index_parser.add_argument("--model-name", default=DEFAULT_MODEL_NAME, help="Embedding model name")
+    index_parser.add_argument(
+        "--embedding-provider",
+        default=None,
+        help="Hugging Face Hub inference provider for embeddings (e.g. 'together', 'fireworks-ai'). "
+             "Defaults to the Hugging Face Inference API.",
+    )
     index_parser.add_argument("--chunk-size", type=int, default=900, help="Chunk size in characters")
     index_parser.add_argument("--chunk-overlap", type=int, default=150, help="Chunk overlap in characters")
-    index_parser.add_argument("--use-fp16", action="store_true", help="Use fp16 for faster inference on supported hardware")
+    index_parser.add_argument("--use-fp16", action="store_true", help="Kept for CLI compatibility; ignored by inference providers")
     index_parser.set_defaults(func=command_index)
 
     query_parser = subparsers.add_parser("query", help="Query an existing FAISS vector store")
     query_parser.add_argument("--query", required=True, help="User query text")
     query_parser.add_argument("--index-dir", default=str(DEFAULT_INDEX_DIR), help="Directory containing FAISS index and metadata")
     query_parser.add_argument("--model-name", default=DEFAULT_MODEL_NAME, help="Embedding model name")
+    query_parser.add_argument(
+        "--embedding-provider",
+        default=None,
+        help="Hugging Face Hub inference provider for embeddings (e.g. 'together', 'fireworks-ai'). "
+             "Defaults to the Hugging Face Inference API.",
+    )
     query_parser.add_argument("--top-k", type=int, default=5, help="Number of retrieved chunks")
     query_parser.add_argument(
         "--generate-answer",
@@ -127,7 +147,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=0.35,
         help="Minimum similarity score required to treat a query as document-relevant",
     )
-    query_parser.add_argument("--use-fp16", action="store_true", help="Use fp16 for faster inference on supported hardware")
+    query_parser.add_argument("--use-fp16", action="store_true", help="Kept for CLI compatibility; ignored by inference providers")
     query_parser.add_argument("--as-json", action="store_true", help="Print results as JSON")
     query_parser.set_defaults(func=command_query)
 

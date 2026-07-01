@@ -51,6 +51,7 @@ class RetrieverNode:
         index_name: str,
         namespace: str = DEFAULT_PINECONE_NAMESPACE,
         model_name: str = DEFAULT_MODEL_NAME,
+        provider: str | None = None,
         top_k: int = 5,
         api_key: str | None = None,
         use_fp16: bool = False,
@@ -70,7 +71,7 @@ class RetrieverNode:
         self.index_name = index_name
         self.namespace = namespace
         self.top_k = top_k
-        self._rag = PDFRAG(model_name=model_name, use_fp16=use_fp16)
+        self._rag = PDFRAG(model_name=model_name, provider=provider, use_fp16=use_fp16)
         self._client = Pinecone(api_key=resolved_api_key)
         self._index = self._client.Index(name=index_name)
 

@@ -25,6 +25,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--pinecone-index-name", required=True, help="Pinecone index name for retrieval")
     parser.add_argument("--pinecone-namespace", default="default", help="Pinecone namespace for retrieval")
     parser.add_argument("--embedding-model-name", default="BAAI/bge-m3", help="Embedding model for retriever queries")
+    parser.add_argument(
+        "--embedding-provider",
+        default=None,
+        help="Hugging Face Hub inference provider for embeddings (e.g. 'together', 'fireworks-ai'). "
+             "Defaults to the Hugging Face Inference API.",
+    )
     parser.add_argument("--top-k", type=int, default=DEFAULT_RERANK_OUTPUT_TOP_K, help="Final number of reranked results to return")
     parser.add_argument("--reranker-model-name", default=DEFAULT_RERANKER_MODEL_NAME, help="Hugging Face reranker model name")
     parser.add_argument("--reranker-batch-size", type=int, default=8, help="Batch size for reranking")
@@ -32,7 +38,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--reranker-instruction", default=None, help="Reserved reranker option kept for CLI compatibility")
     parser.add_argument("--reranker-fp16", action="store_true", help="Reserved reranker option kept for CLI compatibility")
     parser.add_argument("--reranker-sigmoid", action="store_true", help="Convert reranker scores to 0-1 probabilities")
-    parser.add_argument("--use-fp16", action="store_true", help="Use fp16 for the embedding model when supported")
+    parser.add_argument("--use-fp16", action="store_true", help="Kept for CLI compatibility; ignored by inference providers")
     parser.add_argument("--as-json", action="store_true", help="Print the comparison payload as JSON")
     return parser
 
@@ -43,6 +49,7 @@ def main() -> None:
         index_name=args.pinecone_index_name,
         namespace=args.pinecone_namespace,
         model_name=args.embedding_model_name,
+        provider=args.embedding_provider,
         top_k=DEFAULT_RERANK_INPUT_TOP_K,
         use_fp16=args.use_fp16,
     )

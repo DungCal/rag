@@ -8,7 +8,7 @@ It now includes a lightweight query router before retrieval:
 - Retrieval node: runs normal similarity search for relevant document questions
 
 - Input: PDF file
-- Embedding model: `BAAI/bge-m3`
+- Embedding model: `BAAI/bge-m3` via Hugging Face Hub Inference API or an inference provider
 - Chunking: LangChain `RecursiveCharacterTextSplitter`
 - Main LLM for answer generation: `google/gemma-4-26B-A4B-it` via `langchain-huggingface`
 - Vector store: FAISS
@@ -54,7 +54,8 @@ Optional flags:
 
 - `--chunk-size 900`
 - `--chunk-overlap 150`
-- `--use-fp16`
+- `--embedding-provider together` (Hugging Face Hub inference provider; omit for the default HF Inference API)
+- `--use-fp16` (kept for compatibility; ignored by inference providers)
 
 ## Query the index
 
@@ -107,7 +108,9 @@ This reads vectors back from `storage/faiss.index`, aligns them with `storage/me
 ## Run the routed pipeline
 
 ```bash
-python pipelines/agent_pipeline/pipeline.py --query "What does the DPF warning lamp mean?" --pinecone-index-name your-index
+python pipelines/agent_pipeline/pipeline.py run \
+  --query "What does the DPF warning lamp mean?" \
+  --pinecone-index-name your-index
 ```
 
 Behavior:
@@ -119,7 +122,7 @@ Behavior:
 Optional reranking with Hugging Face Hub `BAAI/bge-reranker-v2-m3`:
 
 ```bash
-python pipelines/agent_pipeline/pipeline.py \
+python pipelines/agent_pipeline/pipeline.py run \
   --query "What does the DPF warning lamp mean?" \
   --pinecone-index-name your-index \
   --enable-rerank
