@@ -1,0 +1,4 @@
+2026-07-02 02:08:17 | INFO     | __main__:_configure_langsmith:451 | LangSmith tracing active: endpoint=https://api.smith.langchain.com, project=TRACTOR_RAG
+2026-07-02 02:08:17 | INFO     | __main__:__init__:195 | Initializing RoutedRAGPipeline: llm_model=google/gemma-4-26B-A4B-it, embedding_model=BAAI/bge-m3, embedding_provider=None, reranker_model=BAAI/bge-reranker-v2-m3, pinecone_index_name=rag-manual, pinecone_namespace=default, top_k=5, enable_rerank=False, enable_judge=False, judge_top_k=3, judge_min_score=5
+2026-07-02 02:08:17 | INFO     | __main__:__init__:211 | LangSmith tracing enabled: endpoint=https://api.smith.langchain.com, project=TRACTOR_RAG
+2026-07-02 02:08:18 | INFO     | __main__:_build_state:253 | Router decision: query='hello', route=greeting, label=greeting, message='Greeting query detected. Routing ended without document retrieval.', raw_output='greeting'
