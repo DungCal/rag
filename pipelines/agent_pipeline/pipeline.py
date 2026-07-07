@@ -43,6 +43,7 @@ from pipelines.indexing_pipeline.scope import (
 from pipelines.agent_pipeline.routers.routing_classification import (
     DEFAULT_DOCUMENT_SCOPE,
     PromptQueryRouter,
+    PromptRouteDecision,
 )
 from pipelines.agent_pipeline.routers.routing_response import (
     GreetingNode,
@@ -60,9 +61,18 @@ from pipelines.agent_pipeline.retriever_judge import (
     DEFAULT_JUDGE_TOP_K,
     RetrieverJudgeNode,
 )
+from commons.guardrails import PresidioPIIGuard, GuardrailsSafetyGuard
+from pipelines.agent_pipeline.rejected_nodes import RejectedNode
+from pipelines.agent_pipeline.safety_input_nodes import SafetyInputNode, SafetyInputResult
+from pipelines.agent_pipeline.safety_output_nodes import SafetyOutputNode, SafetyOutputResult
 
 
 DEFAULT_SCOPE_FILE = PROJECT_ROOT / "results" / "scope_result_20260606_193507.txt"
+DEFAULT_PRESIDIO_ANALYZER_URL = "http://localhost:5002/analyze"
+DEFAULT_PRESIDIO_ANONYMIZER_URL = "http://localhost:5001/anonymize"
+DEFAULT_REFUSAL_MESSAGES_PATH = str(PROJECT_ROOT / "prompts" / "guardrails" / "refusal_messages.txt")
+DEFAULT_SAFETY_NSFW_THRESHOLD = 0.95
+DEFAULT_SAFETY_TOXIC_THRESHOLD = 0.5
 DEFAULT_PINECONE_NAMESPACE = "default"
 DEFAULT_EMBEDDING_MODEL_NAME = "BAAI/bge-m3"
 
@@ -108,6 +118,13 @@ class RoutedRAGPipeline:
         judge_model_name: str,
         judge_top_k: int,
         judge_min_score: int,
+        enable_input_guard: bool = False,
+        enable_output_guard: bool = False,
+        presidio_analyzer_url: str = DEFAULT_PRESIDIO_ANALYZER_URL,
+        presidio_anonymizer_url: str = DEFAULT_PRESIDIO_ANONYMIZER_URL,
+        safety_nsfw_threshold: float = DEFAULT_SAFETY_NSFW_THRESHOLD,
+        safety_toxic_threshold: float = DEFAULT_SAFETY_TOXIC_THRESHOLD,
+        refusal_messages_path: str | None = None,
     ) -> None:
         try:
             from langchain_core.runnables import RunnableBranch, RunnableLambda
@@ -138,6 +155,13 @@ class RoutedRAGPipeline:
         self.judge_model_name = judge_model_name
         self.judge_top_k = judge_top_k
         self.judge_min_score = judge_min_score
+        self.enable_input_guard = enable_input_guard
+        self.enable_output_guard = enable_output_guard
+        self.presidio_analyzer_url = presidio_analyzer_url
+        self.presidio_anonymizer_url = presidio_anonymizer_url
+        self.safety_nsfw_threshold = safety_nsfw_threshold
+        self.safety_toxic_threshold = safety_toxic_threshold
+        self.refusal_messages_path = refusal_messages_path
 
         logger.info(
             "Initializing RoutedRAGPipeline: llm_model={}, embedding_model={}, embedding_provider={}, "
@@ -167,13 +191,49 @@ class RoutedRAGPipeline:
         self._reranker = None
         self._judge = None
 
+        # Guardrail nodes
+        if self.enable_input_guard or self.enable_output_guard:
+            self._rejected_node = RejectedNode(refusal_messages_path=self.refusal_messages_path)
+            pii_guard = PresidioPIIGuard(
+                analyzer_url=self.presidio_analyzer_url,
+                anonymizer_url=self.presidio_anonymizer_url,
+            )
+            safety_guard = GuardrailsSafetyGuard(
+                nsfw_threshold=self.safety_nsfw_threshold,
+                toxic_threshold=self.safety_toxic_threshold,
+            )
+            self._input_guard = (
+                SafetyInputNode(
+                    pii_guard=pii_guard,
+                    safety_guard=safety_guard,
+                    rejected_node=self._rejected_node,
+                )
+                if self.enable_input_guard
+                else None
+            )
+            self._output_guard = (
+                SafetyOutputNode(
+                    pii_guard=pii_guard,
+                    safety_guard=safety_guard,
+                    rejected_node=self._rejected_node,
+                )
+                if self.enable_output_guard
+                else None
+            )
+        else:
+            self._rejected_node = None
+            self._input_guard = None
+            self._output_guard = None
+
         self._chain = (
             RunnableLambda(self._build_state)
             | RunnableBranch(
+                (lambda state: state["decision"].route == "rejected", RunnableLambda(self._run_rejected)),
                 (lambda state: state["decision"].route == "greeting", RunnableLambda(self._run_greeting)),
                 (lambda state: state["decision"].route == "off_topic", RunnableLambda(self._run_off_topic)),
                 RunnableLambda(self._run_retrieval),
             )
+            | RunnableLambda(self._apply_output_guard)
             | RunnableLambda(self._build_payload)
         )
 
@@ -187,6 +247,29 @@ class RoutedRAGPipeline:
         query = str(inputs["query"]).strip()
         if not query:
             raise ValueError("User query must not be empty")
+
+        input_guard_result = None
+        if self._input_guard is not None:
+            input_guard_result = self._input_guard.run(query)
+            if input_guard_result.rejected:
+                logger.warning("Input guard rejected query; skipping router")
+                return {
+                    "query": query,
+                    "include_prompt": bool(inputs.get("include_prompt", False)),
+                    "decision": PromptRouteDecision(
+                        route="rejected",
+                        label="safety_violation",
+                        message="Input rejected by safety guard.",
+                        raw_output="",
+                        prompt="",
+                    ),
+                    "node_result": input_guard_result.node_result,
+                    "retriever_result": None,
+                    "rerank_result": None,
+                    "judge_result": None,
+                    "input_guard_result": input_guard_result.to_dict(),
+                }
+            query = input_guard_result.query
 
         decision = self._router.route(query)
         logger.info(
@@ -205,6 +288,7 @@ class RoutedRAGPipeline:
             "retriever_result": None,
             "rerank_result": None,
             "judge_result": None,
+            "input_guard_result": input_guard_result.to_dict() if input_guard_result else None,
         }
 
     def _run_greeting(self, state: dict[str, Any]) -> dict[str, Any]:
@@ -213,6 +297,39 @@ class RoutedRAGPipeline:
 
     def _run_off_topic(self, state: dict[str, Any]) -> dict[str, Any]:
         state["node_result"] = self._off_topic_node.run(state["query"])
+        return state
+
+    def _run_rejected(self, state: dict[str, Any]) -> dict[str, Any]:
+        """No-op branch: the rejection node_result was already set by the input guard."""
+        return state
+
+    def _apply_output_guard(self, state: dict[str, Any]) -> dict[str, Any]:
+        """Run output safety + PII guard on any generated textual response."""
+        if self._output_guard is None:
+            return state
+
+        # Already rejected inputs do not need their refusal message re-checked.
+        if state["decision"].route == "rejected":
+            return state
+
+        node_result = state.get("node_result")
+        if node_result is None or not getattr(node_result, "response", None):
+            return state
+
+        output_result = self._output_guard.run(node_result)
+        state["node_result"] = output_result.node_result
+        state["output_guard_result"] = output_result.to_dict()
+
+        if output_result.safety_result and not output_result.safety_result.passed:
+            logger.warning("Output guard rejected generated response")
+            state["decision"] = PromptRouteDecision(
+                route="rejected",
+                label="safety_violation",
+                message="Output rejected by safety guard.",
+                raw_output="",
+                prompt="",
+            )
+
         return state
 
     def _run_retrieval(self, state: dict[str, Any]) -> dict[str, Any]:
@@ -349,6 +466,10 @@ class RoutedRAGPipeline:
             payload["judge_enabled"] = True
             payload["judge_results"] = judge_result.results
             payload["results"] = judge_result.results
+        if state.get("input_guard_result") is not None:
+            payload["input_guard_result"] = state["input_guard_result"]
+        if state.get("output_guard_result") is not None:
+            payload["output_guard_result"] = state["output_guard_result"]
         if state["include_prompt"]:
             payload["prompt"] = decision.prompt
             if node_result is not None:
@@ -420,6 +541,35 @@ def _add_run_arguments(parser: argparse.ArgumentParser) -> None:
         type=int,
         default=DEFAULT_JUDGE_MIN_SCORE,
         help="Minimum judge score (0-10) a chunk must have to be kept",
+    )
+    parser.add_argument("--enable-input-guard", action="store_true", help="Enable input PII + safety guard")
+    parser.add_argument("--enable-output-guard", action="store_true", help="Enable output PII + safety guard")
+    parser.add_argument(
+        "--presidio-analyzer-url",
+        default=DEFAULT_PRESIDIO_ANALYZER_URL,
+        help="URL of the Presidio analyzer service",
+    )
+    parser.add_argument(
+        "--presidio-anonymizer-url",
+        default=DEFAULT_PRESIDIO_ANONYMIZER_URL,
+        help="URL of the Presidio anonymizer service",
+    )
+    parser.add_argument(
+        "--safety-nsfw-threshold",
+        type=float,
+        default=DEFAULT_SAFETY_NSFW_THRESHOLD,
+        help="Threshold for the NSFWText safety validator",
+    )
+    parser.add_argument(
+        "--safety-toxic-threshold",
+        type=float,
+        default=DEFAULT_SAFETY_TOXIC_THRESHOLD,
+        help="Threshold for the ToxicLanguage safety validator",
+    )
+    parser.add_argument(
+        "--refusal-messages-path",
+        default=None,
+        help="Path to the refusal messages file used by safety guards",
     )
     parser.add_argument("--as-json", action="store_true", help="Print the pipeline result as JSON")
     parser.add_argument("--print-prompt", action="store_true", help="Include the rendered prompt in the output")
@@ -546,6 +696,13 @@ def run_agent_pipeline(args: argparse.Namespace) -> None:
         judge_model_name=args.judge_model_name,
         judge_top_k=args.judge_top_k,
         judge_min_score=args.judge_min_score,
+        enable_input_guard=args.enable_input_guard,
+        enable_output_guard=args.enable_output_guard,
+        presidio_analyzer_url=args.presidio_analyzer_url,
+        presidio_anonymizer_url=args.presidio_anonymizer_url,
+        safety_nsfw_threshold=args.safety_nsfw_threshold,
+        safety_toxic_threshold=args.safety_toxic_threshold,
+        refusal_messages_path=args.refusal_messages_path,
     )
     payload = pipeline.invoke(args.query, include_prompt=args.print_prompt)
 

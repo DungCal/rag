@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "validators": {
+    "guardrails/detect_pii": {
+      "import_path": "guardrails_grhub_detect_pii",
+      "exports": [
+        "DetectPII"
+      ],
+      "installed_at": "2026-07-06T15:14:30.855597+00:00",
+      "package_name": "guardrails-grhub-detect-pii"
+    },
+    "guardrails/regex_match": {
+      "import_path": "guardrails_grhub_regex_match",
+      "exports": [
+        "RegexMatch"
+      ],
+      "installed_at": "2026-07-06T15:35:34.033933+00:00",
+      "package_name": "guardrails-grhub-regex-match"
+    },
+    "guardrails/toxic_language": {
+      "import_path": "guardrails_grhub_toxic_language",
+      "exports": [
+        "ToxicLanguage"
+      ],
+      "installed_at": "2026-07-07T17:13:59.196816+00:00",
+      "package_name": "guardrails-grhub-toxic-language"
+    },
+    "guardrails/guardrails_pii": {
+      "import_path": "guardrails_grhub_guardrails_pii",
+      "exports": [
+        "GuardrailsPII"
+      ],
+      "installed_at": "2026-07-06T17:59:12.219923+00:00",
+      "package_name": "guardrails-grhub-guardrails-pii"
+    },
+    "guardrails/profanity_free": {
+      "import_path": "guardrails_grhub_profanity_free",
+      "exports": [
+        "ProfanityFree"
+      ],
+      "installed_at": "2026-07-07T17:17:37.158714+00:00",
+      "package_name": "guardrails-grhub-profanity-free"
+    },
+    "guardrails/nsfw_text": {
+      "import_path": "guardrails_grhub_nsfw_text",
+      "exports": [
+        "NSFWText"
+      ],
+      "installed_at": "2026-07-07T17:21:59.371245+00:00",
+      "package_name": "guardrails-grhub-nsfw-text"
+    }
+  }
+}
