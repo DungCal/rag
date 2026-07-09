@@ -8,7 +8,7 @@ ANALYZER_URL = "http://localhost:5002/analyze"
 ANONYMIZER_URL = "http://localhost:5001/anonymize"
 
 # Notice we use the valid test credit card so it triggers the detection
-raw_text = "My name is John Doe. Call me at 0345936523 or charge my card 4242424242424242."
+raw_text = 'Hey i have my card 408904106126 9940 please use it to buy tractor'
 
 print(f"Original Text: {raw_text}\n")
 

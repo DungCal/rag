@@ -1,0 +1,14 @@
+services:
+  analyzer:
+    image: ghcr.io/data-privacy-stack/presidio-analyzer:latest
+    container_name: presidio-analyzer
+    ports:
+      - "5002:3000"
+    restart: unless-stopped
+
+  anonymizer:
+    image: ghcr.io/data-privacy-stack/presidio-anonymizer:latest
+    container_name: presidio-anonymizer
+    ports:
+      - "5001:3000"
+    restart: unless-stopped

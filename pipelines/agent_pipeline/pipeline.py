@@ -2,13 +2,36 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+ENV_FILE_PATH = PROJECT_ROOT / ".env"
+
+
+def _parse_env_file(env_path: Path) -> dict[str, str]:
+    """Parse a simple KEY=VALUE .env file into a dictionary."""
+    values: dict[str, str] = {}
+    if not env_path.exists():
+        return values
+    for raw_line in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        values[key.strip()] = value.strip().strip('"').strip("'")
+    return values
+
+
+_ENV_VALUES = _parse_env_file(ENV_FILE_PATH)
+for _key in ("LANGCHAIN_ENDPOINT", "LANGCHAIN_API_KEY", "LANGCHAIN_PROJECT"):
+    if _ENV_VALUES.get(_key) and not os.environ.get(_key):
+        os.environ[_key] = _ENV_VALUES[_key]
+
 from loguru import logger
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -23,6 +46,25 @@ logger.add(
     encoding="utf-8",
     format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} | {message}",
 )
+
+try:
+    from langsmith import traceable
+
+    _LANGSMITH_AVAILABLE = True
+except ImportError:  # pragma: no cover - optional for base pipeline
+    _LANGSMITH_AVAILABLE = False
+
+    def traceable(*args, **kwargs):
+        def decorator(func):
+            return func
+
+        return decorator
+
+
+_trace_router = traceable(run_type="llm", name="router_classification")
+_trace_greeting = traceable(run_type="llm", name="greeting_response")
+_trace_off_topic = traceable(run_type="llm", name="off_topic_response")
+_trace_judge = traceable(run_type="llm", name="retriever_judge")
 
 from pipelines.indexing_pipeline.indexing import (
     DEFAULT_INDEX_DIR,
@@ -125,6 +167,7 @@ class RoutedRAGPipeline:
         safety_nsfw_threshold: float = DEFAULT_SAFETY_NSFW_THRESHOLD,
         safety_toxic_threshold: float = DEFAULT_SAFETY_TOXIC_THRESHOLD,
         refusal_messages_path: str | None = None,
+        enable_langsmith: bool = False,
     ) -> None:
         try:
             from langchain_core.runnables import RunnableBranch, RunnableLambda
@@ -162,6 +205,7 @@ class RoutedRAGPipeline:
         self.safety_nsfw_threshold = safety_nsfw_threshold
         self.safety_toxic_threshold = safety_toxic_threshold
         self.refusal_messages_path = refusal_messages_path
+        self.enable_langsmith = enable_langsmith
 
         logger.info(
             "Initializing RoutedRAGPipeline: llm_model={}, embedding_model={}, embedding_provider={}, "
@@ -178,6 +222,13 @@ class RoutedRAGPipeline:
             self.enable_judge,
             self.judge_top_k,
             self.judge_min_score,
+        )
+        logger.info(
+            "LangSmith tracing {}: available={}, endpoint={}, project={}",
+            "enabled" if self.enable_langsmith else "disabled",
+            _LANGSMITH_AVAILABLE,
+            os.environ.get("LANGCHAIN_ENDPOINT", "default"),
+            os.environ.get("LANGCHAIN_PROJECT", "default"),
         )
 
         self._router = PromptQueryRouter(
@@ -271,7 +322,7 @@ class RoutedRAGPipeline:
                 }
             query = input_guard_result.query
 
-        decision = self._router.route(query)
+        decision = self._classify_route(query)
         logger.info(
             "Router decision: query={!r}, route={}, label={}, message={!r}, raw_output={!r}",
             query,
@@ -291,13 +342,28 @@ class RoutedRAGPipeline:
             "input_guard_result": input_guard_result.to_dict() if input_guard_result else None,
         }
 
+    @_trace_router
+    def _classify_route(self, query: str) -> Any:
+        """Classify the user query into greeting/related/off_topic."""
+        return self._router.route(query)
+
     def _run_greeting(self, state: dict[str, Any]) -> dict[str, Any]:
-        state["node_result"] = self._greeting_node.run(state["query"])
+        state["node_result"] = self._generate_greeting(state["query"])
         return state
 
+    @_trace_greeting
+    def _generate_greeting(self, query: str) -> Any:
+        """Generate a greeting response using the LLM."""
+        return self._greeting_node.run(query)
+
     def _run_off_topic(self, state: dict[str, Any]) -> dict[str, Any]:
-        state["node_result"] = self._off_topic_node.run(state["query"])
+        state["node_result"] = self._generate_off_topic(state["query"])
         return state
+
+    @_trace_off_topic
+    def _generate_off_topic(self, query: str) -> Any:
+        """Generate an off-topic response using the LLM."""
+        return self._off_topic_node.run(query)
 
     def _run_rejected(self, state: dict[str, Any]) -> dict[str, Any]:
         """No-op branch: the rejection node_result was already set by the input guard."""
@@ -413,7 +479,7 @@ class RoutedRAGPipeline:
                         min_score=self.judge_min_score,
                     )
 
-                state["judge_result"] = self._judge.run(
+                state["judge_result"] = self._judge_chunk_relevance(
                     judge_input.query,
                     judge_input.results,
                 )
@@ -435,6 +501,11 @@ class RoutedRAGPipeline:
                             (item.get("text", "")[:120] + "...") if len(item.get("text", "")) > 120 else item.get("text", ""),
                         )
         return state
+
+    @_trace_judge
+    def _judge_chunk_relevance(self, query: str, results: list[dict[str, Any]]) -> Any:
+        """Score retrieved/reranked chunks for relevance using the LLM."""
+        return self._judge.run(query, results)
 
     @staticmethod
     def _build_payload(state: dict[str, Any]) -> dict[str, Any]:
@@ -573,6 +644,12 @@ def _add_run_arguments(parser: argparse.ArgumentParser) -> None:
     )
     parser.add_argument("--as-json", action="store_true", help="Print the pipeline result as JSON")
     parser.add_argument("--print-prompt", action="store_true", help="Include the rendered prompt in the output")
+    parser.add_argument("--enable-langsmith", action="store_true", help="Enable LangSmith tracing for this run")
+    parser.add_argument(
+        "--langsmith-project",
+        default=None,
+        help="Override the LANGCHAIN_PROJECT value read from .env",
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -673,6 +750,19 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def run_agent_pipeline(args: argparse.Namespace) -> None:
+    if args.langsmith_project:
+        os.environ["LANGCHAIN_PROJECT"] = args.langsmith_project
+
+    if args.enable_langsmith:
+        os.environ["LANGCHAIN_TRACING_V2"] = "true"
+        logger.info(
+            "LangSmith tracing active: endpoint={}, project={}",
+            os.environ.get("LANGCHAIN_ENDPOINT", "https://api.smith.langchain.com"),
+            os.environ.get("LANGCHAIN_PROJECT", "default"),
+        )
+    elif not os.environ.get("LANGCHAIN_TRACING_V2"):
+        os.environ["LANGCHAIN_TRACING_V2"] = "false"
+
     scope = _load_scope(args.scope, args.scope_file)
     pipeline = RoutedRAGPipeline(
         prompt_path=args.prompt_path,
@@ -703,6 +793,7 @@ def run_agent_pipeline(args: argparse.Namespace) -> None:
         safety_nsfw_threshold=args.safety_nsfw_threshold,
         safety_toxic_threshold=args.safety_toxic_threshold,
         refusal_messages_path=args.refusal_messages_path,
+        enable_langsmith=args.enable_langsmith,
     )
     payload = pipeline.invoke(args.query, include_prompt=args.print_prompt)
 
