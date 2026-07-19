@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
 from pathlib import Path
 
 from pipelines.indexing_pipeline.llm import DEFAULT_LLM_MODEL, _load_api_key_from_env_file
+from pipelines.agent_pipeline.shared.node_results import PromptNodeResult
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_GREETING_PROMPT_PATH = PROJECT_ROOT / "prompts" / "greeting_node_prompt.txt"
 DEFAULT_OFF_TOPIC_PROMPT_PATH = PROJECT_ROOT / "prompts" / "off_topic_node_prompt.txt"
 DEFAULT_SCOPE_FILE_PATH = PROJECT_ROOT / "results" / "scope_result_20260606_193507.txt"
@@ -22,14 +22,6 @@ def load_default_scope(scope_file: str | Path = DEFAULT_SCOPE_FILE_PATH) -> str:
     if not scope:
         raise ValueError(f"Scope file is empty: {scope_path.resolve()}")
     return scope
-
-
-@dataclass
-class PromptNodeResult:
-    route: str
-    response: str
-    raw_output: str
-    prompt: str
 
 
 class _PromptResponseNode:

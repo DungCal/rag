@@ -1,0 +1,7 @@
+{
+  "default": "I'm sorry, but I can't help with that request. Could you try rephrasing your question? I'd be happy to assist with other topics.",
+  "NSFWText": "I noticed your message contains content that doesn't align with our community guidelines. Let's keep our conversation respectful and appropriate. Feel free to ask me anything else!",
+  "ProfanityFree": "I'd prefer to keep our conversation professional and friendly. Could you rephrase your question without any strong language? I'm here to help with any other questions you might have.",
+  "ToxicLanguage": "I want to make sure we have a positive and constructive conversation. Your message seems to contain language that might be harmful or disrespectful. Let's try again with a more positive tone - I'm ready to help!",
+  "multiple_violations": "I appreciate you reaching out, but your message seems to have a few issues with our content guidelines. Let's start fresh - I'm here to help with any questions you have in a respectful and appropriate way."
+}

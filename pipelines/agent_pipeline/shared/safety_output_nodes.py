@@ -5,9 +5,8 @@ from typing import Any
 
 from loguru import logger
 
-from commons.guardrails.pii_presidio import PIIDetectionResult, PresidioPIIGuard
-from commons.guardrails.guardrailsAI_safetycheck import GuardrailsSafetyGuard, SafetyCheckResult
-from pipelines.agent_pipeline.rejected_nodes import RejectedNode, PromptNodeResult
+from pipelines.agent_pipeline.shared.guardrails import PIIDetectionResult, PresidioPIIGuard, GuardrailsSafetyGuard, SafetyCheckResult
+from pipelines.agent_pipeline.shared.rejected_nodes import RejectedNode, PromptNodeResult
 
 
 @dataclass
@@ -71,7 +70,7 @@ class SafetyOutputNode:
                     violation.get("validator"),
                     violation.get("error"),
                 )
-            rejected = self.rejected_node.run(text)
+            rejected = self.rejected_node.run(text, safety_result.violations)
             return SafetyOutputResult(
                 node_result=PromptNodeResult(
                     route="rejected",

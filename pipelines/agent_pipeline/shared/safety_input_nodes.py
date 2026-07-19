@@ -5,9 +5,8 @@ from typing import Any
 
 from loguru import logger
 
-from commons.guardrails.pii_presidio import PIIDetectionResult, PresidioPIIGuard
-from commons.guardrails.guardrailsAI_safetycheck import GuardrailsSafetyGuard, SafetyCheckResult
-from pipelines.agent_pipeline.rejected_nodes import RejectedNode, PromptNodeResult
+from pipelines.agent_pipeline.shared.guardrails import PIIDetectionResult, PresidioPIIGuard, GuardrailsSafetyGuard, SafetyCheckResult
+from pipelines.agent_pipeline.shared.rejected_nodes import RejectedNode, PromptNodeResult
 
 
 @dataclass
@@ -78,7 +77,7 @@ class SafetyInputNode:
             return SafetyInputResult(
                 query=original_query,
                 rejected=True,
-                node_result=self.rejected_node.run(original_query),
+                node_result=self.rejected_node.run(original_query, safety_result.violations),
                 safety_result=safety_result,
             )
 

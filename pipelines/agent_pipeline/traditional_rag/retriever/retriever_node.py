@@ -6,10 +6,10 @@ from pathlib import Path
 from typing import Any
 
 from pipelines.indexing_pipeline.pdf_rag import DEFAULT_MODEL_NAME, PDFRAG
-from pipelines.agent_pipeline.routers.routing_classification import PromptRouteDecision
+from pipelines.agent_pipeline.traditional_rag.routers.routing_classification import PromptRouteDecision
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
 ENV_FILE_PATH = PROJECT_ROOT / ".env"
 DEFAULT_PINECONE_NAMESPACE = "default"
 ROUTING_MESSAGES = {

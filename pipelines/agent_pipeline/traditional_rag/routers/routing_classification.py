@@ -4,10 +4,12 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
+from loguru import logger
+
 from pipelines.indexing_pipeline.llm import DEFAULT_LLM_MODEL, _load_api_key_from_env_file
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_ROUTE_PROMPT_PATH = PROJECT_ROOT / "prompts" / "route_node_prompt.txt"
 DEFAULT_DOCUMENT_SCOPE = (
     "The document is a TYM diesel tractor operator manual. "
@@ -89,8 +91,44 @@ class PromptQueryRouter:
 
     def route(self, user_query: str) -> PromptRouteDecision:
         prompt = self.build_prompt(user_query)
-        raw_output = str(self._chat_model.invoke(prompt).content).strip()
-        label = self._normalize_label(raw_output)
+        
+        # Retry logic for empty responses
+        max_retries = 3
+        raw_output = ""
+        label = None
+        
+        for attempt in range(max_retries):
+            try:
+                raw_output = str(self._chat_model.invoke(prompt).content).strip()
+                logger.info("Router raw output (attempt {}): {!r}", attempt + 1, raw_output)
+                
+                if not raw_output:
+                    logger.warning("Router returned empty response, retrying... ({}/{})", attempt + 1, max_retries)
+                    continue
+                
+                # Try to normalize the label
+                try:
+                    label = self._normalize_label(raw_output)
+                    break  # Success
+                except ValueError as e:
+                    logger.warning("Router returned invalid label '{}', retrying... ({}/{}): {}", 
+                                 raw_output, attempt + 1, max_retries, e)
+                    continue
+                    
+            except Exception as e:
+                logger.error("Router invocation failed (attempt {}/{}): {}", attempt + 1, max_retries, e)
+                if attempt == max_retries - 1:
+                    raise ValueError(
+                        f"Router model failed after {max_retries} retries. "
+                        "This may indicate an issue with the HuggingFace API, model availability, or network connectivity."
+                    ) from e
+        
+        if label is None:
+            raise ValueError(
+                f"Router model returned empty or invalid response after {max_retries} retries. "
+                "This may indicate an issue with the HuggingFace API or model availability."
+            )
+        
         route = LABEL_TO_ROUTE[label]
 
         return PromptRouteDecision(

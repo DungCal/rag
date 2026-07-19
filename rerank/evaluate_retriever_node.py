@@ -9,13 +9,13 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from pipelines.agent_pipeline.rerank.rerank_node import (
+from pipelines.agent_pipeline.traditional_rag.rerank.rerank_node import (
     DEFAULT_RERANK_INPUT_TOP_K,
     DEFAULT_RERANK_OUTPUT_TOP_K,
     RerankNode,
 )
-from pipelines.agent_pipeline.retriever.retriever_node import RetrieverNode
-from pipelines.agent_pipeline.routers.routing_classification import PromptRouteDecision
+from pipelines.agent_pipeline.traditional_rag.retriever.retriever_node import RetrieverNode
+from pipelines.agent_pipeline.traditional_rag.routers.routing_classification import PromptRouteDecision
 from rerank.hf_reranker import DEFAULT_RERANKER_MODEL_NAME
 
 

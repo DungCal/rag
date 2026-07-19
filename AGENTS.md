@@ -3,12 +3,18 @@
 ## Entrypoints
 
 - **FAISS-based (local):** `python -m pipelines.indexing_pipeline {index,query,scope}`
-- **Prompt-based + Pinecone (remote):** `python -m pipelines.agent_pipeline.pipeline run --pinecone-index-name <name>`
-  - Also runnable as a script: `python pipelines/agent_pipeline/pipeline.py run --pinecone-index-name <name>`
-  - The pipeline module also re-exports `index`, `query`, `scope` subcommands (same CLI as indexing pipeline)
-- **LangSmith variant:** `python -m pipelines.agent_pipeline.pipeline run --enable-langsmith --pinecone-index-name <name>`
+- **Prompt-based + Pinecone (remote):** `python -m pipelines.agent_pipeline.orchestration run --pinecone-index-name <name>`
+  - Also runnable as a script: `python pipelines/agent_pipeline/orchestration.py run --pinecone-index-name <name>`
+  - Backward-compatible alias: `python -m pipelines.agent_pipeline.pipeline run --pinecone-index-name <name>`
+  - The orchestration module also re-exports `index`, `query`, `scope` subcommands (same CLI as indexing pipeline)
+- **LangSmith variant:** `python -m pipelines.agent_pipeline.orchestration run --enable-langsmith --pinecone-index-name <name>`
   - Tracing is off by default; pass `--enable-langsmith` to send LLM spans to LangSmith.
   - The old `pipeline_v2.py` has been moved to `.old_artifacts/`.
+- **Agentic RAG (LangGraph + MCP, FAISS retrieval):** `python -m pipelines.agent_pipeline.orchestration run --turn-on-agent-rag --query "..."`
+  - Set env var `TURN_ON_AGENT_RAG=true` or pass `--turn-on-agent-rag`.
+  - When enabled, `related` queries are handled by a LangGraph ReAct agent that calls MCP tools: `retrieve_context` (FAISS), `rerank`, and `web_search`.
+  - `query_user_data` is registered as a draft MCP server but is not wired into the active tool loop.
+  - Requires `TAVILY_API_KEY` for the external web search tool.
 
 ## Two routing systems (do not conflate)
 
@@ -34,33 +40,33 @@ python -m pipelines.indexing_pipeline query --index-dir storage --query "..."
 python -m pipelines.indexing_pipeline scope --metadata-path storage/metadata.json
 
 # Run prompt-based pipeline with Pinecone retrieval
-python -m pipelines.agent_pipeline.pipeline run \
+python -m pipelines.agent_pipeline.orchestration run \
   --query "..." \
   --pinecone-index-name your-index \
   [--pinecone-namespace default]
 
 # With reranking
-python -m pipelines.agent_pipeline.pipeline run \
+python -m pipelines.agent_pipeline.orchestration run \
   --query "..." \
   --pinecone-index-name your-index \
   --enable-rerank
 
 # With LLM-as-a-judge over reranked chunks
-python -m pipelines.agent_pipeline.pipeline run \
+python -m pipelines.agent_pipeline.orchestration run \
   --query "..." \
   --pinecone-index-name your-index \
   --enable-rerank \
   --enable-judge
 
 # With input/output safety + PII guards (requires Presidio services + guardrails)
-python -m pipelines.agent_pipeline.pipeline run \
+python -m pipelines.agent_pipeline.orchestration run \
   --query "..." \
   --pinecone-index-name your-index \
   --enable-input-guard \
   --enable-output-guard
 
 # With LangSmith tracing
-python -m pipelines.agent_pipeline.pipeline run \
+python -m pipelines.agent_pipeline.orchestration run \
   --query "..." \
   --pinecone-index-name your-index \
   --enable-langsmith \
@@ -80,18 +86,39 @@ streamlit run app/app.py
 
 # Compare retriever vs reranker scores
 python rerank/evaluate_retriever_node.py --query "..." --pinecone-index-name your-index
+
+# Agentic RAG with FAISS retrieval and Tavily web search
+python -m pipelines.agent_pipeline.orchestration run \
+  --turn-on-agent-rag \
+  --query "..." \
+  --tavily-api-key "$TAVILY_API_KEY"
+
+# Agentic RAG with safety guards enabled
+python -m pipelines.agent_pipeline.orchestration run \
+  --turn-on-agent-rag \
+  --enable-input-guard \
+  --enable-output-guard \
+  --query "..." \
+  --tavily-api-key "$TAVILY_API_KEY"
+
+# Run MCP servers individually for debugging
+python mcp_servers/retrieve_context_server.py
+python mcp_servers/rerank_server.py
+python mcp_servers/web_search_server.py
+python mcp_servers/query_user_data_server.py
 ```
 
 ## Verification
 
 ```bash
 # Syntax smoke
-python -m compileall pipelines/indexing_pipeline pipelines/agent_pipeline vector_databases app
+python -m compileall pipelines/indexing_pipeline pipelines/agent_pipeline mcp_servers vector_databases app
 
 # CLI help
 python -m pipelines.indexing_pipeline --help
+python -m pipelines.agent_pipeline.orchestration --help
+python -m pipelines.agent_pipeline.orchestration run --help
 python -m pipelines.agent_pipeline.pipeline --help
-python -m pipelines.agent_pipeline.pipeline run --help
 python vector_databases/pinecone_sync.py --help
 
 # Hello-world routing test (no Pinecone needed)
@@ -106,14 +133,28 @@ python test/test_pipeline.py --query "hello"
 ## Architecture
 
 - `pipelines/indexing_pipeline/` — FAISS ingestion, embedding, retrieval, query router, scope gen
-- `pipelines/agent_pipeline/` — LangChain prompt-based routing + Pinecone retrieval + reranking + safety/PII guardrails + optional LangSmith tracing
-  - `routers/` — `PromptQueryRouter` and response nodes (`GreetingNode`, `OffTopicNode`)
-  - `retriever/` — Pinecone-backed `RetrieverNode`
-  - `rerank/` — HuggingFace Hub reranker wrapper
-  - `retriever_judge/` — LLM-as-a-judge scoring node
-  - `safety_input_nodes.py` / `safety_output_nodes.py` — Presidio + Guardrails safety wrappers
+- `pipelines/agent_pipeline/` — LangChain prompt-based routing + retrieval + reranking + safety/PII guardrails + optional LangSmith tracing
+  - `orchestration.py` — dispatcher that selects traditional or agentic RAG based on `TURN_ON_AGENT_RAG`
+  - `traditional_rag/` — existing deterministic Pinecone-backed pipeline
+    - `routers/` — `PromptQueryRouter` and response nodes (`GreetingNode`, `OffTopicNode`)
+    - `retriever/` — Pinecone-backed `RetrieverNode`
+    - `rerank/` — HuggingFace Hub reranker wrapper
+    - `retriever_judge/` — LLM-as-a-judge scoring node
+  - `agent_rag/` — LangGraph ReAct agentic RAG
+    - `agent_graph.py` — agent node + final answer generation
+    - `tool_client.py` — `MultiServerMCPClient` configuration for stdio MCP servers
+    - `guardtool.py` — wraps every MCP tool call with `SafetyInputNode` + `SafetyOutputNode`
+  - `commons/` — shared `SafetyInputNode`, `SafetyOutputNode`, `RejectedNode`
+  - `safety_input_nodes.py` / `safety_output_nodes.py` / `rejected_nodes.py` — moved to `commons/`
+- `mcp_servers/` — FastMCP servers for agentic RAG
+  - `retrieve_context_server.py` — FAISS retrieval
+  - `rerank_server.py` — cross-encoder rerank
+  - `web_search_server.py` — Tavily web search
+  - `query_user_data_server.py` — draft / not wired into the active agent loop
+- `pipelines/agent_pipeline/shared/` — shared guardrails, safety nodes, and rejection node
+  - `guardrails.py` — single re-export for `PresidioPIIGuard`, `GuardrailsSafetyGuard`, `PIIDetectionResult`, `SafetyCheckResult` (only file that imports from `commons.guardrails`)
+  - `safety_input_nodes.py` / `safety_output_nodes.py` — input/output safety wrappers
   - `rejected_nodes.py` — refusal message node for failed safety checks
-- `commons/guardrails/` — reusable Presidio PII and Guardrails safety wrappers
 - `storage/faiss.index` + `storage/metadata.json` — local vector store (generated, do not edit)
 - `results/scope_result_*.txt` — generated scope summaries (do not edit)
 - `output_prompt.txt` — default rendered prompt snapshot from the `scope` command; path configurable via `--output-prompt-path`
@@ -133,6 +174,8 @@ python test/test_pipeline.py --query "hello"
 
 - `HF_TOKEN` — required for any LLM/routing/reranker call
 - `PINECONE_API_KEY` — required for Pinecone operations
+- `TAVILY_API_KEY` — required for the `web_search` MCP server when agentic RAG is enabled
+- `TURN_ON_AGENT_RAG` — optional env flag; set to `true` to default to agentic RAG mode
 - `LANGCHAIN_API_KEY`, `LANGCHAIN_ENDPOINT`, `LANGCHAIN_PROJECT` — optional, read from `.env` by the agent pipeline; only used when `--enable-langsmith` is passed
 
 Resolution order: process env → `.env` file in repo root.
@@ -148,6 +191,10 @@ Resolution order: process env → `.env` file in repo root.
 - `requirements.txt` previously omitted `loguru` and `langsmith`; both are now listed and required by `pipelines/agent_pipeline/pipeline.py`.
 - `diagrams/agent_graph.md` describes a more advanced aspirational graph (memory, generation, verification) than the current `pipeline.py` implementation. The implemented pipeline only has router → greeting/off_topic/retrieval → optional rerank/judge/safety guards.
 - The old `pipelines/agent_pipeline/pipeline_v2.py` has been moved to `.old_artifacts/pipeline_v2.py`; use the merged `pipeline.py` with `--enable-langsmith` instead.
+- The agentic RAG path requires the MCP server scripts (`mcp_servers/*.py`) to be runnable as separate stdio processes. Ensure `python` is on `PATH` and the working directory is the repo root.
+- `TAVILY_API_KEY` must be set for `web_search` to return real results; without it the server will raise a clear error.
+- `query_user_data` MCP server is a draft and is intentionally omitted from the LangGraph tool list.
+- Tool outputs from `web_search` and `rerank` are guarded by `SafetyOutputNode`; if a violation is detected the tool result is replaced by a refusal message.
 
 ## Graph diagram
 

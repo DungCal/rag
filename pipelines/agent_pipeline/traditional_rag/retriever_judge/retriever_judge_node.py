@@ -10,7 +10,7 @@ from typing import Any
 from pipelines.indexing_pipeline.llm import DEFAULT_LLM_MODEL, _load_api_key_from_env_file
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_JUDGE_PROMPT_PATH = (
     PROJECT_ROOT / "prompts" / "llm-as-a-judge" / "llm-as-a-judge-context-relevance.txt"
 )
