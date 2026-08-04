@@ -180,23 +180,35 @@ python -m pipelines.agent_pipeline.orchestration run \
   --tavily-api-key "$TAVILY_API_KEY"
 ```
 
+With persistent conversation (thread_id):
+
+```bash
+python -m pipelines.agent_pipeline.orchestration run \
+  --turn-on-agent-rag \
+  --thread-id conv-001 \
+  --query "..."
+```
+
 Behavior:
 
 - `orchestration.py` reads the `TURN_ON_AGENT_RAG` flag (CLI flag overrides env var).
 - If `false`, it delegates to the existing deterministic pipeline in `traditional_rag/`.
 - If `true`:
-  - Runs `SafetyInputNode`. If rejected, returns the `RejectedNode` refusal.
-  - Runs `PromptQueryRouter` (greeting / related / off_topic).
-  - `greeting` and `off_topic` go to their response nodes, then `SafetyOutputNode`.
-  - `related` goes to the LangGraph agent node.
-  - The agent loop calls MCP tools wrapped by `GuardTool`:
+  - The entire pipeline runs as a single checkpointed LangGraph `StateGraph`.
+  - Conversation state is persisted via `SqliteSaver` to `logs/agent_checkpoints.sqlite` (override with `--checkpoint-db`).
+  - Pass `--thread-id <id>` to continue a previous conversation; omitted, a new UUID is auto-generated.
+  - `input_safety` node runs `SafetyInputNode`. If rejected, the refusal message goes to `output_safety`.
+  - `router` node runs `PromptQueryRouter` (greeting / related / off_topic).
+  - `greeting` and `off_topic` go to their response nodes, then `output_safety`.
+  - `related` goes to the LangGraph ReAct agent node.
+  - The agent loop calls MCP tools:
     - `retrieve_context` (FAISS-based, from `storage/faiss.index`)
     - `rerank`
     - `web_search` (Tavily)
     - `query_user_data` is **not** exposed to the agent.
-  - Every tool input is guarded by `SafetyInputNode` and every tool output by `SafetyOutputNode`.
-  - After tool observations, the agent generates a final answer.
-  - The final answer passes through `SafetyOutputNode`.
+  - Only `web_search` tool calls are guarded by `SafetyInputNode` and `SafetyOutputNode`.
+  - After tool observations, the `generate` node runs `GenerationNode` to produce a final answer.
+  - The final answer passes through `output_safety` node (`SafetyOutputNode`).
 
 ## Code Map
 
@@ -215,7 +227,7 @@ Behavior:
 - `pipelines/agent_pipeline/traditional_rag/retriever/retriever_node.py`: Pinecone-backed retrieval node for `related` route decisions.
 - `pipelines/agent_pipeline/traditional_rag/rerank/rerank_node.py`: HuggingFace Hub reranker wrapper.
 - `pipelines/agent_pipeline/traditional_rag/retriever_judge/retriever_judge_node.py`: LLM-as-a-judge relevance scoring.
-- `pipelines/agent_pipeline/agent_rag/agent_graph.py`: LangGraph ReAct agent node + final answer generation.
+- `pipelines/agent_pipeline/agent_rag/agent_graph.py`: full-pipeline LangGraph `StateGraph` (input safety → router → ReAct agent → judge → generation → output safety) checkpointed with `SqliteSaver`.
 - `pipelines/agent_pipeline/agent_rag/tool_client.py`: `MultiServerMCPClient` configuration for stdio MCP servers.
 - `pipelines/agent_pipeline/agent_rag/guardtool.py`: wraps tool calls with `SafetyInputNode` and `SafetyOutputNode`.
 - `pipelines/agent_pipeline/shared/`: shared safety nodes and rejection node.
@@ -246,6 +258,8 @@ Reranker model default:
 
 - `BAAI/bge-reranker-v2-m3`
 
+All LLM calls go through `huggingface_hub.InferenceClient.chat_completion()` with a configurable `provider` parameter (default: `scaleway`).
+
 Libraries that matter most:
 
 - `faiss-cpu`
@@ -270,6 +284,11 @@ Libraries that matter most:
 ## Secrets And Environment
 
 This repo expects a Hugging Face token in `HF_TOKEN`.
+
+The HuggingFace Inference Provider used for LLM calls can be configured via:
+- Environment variable: `HF_INFERENCE_PROVIDER` (e.g. `scaleway`, `together`, `fireworks-ai`)
+- CLI flag: `--hf-inference-provider`
+- Defaults to `scaleway` if not specified
 
 Pinecone-backed features expect a Pinecone API key in `PINECONE_API_KEY`.
 
@@ -309,6 +328,7 @@ Current generated artifacts:
 - `results/scope_result_*.txt`
 - `output_prompt.txt`
 - `logs/agent_pipeline.log`
+- `logs/agent_checkpoints.sqlite`
 
 Remote vector storage, when configured:
 

@@ -15,6 +15,11 @@ from pipelines.agent_pipeline.shared.config import (
     ENABLE_GENERATION as DEFAULT_ENABLE_GENERATION,
     JUDGE_TOP_K as DEFAULT_JUDGE_TOP_K,
     JUDGE_MIN_SCORE as DEFAULT_JUDGE_MIN_SCORE,
+    ENABLE_CONVERSATION_COMPACTION as DEFAULT_ENABLE_CONVERSATION_COMPACTION,
+    MAX_INPUT_TOKENS as DEFAULT_MAX_INPUT_TOKENS,
+    CONTEXT_TOKEN_THRESHOLD_PCT as DEFAULT_CONTEXT_TOKEN_THRESHOLD_PCT,
+    MIN_KEEP_RECENT_TURNS as DEFAULT_MIN_KEEP_RECENT_TURNS,
+    COMPACTION_MAX_SUMMARY_TOKENS as DEFAULT_COMPACTION_MAX_SUMMARY_TOKENS,
 )
 
 from pipelines.indexing_pipeline.indexing import (
@@ -24,7 +29,7 @@ from pipelines.indexing_pipeline.indexing import (
     command_index,
     command_query,
 )
-from pipelines.indexing_pipeline.llm import DEFAULT_LLM_MODEL
+from pipelines.indexing_pipeline.llm import DEFAULT_LLM_MODEL, DEFAULT_HF_INFERENCE_PROVIDER
 from pipelines.indexing_pipeline.scope import (
     DEFAULT_METADATA_PATH,
     DEFAULT_OUTPUT_PROMPT_PATH,
@@ -98,6 +103,12 @@ def _add_run_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--scope", default=None, help="Document scope text to inject into the router prompt")
     parser.add_argument("--scope-file", default=None, help="Path to a text file containing the document scope")
     parser.add_argument("--model-name", default=DEFAULT_LLM_MODEL, help="Hugging Face model used for routing and generation")
+    parser.add_argument(
+        "--hf-inference-provider",
+        default=None,
+        help="Hugging Face Inference Provider for LLM calls (e.g. 'scaleway', 'together', 'fireworks-ai'). "
+             "Defaults to the HF_INFERENCE_PROVIDER env var or 'scaleway'.",
+    )
     parser.add_argument(
         "--embedding-model-name",
         default=DEFAULT_EMBEDDING_MODEL_NAME,
@@ -204,6 +215,51 @@ def _add_run_arguments(parser: argparse.ArgumentParser) -> None:
         action="store_true",
         default=DEFAULT_ENABLE_GENERATION,
         help="Enable GenerationNode for final answer generation (agentic RAG)",
+    )
+    parser.add_argument(
+        "--thread-id",
+        default=None,
+        help="Conversation thread ID for persistent agentic RAG (auto-generates UUID if omitted)",
+    )
+    parser.add_argument(
+        "--checkpoint-db",
+        default=None,
+        help="Path to SQLite checkpoint database for agentic RAG (default: logs/agent_checkpoints.sqlite)",
+    )
+    parser.add_argument(
+        "--enable-conversation-compaction",
+        action="store_true",
+        default=DEFAULT_ENABLE_CONVERSATION_COMPACTION,
+        help="Enable conversation summarization when agentic RAG context grows too long",
+    )
+    parser.add_argument(
+        "--max-input-tokens",
+        type=int,
+        default=DEFAULT_MAX_INPUT_TOKENS,
+        help="Max input tokens for the LLM (used to compute compaction threshold, default: 256000)",
+    )
+    parser.add_argument(
+        "--context-token-threshold-pct",
+        type=float,
+        default=DEFAULT_CONTEXT_TOKEN_THRESHOLD_PCT,
+        help="Percentage of max input tokens that triggers summarization (default: 0.30)",
+    )
+    parser.add_argument(
+        "--min-keep-recent-turns",
+        type=int,
+        default=DEFAULT_MIN_KEEP_RECENT_TURNS,
+        help="Minimum number of recent query/response pairs to keep unsummarized (default: 1)",
+    )
+    parser.add_argument(
+        "--conversation-history-dir",
+        default=str(PROJECT_ROOT / "logs" / "conversation_history"),
+        help="Directory to save full conversation history before summarization",
+    )
+    parser.add_argument(
+        "--compaction-max-summary-tokens",
+        type=int,
+        default=DEFAULT_COMPACTION_MAX_SUMMARY_TOKENS,
+        help="Max output tokens for the compaction summary LLM call (default: 2048)",
     )
 
 

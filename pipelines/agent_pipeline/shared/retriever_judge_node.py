@@ -9,7 +9,8 @@ from typing import Any
 
 from loguru import logger
 
-from pipelines.indexing_pipeline.llm import DEFAULT_LLM_MODEL, _load_api_key_from_env_file
+from pipelines.agent_pipeline.shared.config import JUDGE_MODEL, JUDGE_MAX_NEW_TOKENS, JUDGE_TEMPERATURE
+from pipelines.indexing_pipeline.llm import DEFAULT_HF_INFERENCE_PROVIDER, _load_api_key_from_env_file, _load_provider_from_env_file
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -35,18 +36,19 @@ class RetrieverJudgeNode:
         self,
         *,
         prompt_path: str | Path = DEFAULT_JUDGE_PROMPT_PATH,
-        model_name: str = DEFAULT_LLM_MODEL,
+        model_name: str = JUDGE_MODEL,
         api_key: str | None = None,
-        max_new_tokens: int = 512,
-        temperature: float = 0.0,
+        provider: str | None = None,
+        max_new_tokens: int = JUDGE_MAX_NEW_TOKENS,
+        temperature: float = JUDGE_TEMPERATURE,
         top_k: int = DEFAULT_JUDGE_TOP_K,
         min_score: int = DEFAULT_JUDGE_MIN_SCORE,
     ) -> None:
         try:
-            from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+            from huggingface_hub import InferenceClient
         except ImportError as exc:
             raise ImportError(
-                "langchain-huggingface is required for the retriever judge. "
+                "huggingface_hub is required for the retriever judge. "
                 "Install dependencies with `pip install -r requirements.txt`."
             ) from exc
 
@@ -63,15 +65,17 @@ class RetrieverJudgeNode:
                 "Missing HF_TOKEN in the environment or .env file for Hugging Face inference access"
             )
 
-        endpoint = HuggingFaceEndpoint(
-            repo_id=model_name,
-            huggingfacehub_api_token=resolved_api_key,
-            task="conversational",
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            do_sample=False,
+        resolved_provider = provider or os.getenv("HF_INFERENCE_PROVIDER") or _load_provider_from_env_file() or DEFAULT_HF_INFERENCE_PROVIDER
+
+        self._client = InferenceClient(
+            model=model_name,
+            token=resolved_api_key,
+            provider=resolved_provider,
         )
-        self._chat_model = ChatHuggingFace(llm=endpoint)
+        self._model_name = model_name
+        self._provider = resolved_provider
+        self._max_new_tokens = max_new_tokens
+        self._temperature = temperature
         self.top_k = max(1, top_k)
         self.min_score = max(0, min(10, min_score))
 
@@ -118,7 +122,7 @@ class RetrieverJudgeNode:
         chunk_text = str(item.get(text_key, "")).strip()
         prompt = self._build_prompt(user_query=query, retrieved_chunk=chunk_text)
 
-        raw_output = str(self._chat_model.invoke(prompt).content).strip()
+        raw_output = self._call_llm(prompt)
         judgement = self._parse_judgement(raw_output)
 
         result = dict(item)
@@ -140,8 +144,40 @@ class RetrieverJudgeNode:
         
         return result
 
+    def _call_llm(self, prompt: str) -> str:
+        """Call the LLM with retry logic, falling back to reasoning field if content is empty."""
+        messages = [{"role": "user", "content": prompt}]
+        max_retries = 3
+        
+        for attempt in range(max_retries):
+            try:
+                response = self._client.chat_completion(
+                    messages=messages,
+                    max_tokens=self._max_new_tokens,
+                    temperature=self._temperature,
+                    stream=False,
+                )
+                content = response.choices[0].message.content
+                reasoning = response.choices[0].message.reasoning
+                
+                if not content and reasoning:
+                    return reasoning
+                
+                if content:
+                    return str(content).strip()
+                
+                if attempt < max_retries - 1:
+                    logger.warning("Judge LLM returned empty content and reasoning, retrying ({}/{})", attempt + 1, max_retries)
+                    continue
+                    
+                return ""
+            except Exception as e:
+                logger.error("LLM call failed for judge (attempt {}/{}): {}", attempt + 1, max_retries, e)
+                if attempt < max_retries - 1:
+                    continue
+                return ""
+
     def _build_prompt(self, user_query: str, retrieved_chunk: str) -> str:
-        # Use string replacement instead of .format() to avoid conflicts with JSON curly braces in the template
         try:
             prompt = self._prompt_template.replace("{user_query}", user_query.strip()).replace(
                 "{retrieved_chunk}", retrieved_chunk.strip()
@@ -153,33 +189,87 @@ class RetrieverJudgeNode:
             ) from exc
 
     @staticmethod
-    def _parse_judgement(raw_output: str) -> dict[str, Any]:
-        """Extract the JSON object from the LLM output and normalize it."""
+    def _strip_preamble(text: str) -> str:
+        """Remove common meta-commentary prefixes that reasoning models emit before JSON."""
+        preamble_patterns = [
+            r"^(?:I understand|I will|Okay|Sure|Here is|Let me|Certainly|Right)[^\n]*\n",
+            r"^I understand my role[^{]*",
+            r"^\d+\.\s*\[User Query\][^{]*",
+            r"^<\|channel\>thought\n<channel\|>",
+        ]
+        result = text
+        for pattern in preamble_patterns:
+            result = re.sub(pattern, "", result, flags=re.IGNORECASE | re.DOTALL).strip()
+        return result
 
+    @staticmethod
+    def _extract_json(raw_output: str) -> tuple[dict[str, Any] | None, str]:
+        """Extract the first valid JSON object from the output using balanced brace matching."""
         cleaned = raw_output.strip()
 
-        # If the model wrapped JSON in a markdown code fence, strip it.
         if "```" in cleaned:
             fence_match = re.search(r"```(?:json)?\s*(.*?)\s*```", cleaned, re.DOTALL)
             if fence_match:
                 cleaned = fence_match.group(1).strip()
+
+        cleaned = RetrieverJudgeNode._strip_preamble(cleaned)
+
+        candidates: list[str] = []
+        i = 0
+        while i < len(cleaned):
+            if cleaned[i] == "{":
+                depth = 0
+                in_string = False
+                escape_next = False
+                for j in range(i, len(cleaned)):
+                    ch = cleaned[j]
+                    if escape_next:
+                        escape_next = False
+                        continue
+                    if ch == "\\":
+                        escape_next = True
+                        continue
+                    if ch == '"' and not escape_next:
+                        in_string = not in_string
+                        continue
+                    if in_string:
+                        continue
+                    if ch == "{":
+                        depth += 1
+                    elif ch == "}":
+                        depth -= 1
+                        if depth == 0:
+                            candidates.append(cleaned[i:j + 1])
+                            i = j + 1
+                            break
+                else:
+                    i += 1
             else:
-                cleaned = cleaned.replace("```", "").strip()
+                i += 1
 
-        # Extract the first JSON object if there is surrounding text.
-        json_match = re.search(r"(\{.*\})", cleaned, re.DOTALL)
-        if json_match:
-            cleaned = json_match.group(1).strip()
+        for candidate in candidates:
+            try:
+                return json.loads(candidate), ""
+            except json.JSONDecodeError:
+                continue
 
-        try:
-            parsed = json.loads(cleaned)
-        except json.JSONDecodeError as exc:
-            return {
-                "reasoning": f"Failed to parse judge JSON: {exc}. Raw output: {raw_output!r}",
-                "score_band": "unknown",
-                "final_score": 0,
-                "raw_output": raw_output,
-            }
+        return None, cleaned
+
+    def _parse_judgement(self, raw_output: str) -> dict[str, Any]:
+        """Extract the JSON object from the LLM output and normalize it."""
+        parsed, leftover = self._extract_json(raw_output)
+
+        if parsed is None:
+            try:
+                fallback = json.loads(leftover)
+                parsed = fallback
+            except json.JSONDecodeError as exc:
+                return {
+                    "reasoning": f"Failed to parse judge JSON: {exc}. Raw output: {raw_output!r}",
+                    "score_band": "unknown",
+                    "final_score": 0,
+                    "raw_output": raw_output,
+                }
 
         final_score = parsed.get("final_score")
         try:
@@ -187,7 +277,6 @@ class RetrieverJudgeNode:
         except (TypeError, ValueError):
             final_score = 0
 
-        # Clamp the score to the declared 0-10 range.
         final_score = max(0, min(10, final_score))
 
         return {

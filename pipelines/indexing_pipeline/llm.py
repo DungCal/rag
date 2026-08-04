@@ -5,6 +5,7 @@ from pathlib import Path
 
 
 DEFAULT_LLM_MODEL = "google/gemma-4-26B-A4B-it"
+DEFAULT_HF_INFERENCE_PROVIDER = "scaleway"
 ENV_FILE_PATH = Path(__file__).resolve().parents[2] / ".env"
 
 
@@ -18,6 +19,22 @@ def _load_api_key_from_env_file(env_path: Path = ENV_FILE_PATH) -> str | None:
             continue
         key, value = line.split("=", 1)
         if key.strip() == "HF_TOKEN":
+            resolved = value.strip().strip('"').strip("'")
+            return resolved or None
+
+    return None
+
+
+def _load_provider_from_env_file(env_path: Path = ENV_FILE_PATH) -> str | None:
+    if not env_path.exists():
+        return None
+
+    for raw_line in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        if key.strip() == "HF_INFERENCE_PROVIDER":
             resolved = value.strip().strip('"').strip("'")
             return resolved or None
 

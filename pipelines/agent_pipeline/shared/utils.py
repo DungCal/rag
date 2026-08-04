@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +20,67 @@ def _format_text_preview(text: str, max_length: int = 100) -> str:
 def _format_source_file(source_file: str) -> str:
     """Format source file for logging (just filename, not full path)."""
     return Path(source_file).name
+
+
+_DEGENERATE_PATTERNS = [
+    r"own-heading",
+    r"-heading-heading",
+    r"-series-series",
+    r"knowledge-heading",
+    r"thought-series",
+    r"similarity-series",
+]
+
+
+def is_degenerate_response(
+    text: str,
+    *,
+    min_word_length: int = 20,
+    max_repetition_ratio: float = 0.35,
+) -> bool:
+    """
+    Detect model-generated garbage responses (repetition loops, known degenerate patterns).
+
+    Returns True if the response is flagged as degenerate.
+    """
+    if not text or not text.strip():
+        return True
+
+    stripped = text.strip().lower()
+
+    for pattern in _DEGENERATE_PATTERNS:
+        if pattern in stripped:
+            logger.info("Degeneracy detected by known pattern: {!r}", pattern)
+            return True
+
+    words = [w for w in re.split(r"\W+", stripped) if w]
+    if not words:
+        return True
+
+    word_freq: dict[str, int] = {}
+    for w in words:
+        word_freq[w] = word_freq.get(w, 0) + 1
+
+    most_common_count = max(word_freq.values())
+    total_words = len(words)
+
+    if most_common_count >= 5 and most_common_count / total_words > (1 - max_repetition_ratio):
+        logger.info(
+            "Degeneracy detected by repetition ratio: most_common_word_count={}, total={}, ratio={:.2f}",
+            most_common_count, total_words, most_common_count / total_words,
+        )
+        return True
+
+    if re.search(r"(.+?)\1{5,}", stripped):
+        logger.info("Degeneracy detected by repeated substring pattern")
+        return True
+
+    alpha_chars = re.sub(r"[^\w\s]", "", stripped)
+    if len(alpha_chars.strip()) < min_word_length:
+        logger.info("Degeneracy detected by short meaningful length: {}", len(alpha_chars.strip()))
+        return True
+
+    return False
 
 
 def extract_tool_results(agent_output: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
@@ -65,7 +127,11 @@ def extract_tool_results(agent_output: dict[str, Any]) -> dict[str, list[dict[st
                     if isinstance(item, dict) and item.get("type") == "text":
                         text_content = item.get("text", "")
                         parsed_item = json.loads(text_content)
-                        parsed_items.append(parsed_item)
+                        # If parsed_item is a list, extend parsed_items; otherwise append
+                        if isinstance(parsed_item, list):
+                            parsed_items.extend(parsed_item)
+                        else:
+                            parsed_items.append(parsed_item)
                         logger.debug("Parsed text item from {}: {}", tool_name, type(parsed_item))
                 tool_result = parsed_items
                 logger.debug("Parsed {} items from list content for {}", len(parsed_items), tool_name)
@@ -81,7 +147,38 @@ def extract_tool_results(agent_output: dict[str, Any]) -> dict[str, list[dict[st
         # Extract based on tool type
         if tool_name in ["retrieve_context", "rerank"]:
             # These tools return chunks
-            if isinstance(tool_result, list):
+            if isinstance(tool_result, dict):
+                # Check if this is a rejection message from GuardTool
+                if "error" in tool_result:
+                    logger.warning(
+                        "Tool {} returned rejection: {}",
+                        tool_name,
+                        tool_result.get("error")
+                    )
+                    # Don't try to extract chunks from rejection messages
+                else:
+                    # Handle structured response with "result" field
+                    result_list = tool_result.get("result", [])
+                    if isinstance(result_list, list):
+                        for item in result_list:
+                            if isinstance(item, str):
+                                # Parse JSON string
+                                try:
+                                    parsed_item = json.loads(item)
+                                    chunks.append(parsed_item)
+                                except json.JSONDecodeError:
+                                    logger.warning("Failed to parse chunk JSON: {}", item)
+                            else:
+                                chunks.append(item)
+                    elif isinstance(result_list, dict):
+                        # Single chunk object
+                        if "text" in result_list:
+                            chunks.append(result_list)
+                        else:
+                            logger.warning("Expected chunk with 'text' field, got: {}", result_list.keys())
+                    else:
+                        logger.warning("Expected list or dict in result field, got: {}", type(result_list))
+            elif isinstance(tool_result, list):
                 # Handle list of parsed JSON objects
                 logger.debug("Processing list of {} items from {}", len(tool_result), tool_name)
                 for idx, item in enumerate(tool_result):
@@ -91,7 +188,16 @@ def extract_tool_results(agent_output: dict[str, Any]) -> dict[str, list[dict[st
                         if "result" in item:
                             result_list = item.get("result", [])
                             if isinstance(result_list, list):
-                                chunks.extend(result_list)
+                                for result_item in result_list:
+                                    if isinstance(result_item, str):
+                                        # Parse JSON string
+                                        try:
+                                            parsed_item = json.loads(result_item)
+                                            chunks.append(parsed_item)
+                                        except json.JSONDecodeError:
+                                            logger.warning("Failed to parse chunk JSON: {}", result_item)
+                                    else:
+                                        chunks.append(result_item)
                             else:
                                 logger.warning("Expected list in result field, got: {}", type(result_list))
                         # Check if this is a direct chunk object (has 'text' field)
@@ -99,13 +205,6 @@ def extract_tool_results(agent_output: dict[str, Any]) -> dict[str, list[dict[st
                             chunks.append(item)
                         else:
                             logger.warning("Unexpected chunk format: {}", item.keys())
-            elif isinstance(tool_result, dict):
-                # Handle structured response with "result" field
-                result_list = tool_result.get("result", [])
-                if isinstance(result_list, list):
-                    chunks.extend(result_list)
-                else:
-                    logger.warning("Expected list in result field, got: {}", type(result_list))
             else:
                 logger.warning("Unexpected tool result format from {}: {}", tool_name, type(tool_result))
 
@@ -142,7 +241,16 @@ def extract_tool_results(agent_output: dict[str, Any]) -> dict[str, list[dict[st
                         if "result" in item:
                             result_list = item.get("result", [])
                             if isinstance(result_list, list):
-                                web_results.extend(result_list)
+                                for result_item in result_list:
+                                    if isinstance(result_item, str):
+                                        # Parse JSON string
+                                        try:
+                                            parsed_item = json.loads(result_item)
+                                            web_results.append(parsed_item)
+                                        except json.JSONDecodeError:
+                                            logger.warning("Failed to parse web result JSON: {}", result_item)
+                                    else:
+                                        web_results.append(result_item)
                             else:
                                 logger.warning("Expected list in result field, got: {}", type(result_list))
                         # Check if this is a direct web result object (has 'title' or 'snippet' field)
@@ -154,7 +262,16 @@ def extract_tool_results(agent_output: dict[str, Any]) -> dict[str, list[dict[st
                 # Handle structured response
                 result_list = tool_result.get("result", [])
                 if isinstance(result_list, list):
-                    web_results.extend(result_list)
+                    for item in result_list:
+                        if isinstance(item, str):
+                            # Parse JSON string
+                            try:
+                                parsed_item = json.loads(item)
+                                web_results.append(parsed_item)
+                            except json.JSONDecodeError:
+                                logger.warning("Failed to parse web result JSON: {}", item)
+                        else:
+                            web_results.append(item)
                 else:
                     logger.warning("Expected list in result field, got: {}", type(result_list))
             else:

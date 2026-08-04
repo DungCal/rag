@@ -6,8 +6,9 @@ from typing import Any
 
 from loguru import logger
 
+from pipelines.agent_pipeline.shared.config import GENERATION_MODEL, GENERATION_MAX_NEW_TOKENS, GENERATION_TEMPERATURE
 from pipelines.agent_pipeline.shared.node_results import PromptNodeResult
-from pipelines.indexing_pipeline.llm import DEFAULT_LLM_MODEL, _load_api_key_from_env_file
+from pipelines.indexing_pipeline.llm import DEFAULT_HF_INFERENCE_PROVIDER, _load_api_key_from_env_file, _load_provider_from_env_file
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -26,16 +27,17 @@ class GenerationNode:
         self,
         *,
         prompt_path: str | Path = DEFAULT_GENERATION_PROMPT_PATH,
-        model_name: str = DEFAULT_LLM_MODEL,
+        model_name: str = GENERATION_MODEL,
         api_key: str | None = None,
-        max_new_tokens: int = 1024,
-        temperature: float = 0.2,
+        provider: str | None = None,
+        max_new_tokens: int = GENERATION_MAX_NEW_TOKENS,
+        temperature: float = GENERATION_TEMPERATURE,
     ) -> None:
         try:
-            from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+            from huggingface_hub import InferenceClient
         except ImportError as exc:
             raise ImportError(
-                "langchain-huggingface is required for the generation node. "
+                "huggingface_hub is required for the generation node. "
                 "Install dependencies with `pip install -r requirements.txt`."
             ) from exc
 
@@ -48,15 +50,17 @@ class GenerationNode:
         if not resolved_api_key:
             raise ValueError("Missing HF_TOKEN in the environment or .env file for Hugging Face inference access")
 
-        endpoint = HuggingFaceEndpoint(
-            repo_id=model_name,
-            huggingfacehub_api_token=resolved_api_key,
-            task="conversational",
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            do_sample=False,
+        resolved_provider = provider or os.getenv("HF_INFERENCE_PROVIDER") or _load_provider_from_env_file() or DEFAULT_HF_INFERENCE_PROVIDER
+
+        self._client = InferenceClient(
+            model=model_name,
+            token=resolved_api_key,
+            provider=resolved_provider,
         )
-        self._chat_model = ChatHuggingFace(llm=endpoint)
+        self._model_name = model_name
+        self._provider = resolved_provider
+        self._max_new_tokens = max_new_tokens
+        self._temperature = temperature
 
     def run(self, query: str, context: list[dict[str, Any]]) -> PromptNodeResult:
         """Generate an answer from the query and context.
@@ -85,7 +89,14 @@ class GenerationNode:
         prompt = self._build_prompt(query, formatted_context)
 
         logger.info("GenerationNode: generating answer from {} context items", len(context))
-        raw_output = str(self._chat_model.invoke(prompt).content).strip()
+        messages = [{"role": "user", "content": prompt}]
+        response = self._client.chat_completion(
+            messages=messages,
+            max_tokens=self._max_new_tokens,
+            temperature=self._temperature,
+            stream=False,
+        )
+        raw_output = str(response.choices[0].message.content).strip()
 
         return PromptNodeResult(
             route="generation",

@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from loguru import logger
 import requests
 
 
@@ -31,7 +32,11 @@ class PresidioPIIGuard:
         self.timeout = timeout
 
     def check(self, text: str) -> PIIDetectionResult:
-        """Analyze and anonymize ``text``. Returns the anonymized text plus entities."""
+        """Analyze and anonymize ``text``. Returns the anonymized text plus entities.
+        
+        If the Presidio service is unavailable, returns the original text without
+        anonymization and logs a warning.
+        """
         if not isinstance(text, str):
             raise TypeError("text must be a string")
 
@@ -47,7 +52,17 @@ class PresidioPIIGuard:
             )
             analyzer_response.raise_for_status()
         except requests.RequestException as exc:
-            raise RuntimeError(f"Presidio analyzer request failed: {exc}") from exc
+            logger.warning(
+                "Presidio analyzer service unavailable at {}. "
+                "Returning original text without PII protection: {}",
+                self.analyzer_url,
+                str(exc)
+            )
+            return PIIDetectionResult(
+                original_text=text,
+                anonymized_text=text,
+                entities=[],
+            )
 
         entities = analyzer_response.json()
         if not isinstance(entities, list):
@@ -65,7 +80,17 @@ class PresidioPIIGuard:
             )
             anonymizer_response.raise_for_status()
         except requests.RequestException as exc:
-            raise RuntimeError(f"Presidio anonymizer request failed: {exc}") from exc
+            logger.warning(
+                "Presidio anonymizer service unavailable at {}. "
+                "Returning original text without PII protection: {}",
+                self.anonymizer_url,
+                str(exc)
+            )
+            return PIIDetectionResult(
+                original_text=text,
+                anonymized_text=text,
+                entities=entities,
+            )
 
         anonymized_data = anonymizer_response.json()
         if isinstance(anonymized_data, dict):

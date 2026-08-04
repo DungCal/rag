@@ -1,0 +1,643 @@
+á°v¢tsŸ 2026-07-27T16:29:28.865283+00:00¢idŸ$1f189d85-6dfe-6df4-801b-c1ec7c7166dcÆchannel_valuesã•queryŸ$What does the DPF warning lamp mean?®messagesö«ØîΩlangchain_core.messages.human¨HumanMessageÜßcontent•hello±additional_kwargsÄ±response_metadataÄ§type•human§name¿¢idŸ$dc876ebc-a1f3-45ca-bf01-83ecc628a3d1≥model_validate_json»≈î∫langchain_core.messages.ai©AIMessageâßcontent⁄ÚHello! It's a pleasure to meet you.
+
+I am here to assist you with any questions regarding the TYM diesel tractor operator manual. My expertise covers essential topics such as safe operation, maintenance protocols, interpreting critical safety indicators, and adjusting your touch monitor settings.
+
+How can I help you manage your tractor today? For example, you might want to ask me about the proper procedures for long-term storage or what to do if you see a warning light for engine oil pressure.±additional_kwargsÄ±response_metadataÄ§type¢ai§name¿¢idŸ$39aee754-baae-432d-ada6-1f8cc1f801ae™tool_callsê≤invalid_tool_callsêÆusage_metadata¿≥model_validate_json«æîΩlangchain_core.messages.human¨HumanMessageÜßcontent¥what did I just say?±additional_kwargsÄ±response_metadataÄ§type•human§name¿¢idŸ$95d9bdea-c111-45e4-b0cd-fbe8d943d067≥model_validate_json»ˇî∫langchain_core.messages.ai©AIMessageâßcontent⁄,I apologize, but I am unable to answer that question as it falls outside my current area of expertise.
+
+I am a specialized assistant dedicated to providing information from the TYM diesel tractor operator manual. I can assist you with guidance on tractor operation, maintenance procedures, safety warnings, pre-operation inspections, and touch monitor adjustments.
+
+To help you get started, would you like to learn about the proper maintenance protocols for your machine? For example, you could ask, "What should I check during a pre-operation inspection?"±additional_kwargsÄ±response_metadataÄ§type¢ai§name¿¢idŸ$ddc03dfa-eb60-4e06-84d1-3e47326ead03™tool_callsê≤invalid_tool_callsêÆusage_metadata¿≥model_validate_json«ØîΩlangchain_core.messages.human¨HumanMessageÜßcontent•hello±additional_kwargsÄ±response_metadataÄ§type•human§name¿¢idŸ$eb37e061-ebdc-4737-abc0-661b09a1723d≥model_validate_json»Ïî∫langchain_core.messages.ai©AIMessageâßcontent⁄Hello there! It's a pleasure to meet you.
+
+I am here to assist you with any questions regarding the TYM diesel tractor operator manual. I can provide expert guidance on operational procedures‚Äîsuch as driving on slopes or using the loader‚Äîas well as essential maintenance tasks, safety warnings for instrument indicators, and even touch monitor adjustments.
+
+What can I help you with regarding your tractor today? For example, you might ask me about the proper parking procedures or what to look for during a pre-operation inspection.±additional_kwargsÄ±response_metadataÄ§type¢ai§name¿¢idŸ$8f049504-6463-4d0e-a542-ec961ce04276™tool_callsê≤invalid_tool_callsêÆusage_metadata¿≥model_validate_json«œîΩlangchain_core.messages.human¨HumanMessageÜßcontentŸ$What does the DPF warning lamp mean?±additional_kwargsÄ±response_metadataÄ§type•human§name¿¢idŸ$0e271c72-d9fe-48ba-a512-4d5f863e6f57≥model_validate_json»Uî∫langchain_core.messages.ai©AIMessageâßcontent†±additional_kwargsÄ±response_metadataÄ§type¢ai§name¿¢idŸ.lc_run--019fa468-3714-7450-bc7a-79e9c6e936c4-0™tool_callsëÑ§name∞retrieve_context§argsÅ•queryŸ$What does the DPF warning lamp mean?¢idæchatcmpl-tool-824547ffefb628da§type©tool_call≤invalid_tool_callsêÆusage_metadata¿≥model_validate_json»%‹îºlangchain_core.messages.tool´ToolMessageâßcontentïÉ§type§text§text⁄5{
+  "score": 0.7099066376686096,
+  "source_file": "D:\\Rag_pipeline\\t130sp_na_operator_manual.pdf",
+  "page_number": 115,
+  "chunk_id": 196,
+  "text": "OPERATION\nD\nD\n‚ñ∂DPF WARNING CHECK\nA DPF (Diesel Particulate Filter) is a filter \nfitted in the exhaust system of the \ntractor.\nThis filters particulate matter or soot \nfrom entering the atmosphere which \ncauses health issues.\nThe DPF catches pollution created by \nthe engine before it can enter the air.\nWhen DPF lamp on cluster comes on, \nfollow next steps.\n1.\nPark the tractor and apply parking \nbrake. Ensure that no flammable \nmaterials around the muffler.\n2.\nStart regeneration process for 20 ~ \n40min. Do not perform any other \nwork during the process.\n‚ñ∂COOLANT TEMPERATURE \nCHECK\nIf the coolant warning lamp comes on, \nthe engine is over-heated.\nStop the tractor and check followings:\n‚Ä¢\nRadiator coolant\n‚Ä¢\nRadiator fin for clogging\n‚Ä¢\nFan belt for looseness\nIf necessary, have your tractor checked \nby workshop.\n‚ñ∂FUEL LEVEL CHECK\nTo avoid excessive condensation in the"
+}¢idŸ'lc_addfb2b8-2a72-4d3a-8b1d-4d786c928963É§type§text§text⁄‰{
+  "score": 0.66852867603302,
+  "source_file": "D:\\Rag_pipeline\\t130sp_na_operator_manual.pdf",
+  "page_number": 55,
+  "chunk_id": 94,
+  "text": "TRACTOR INSTRUMENTS\nC\nC\n<2nd stage DPF regeneration warning>\nOperation of the tractor without DPF \nregeneration after the DPF regeneration \nlamp is on for a while, the engine torque \nwill be reduced by 25%.\n<1st stage DPF regeneration warning>\nIf particle material is accumulated on \ndiesel particulate filter(DPF) at certain \nlevel, DPF regeneration warning lamp \nwill be on.\nDPF regeneration warning lamp will be \noff as soon as DPF regeneration process \nis done.\n‚ñ∂DPF REGENERATION PROCESS AND LAMPS\nThis lamp is on during DPF regeneration \nprocess.\n7\nÔÅ¨\nBe careful with muffler and exhaust gas \nduring DPF regeneration process since \nthey are extremely hot.\nWARNING\nÔÅ¨\nPerform DPF regeneration process when \nDPF warning lamp is on.\nThe engine RPM may go down until DPF \nregeneration process is done.\nWARNING"
+}¢idŸ'lc_797df1d4-1c78-4cb4-888b-c8479122f4a2É§type§text§text⁄€{
+  "score": 0.630986213684082,
+  "source_file": "D:\\Rag_pipeline\\t130sp_na_operator_manual.pdf",
+  "page_number": 65,
+  "chunk_id": 109,
+  "text": "‚Ä¢\nYellow lamp ON: 10% of urea in tank\n‚Ä¢\nRed lamp ON: 5% of urea in tank\n‚Ä¢\nRed lamp blinking: 2.5% of urea in \ntank\n17\nCOLOR LAMP\nSCR WARNING\nLAMP\nDPF MALFUNCTION\nLAMP\nDPF WARNING LAMP DPF REGEN. LAMP\nÔÅ¨\nMuffler and exhaust gas are very hot \nwhile DPF regeneration process is on \nprogress.\nWARNING"
+}¢idŸ'lc_3b8ae96f-19ee-4c79-a140-bdfe041d24d6É§type§text§text⁄5{
+  "score": 0.6305623054504395,
+  "source_file": "D:\\Rag_pipeline\\t130sp_na_operator_manual.pdf",
+  "page_number": 52,
+  "chunk_id": 90,
+  "text": "TRACTOR INSTRUMENTS\nC\n4\n‚ñ∂HAZARD WARNING SWITCH\nPress the hazard warning switch in \nemergency to warn other vehicles in \norder to prevent an accident.\nThe hazard flasher is operated \nregardless of the position of the start \nswitch.\nAlso, the turn signal lamp function is \ndisabled while the hazard flasher is \nactive.\n‚Ä¢\nPosition A: OFF\n‚Ä¢\nPosition B: The hazard flasher is \nactivated and turn signal lamps on \nthe cluster blink as well.\n‚ñ∂DPF REGENERATION SWITCH\nPerform following steps when DPF \nwarning lamp is on.\n1.\nPark the tractor on level surface \nwith parking brake applied.\n2.\nIdle the engine for 3 ~ 4 min.\n3.\nPress DPF regeneration switch for 3 \nsec. to active DPF regeneration \nprocess.\nDPF regeneration lamp will be on.\n4.\nAfter the end of DPF regeneration \nprocess, DPF warning lamp goes off.\n‚Ä¢\nREMOTE 3P UP / DOWN SWITCHES\nThree point linkage(3P) will be raised or"
+}¢idŸ'lc_77a5943b-7522-479b-8b03-67b48fec5870É§type§text§text⁄i{
+  "score": 0.6295912265777588,
+  "source_file": "D:\\Rag_pipeline\\t130sp_na_operator_manual.pdf",
+  "page_number": 65,
+  "chunk_id": 108,
+  "text": "TRACTOR INSTRUMENTS\nC\nC\n‚ñ∂SCR WARNING LAMP, DPF \nMALFUNCTIONING LAMP\n‚Ä¢\nSCR WARNING LAMP\nThis comes on when SCR(Selective \nCatalytic Reduction) parts are \nmalfunctioning.\nGet service at workshop.\n‚Ä¢\nDPF MALFUNCTIONING LAMP\nThis comes on when DPF parts are \nmalfunctioning.\nGet service at workshop.\n‚ñ∂DPF WARNING LAMP, DPF \nREGEN. LAMP\n‚Ä¢\nDPF WARNING LAMP\nIt blinks when the DPF regeneration \nprocess is required.\n‚Ä¢\nDPF REGEN. LAMP\nIt comes on while DPF regeneration \nprocess is on progress.\n‚ñ∂UREA LEVEL LAMPS\nThis indicates the amount of urea while \nthe start switch is in the \"ON\" position.\n‚Ä¢\n4 green lamps ON: 75% - 100% of \nurea in tank\n‚Ä¢\n3 green lamps ON: 50% - 75% of urea \nin tank\n‚Ä¢\n2 green lamps ON: 25% - 50% of urea \nin tank\n‚Ä¢\n1 green lamp ON: 25% of urea in tank\n‚Ä¢\nYellow lamp ON: 10% of urea in tank\n‚Ä¢\nRed lamp ON: 5% of urea in tank\n‚Ä¢\nRed lamp blinking: 2.5% of urea in \ntank\n17\nCOLOR LAMP"
+}¢idŸ'lc_098878a6-84ff-4962-9725-8a6eb90b5f33±additional_kwargsÄ±response_metadataÄ§type§tool§name∞retrieve_context¢idŸ$a6ee601f-13f0-4bc4-b492-2fb6a9d80ffa¨tool_call_idæchatcmpl-tool-824547ffefb628da®artifactÅ≤structured_contentÅ¶resultïÖ•scoreÀ?Ê∑é    ´source_fileŸ-D:\Rag_pipeline\t130sp_na_operator_manual.pdf´page_numbers®chunk_idÃƒ§text⁄uOPERATION
+D
+D
+‚ñ∂DPF WARNING CHECK
+A DPF (Diesel Particulate Filter) is a filter 
+fitted in the exhaust system of the 
+tractor.
+This filters particulate matter or soot 
+from entering the atmosphere which 
+causes health issues.
+The DPF catches pollution created by 
+the engine before it can enter the air.
+When DPF lamp on cluster comes on, 
+follow next steps.
+1.
+Park the tractor and apply parking 
+brake. Ensure that no flammable 
+materials around the muffler.
+2.
+Start regeneration process for 20 ~ 
+40min. Do not perform any other 
+work during the process.
+‚ñ∂COOLANT TEMPERATURE 
+CHECK
+If the coolant warning lamp comes on, 
+the engine is over-heated.
+Stop the tractor and check followings:
+‚Ä¢
+Radiator coolant
+‚Ä¢
+Radiator fin for clogging
+‚Ä¢
+Fan belt for looseness
+If necessary, have your tractor checked 
+by workshop.
+‚ñ∂FUEL LEVEL CHECK
+To avoid excessive condensation in theÖ•scoreÀ?Âdñ@   ´source_fileŸ-D:\Rag_pipeline\t130sp_na_operator_manual.pdf´page_number7®chunk_id^§text⁄.TRACTOR INSTRUMENTS
+C
+C
+<2nd stage DPF regeneration warning>
+Operation of the tractor without DPF 
+regeneration after the DPF regeneration 
+lamp is on for a while, the engine torque 
+will be reduced by 25%.
+<1st stage DPF regeneration warning>
+If particle material is accumulated on 
+diesel particulate filter(DPF) at certain 
+level, DPF regeneration warning lamp 
+will be on.
+DPF regeneration warning lamp will be 
+off as soon as DPF regeneration process 
+is done.
+‚ñ∂DPF REGENERATION PROCESS AND LAMPS
+This lamp is on during DPF regeneration 
+process.
+7
+ÔÅ¨
+Be careful with muffler and exhaust gas 
+during DPF regeneration process since 
+they are extremely hot.
+WARNING
+ÔÅ¨
+Perform DPF regeneration process when 
+DPF warning lamp is on.
+The engine RPM may go down until DPF 
+regeneration process is done.
+WARNINGÖ•scoreÀ?‰1
+    ´source_fileŸ-D:\Rag_pipeline\t130sp_na_operator_manual.pdf´page_numberA®chunk_idm§text⁄/‚Ä¢
+Yellow lamp ON: 10% of urea in tank
+‚Ä¢
+Red lamp ON: 5% of urea in tank
+‚Ä¢
+Red lamp blinking: 2.5% of urea in 
+tank
+17
+COLOR LAMP
+SCR WARNING
+LAMP
+DPF MALFUNCTION
+LAMP
+DPF WARNING LAMP DPF REGEN. LAMP
+ÔÅ¨
+Muffler and exhaust gas are very hot 
+while DPF regeneration process is on 
+progress.
+WARNINGÖ•scoreÀ?‰-ë    ´source_fileŸ-D:\Rag_pipeline\t130sp_na_operator_manual.pdf´page_number4®chunk_idZ§text⁄vTRACTOR INSTRUMENTS
+C
+4
+‚ñ∂HAZARD WARNING SWITCH
+Press the hazard warning switch in 
+emergency to warn other vehicles in 
+order to prevent an accident.
+The hazard flasher is operated 
+regardless of the position of the start 
+switch.
+Also, the turn signal lamp function is 
+disabled while the hazard flasher is 
+active.
+‚Ä¢
+Position A: OFF
+‚Ä¢
+Position B: The hazard flasher is 
+activated and turn signal lamps on 
+the cluster blink as well.
+‚ñ∂DPF REGENERATION SWITCH
+Perform following steps when DPF 
+warning lamp is on.
+1.
+Park the tractor on level surface 
+with parking brake applied.
+2.
+Idle the engine for 3 ~ 4 min.
+3.
+Press DPF regeneration switch for 3 
+sec. to active DPF regeneration 
+process.
+DPF regeneration lamp will be on.
+4.
+After the end of DPF regeneration 
+process, DPF warning lamp goes off.
+‚Ä¢
+REMOTE 3P UP / DOWN SWITCHES
+Three point linkage(3P) will be raised orÖ•scoreÀ?‰%úÄ   ´source_fileŸ-D:\Rag_pipeline\t130sp_na_operator_manual.pdf´page_numberA®chunk_idl§text⁄úTRACTOR INSTRUMENTS
+C
+C
+‚ñ∂SCR WARNING LAMP, DPF 
+MALFUNCTIONING LAMP
+‚Ä¢
+SCR WARNING LAMP
+This comes on when SCR(Selective 
+Catalytic Reduction) parts are 
+malfunctioning.
+Get service at workshop.
+‚Ä¢
+DPF MALFUNCTIONING LAMP
+This comes on when DPF parts are 
+malfunctioning.
+Get service at workshop.
+‚ñ∂DPF WARNING LAMP, DPF 
+REGEN. LAMP
+‚Ä¢
+DPF WARNING LAMP
+It blinks when the DPF regeneration 
+process is required.
+‚Ä¢
+DPF REGEN. LAMP
+It comes on while DPF regeneration 
+process is on progress.
+‚ñ∂UREA LEVEL LAMPS
+This indicates the amount of urea while 
+the start switch is in the "ON" position.
+‚Ä¢
+4 green lamps ON: 75% - 100% of 
+urea in tank
+‚Ä¢
+3 green lamps ON: 50% - 75% of urea 
+in tank
+‚Ä¢
+2 green lamps ON: 25% - 50% of urea 
+in tank
+‚Ä¢
+1 green lamp ON: 25% of urea in tank
+‚Ä¢
+Yellow lamp ON: 10% of urea in tank
+‚Ä¢
+Red lamp ON: 5% of urea in tank
+‚Ä¢
+Red lamp blinking: 2.5% of urea in 
+tank
+17
+COLOR LAMP¶statusßsuccess≥model_validate_json»œî∫langchain_core.messages.ai©AIMessageâßcontent⁄ÚThe **DPF (Diesel Particulate Filter) warning lamp** indicates that particulate matter (soot) has accumulated in the filter and a **regeneration process is required**.
+
+Based on the operator manual, here is a breakdown of the different DPF-related lamps and the steps you should take:
+
+### **Understanding the Lamps**
+*   **DPF Warning Lamp:** This lamp **blinks** to signal that the DPF regeneration process needs to be performed.
+*   **DPF Regen Lamp:** This lamp stays **on** while the regeneration process is actively in progress.
+*   **DPF Malfunctioning Lamp:** This is different from the warning lamp; it indicates that the DPF parts themselves are malfunctioning and you should **get service at a workshop**.
+
+### **What to do when the DPF Warning Lamp is on**
+If the warning lamp is blinking, you should perform the following regeneration process:
+
+1.  **Park the tractor** on a level surface and apply the **parking brake**.
+2.  **Check for safety:** Ensure there are no flammable materials near the muffler, as the muffler and exhaust gases become **extremely hot** during this process.
+3.  **Idle the engine** for 3 to 4 minutes.
+4.  **Activate regeneration:** Press the **DPF regeneration switch for 3 seconds**. The DPF regeneration lamp will then turn on.
+5.  **Wait:** The process typically takes **20 to 40 minutes**. Do not perform any other work while the process is running.
+6.  **Completion:** Once the process is finished, the DPF warning lamp will turn off.
+
+### **Important Warnings**
+*   **Reduced±additional_kwargsÄ±response_metadataÄ§type¢ai§name¿¢idŸ.lc_run--019fa468-58a1-74e2-82dd-26c1253b4142-0™tool_callsê≤invalid_tool_callsêÆusage_metadata¿≥model_validate_json•route©retrieval•labelßrelatedÆrouter_messageŸAQuery is relevant to the document scope. Proceeding to retrieval.±router_raw_outputßrelated≠router_prompt⁄∞You are an expert data labeler and routing assistant for a Retrieval-Augmented Generation (RAG) system. Your task is to analyze the user's input and classify it into one of three specific routing flows based on the document scope provided.
+
+### Document Scope
+These document chunks from a TYM diesel tractor operator manual provide essential guidance on operation, maintenance, and safety. The text defines the tractor's function as a pulling machine and a prime mover via the PTO shaft, emphasizing the importance of using serial numbers when ordering spare parts. Key operational instructions include driving on slopes, parking procedures, and safe loader usage. Safety warnings address critical instrument indicators, such as engine oil pressure, air cleaner clogging, and water in the fuel filter. Maintenance sections detail pre-operation inspections, including checking fluid levels, tire pressure, and warning lamps, as well as protocols for long-term storage. Additionally, the manual covers touch monitor adjustments for speaker volume and screen brightness, alongside an index of various tractor components and settings. Overall, the material serves as a comprehensive resource for efficient machine management.
+(Note: If pre-filling, use the following: The document is a TYM diesel tractor operator manual[cite: 2, 3]. It covers general tractor construction, safety precautions, instrument controls, touch monitor usage, telematics, maintenance, and troubleshooting[cite: 2]. Topics within the scope include engine operation, PTO (Power Take-Off) use, towing, DPF regeneration, fluid replacement, and agricultural safety standards[cite: 2].)
+
+### Label Definitions
+1. **greeting**: The user is simply initiating a conversation, exchanging pleasantries, or saying goodbye. The intent is social, not informational.
+2. **related**: The user is asking a question or making a request that is directly relevant to the document scope and can reasonably be answered by the tractor manual[cite: 2, 3].
+3. **off_topic**: The user is asking a question or making a request that falls entirely outside the document scope. The query has nothing to do with the provided text.
+
+### Strict Rules
+* You must evaluate the user's input strictly against the Document Scope.
+* You must output ONLY ONE of the following exact labels: `greeting`, `related`, or `off_topic`. 
+* Do not include any formatting, markdown, explanations, or additional punctuation in your output.
+
+### Examples
+
+User Input: "Hi there, how do you do?"
+Output: greeting
+
+User Input: "Good morning!"
+Output: greeting
+
+User Input: "How do I check the transmission oil level on the tractor?"[cite: 2]
+Output: related
+
+User Input: "What does the DPF warning lamp mean and what should I do?"[cite: 2]
+Output: related
+
+User Input: "How many cups of water do I need to boil pasta?"
+Output: off_topic
+
+User Input: "Write a python script to scrape a website."
+Output: off_topic
+
+---
+User Input: What does the DPF warning lamp mean?
+Output:´node_resultÑ•route®greeting®response⁄Hello there! It's a pleasure to meet you.
+
+I am here to assist you with any questions regarding the TYM diesel tractor operator manual. I can provide expert guidance on operational procedures‚Äîsuch as driving on slopes or using the loader‚Äîas well as essential maintenance tasks, safety warnings for instrument indicators, and even touch monitor adjustments.
+
+What can I help you with regarding your tractor today? For example, you might ask me about the proper parking procedures or what to look for during a pre-operation inspection.™raw_output⁄Hello there! It's a pleasure to meet you.
+
+I am here to assist you with any questions regarding the TYM diesel tractor operator manual. I can provide expert guidance on operational procedures‚Äîsuch as driving on slopes or using the loader‚Äîas well as essential maintenance tasks, safety warnings for instrument indicators, and even touch monitor adjustments.
+
+What can I help you with regarding your tractor today? For example, you might ask me about the proper parking procedures or what to look for during a pre-operation inspection.¶prompt⁄åYou are a helpful, expert AI assistant. Your knowledge is strictly limited to the following domain:
+
+### Domain Scope
+These document chunks from a TYM diesel tractor operator manual provide essential guidance on operation, maintenance, and safety. The text defines the tractor's function as a pulling machine and a prime mover via the PTO shaft, emphasizing the importance of using serial numbers when ordering spare parts. Key operational instructions include driving on slopes, parking procedures, and safe loader usage. Safety warnings address critical instrument indicators, such as engine oil pressure, air cleaner clogging, and water in the fuel filter. Maintenance sections detail pre-operation inspections, including checking fluid levels, tire pressure, and warning lamps, as well as protocols for long-term storage. Additionally, the manual covers touch monitor adjustments for speaker volume and screen brightness, alongside an index of various tractor components and settings. Overall, the material serves as a comprehensive resource for efficient machine management.
+
+The user has just greeted you. 
+
+Your task is to generate a brief, friendly response that accomplishes the following three goals:
+1. Warmly return the user's greeting.
+2. Introduce your specific area of expertise by briefly summarizing the core topics in the Domain Scope provided above. 
+3. Ask an engaging, open-ended question directly related to the Domain Scope to spark the user's curiosity and encourage a relevant query. Provide a specific example of something they can ask you based on the text.
+
+Keep your response conversational, professional, and concise.
+
+User Input: hello
+Response:∞combined_contextìá•scoreÀ?Âdñ@   ´source_fileŸ-D:\Rag_pipeline\t130sp_na_operator_manual.pdf´page_number7®chunk_id^§text⁄.TRACTOR INSTRUMENTS
+C
+C
+<2nd stage DPF regeneration warning>
+Operation of the tractor without DPF 
+regeneration after the DPF regeneration 
+lamp is on for a while, the engine torque 
+will be reduced by 25%.
+<1st stage DPF regeneration warning>
+If particle material is accumulated on 
+diesel particulate filter(DPF) at certain 
+level, DPF regeneration warning lamp 
+will be on.
+DPF regeneration warning lamp will be 
+off as soon as DPF regeneration process 
+is done.
+‚ñ∂DPF REGENERATION PROCESS AND LAMPS
+This lamp is on during DPF regeneration 
+process.
+7
+ÔÅ¨
+Be careful with muffler and exhaust gas 
+during DPF regeneration process since 
+they are extremely hot.
+WARNING
+ÔÅ¨
+Perform DPF regeneration process when 
+DPF warning lamp is on.
+The engine RPM may go down until DPF 
+regeneration process is done.
+WARNING•judgeÑ©reasoning⁄CThe user's core intent is to understand the meaning and implications of a DPF (Diesel Particulate Filter) warning lamp. The retrieved chunk directly addresses this by explaining the two stages of the warning: the 1st stage indicates particle accumulation, and the 2nd stage warns that engine torque will be reduced by 25% if regeneration is not performed. It also clarifies that the lamp remains on during the regeneration process itself. The information is highly dense, specific, and provides the exact technical meaning requested, making it a near-perfect match for the query.™score_band§9-10´final_score	™raw_output⁄ê```json
+{
+  "reasoning": "The user's core intent is to understand the meaning and implications of a DPF (Diesel Particulate Filter) warning lamp. The retrieved chunk directly addresses this by explaining the two stages of the warning: the 1st stage indicates particle accumulation, and the 2nd stage warns that engine torque will be reduced by 25% if regeneration is not performed. It also clarifies that the lamp remains on during the regeneration process itself. The information is highly dense, specific, and provides the exact technical meaning requested, making it a near-perfect match for the query.",
+  "score_band": "9-10",
+  "final_score": 9
+}
+```¨judge_prompt⁄¸You are an expert search evaluator and quality assurance specialist for a Retrieval-Augmented Generation (RAG) system. Your task is to evaluate the relevance and usefulness of a retrieved text chunk in relation to a specific user query.
+
+You will be provided with:
+1. [User Query]: The specific question or request made by the user.
+2. [Retrieved Chunk]: The text segment returned by the retrieval/reranking model.
+
+### Evaluation Criteria
+You must evaluate the chunk based on how effectively it helps answer the user's query. Consider the following:
+* **Topical Relevance:** Does the chunk discuss the specific entities, concepts, and intent of the query?
+* **Utility/Usefulness:** Does the chunk contain the actual information needed to generate a comprehensive and accurate answer? 
+* **Information Density:** Is the chunk highly concentrated with relevant facts, or is it mostly filler/tangential information?
+
+### Scoring Bands
+Assign a score from 0 to 10 based on the following strict bands:
+
+* **Band 0-2 (Useless & Irrelevant):** The chunk is entirely off-topic. It may share common stop words or broad domain keywords, but it provides absolutely no useful information to address the user's specific intent.
+* **Band 3-4 (Tangential & Unhelpful):** The chunk is loosely related to the topic but fails to answer the actual query. It might provide high-level background information but lacks the specific details requested. A model could not generate a meaningful answer using only this chunk.
+* **Band 5-6 (Partially Useful):** The chunk contains some relevant information that partially addresses the query. It might answer one part of a multi-part question or provide useful context, but significant details are missing. 
+* **Band 7-8 (Highly Relevant):** The chunk is very useful and directly addresses the core intent of the query. It provides almost all the necessary information to generate a strong answer, though it might contain some minor irrelevant information (fluff) or lack one minor detail.
+* **Band 9-10 (Perfect Match):** The chunk is perfectly tailored to the query. It is highly dense with relevant information, directly answers the user's intent comprehensively, and contains no distracting or irrelevant context.
+
+### Inputs
+[User Query]: What does the DPF warning lamp mean?
+
+[Retrieved Chunk]: TRACTOR INSTRUMENTS
+C
+C
+<2nd stage DPF regeneration warning>
+Operation of the tractor without DPF 
+regeneration after the DPF regeneration 
+lamp is on for a while, the engine torque 
+will be reduced by 25%.
+<1st stage DPF regeneration warning>
+If particle material is accumulated on 
+diesel particulate filter(DPF) at certain 
+level, DPF regeneration warning lamp 
+will be on.
+DPF regeneration warning lamp will be 
+off as soon as DPF regeneration process 
+is done.
+‚ñ∂DPF REGENERATION PROCESS AND LAMPS
+This lamp is on during DPF regeneration 
+process.
+7
+ÔÅ¨
+Be careful with muffler and exhaust gas 
+during DPF regeneration process since 
+they are extremely hot.
+WARNING
+ÔÅ¨
+Perform DPF regeneration process when 
+DPF warning lamp is on.
+The engine RPM may go down until DPF 
+regeneration process is done.
+WARNING
+
+### Output Format
+You must output your evaluation in strict JSON format. Do not include any conversational text outside of the JSON block.
+
+{
+  "reasoning": "First, analyze the query's core intent. Second, map the information in the chunk to that intent. Third, justify your score by referencing the specific scoring bands provided above.",
+  "score_band": "The band you selected (e.g., '6-8')",
+  "final_score": <An integer from 0 to 10>
+}á•scoreÀ?‰%úÄ   ´source_fileŸ-D:\Rag_pipeline\t130sp_na_operator_manual.pdf´page_numberA®chunk_idl§text⁄úTRACTOR INSTRUMENTS
+C
+C
+‚ñ∂SCR WARNING LAMP, DPF 
+MALFUNCTIONING LAMP
+‚Ä¢
+SCR WARNING LAMP
+This comes on when SCR(Selective 
+Catalytic Reduction) parts are 
+malfunctioning.
+Get service at workshop.
+‚Ä¢
+DPF MALFUNCTIONING LAMP
+This comes on when DPF parts are 
+malfunctioning.
+Get service at workshop.
+‚ñ∂DPF WARNING LAMP, DPF 
+REGEN. LAMP
+‚Ä¢
+DPF WARNING LAMP
+It blinks when the DPF regeneration 
+process is required.
+‚Ä¢
+DPF REGEN. LAMP
+It comes on while DPF regeneration 
+process is on progress.
+‚ñ∂UREA LEVEL LAMPS
+This indicates the amount of urea while 
+the start switch is in the "ON" position.
+‚Ä¢
+4 green lamps ON: 75% - 100% of 
+urea in tank
+‚Ä¢
+3 green lamps ON: 50% - 75% of urea 
+in tank
+‚Ä¢
+2 green lamps ON: 25% - 50% of urea 
+in tank
+‚Ä¢
+1 green lamp ON: 25% of urea in tank
+‚Ä¢
+Yellow lamp ON: 10% of urea in tank
+‚Ä¢
+Red lamp ON: 5% of urea in tank
+‚Ä¢
+Red lamp blinking: 2.5% of urea in 
+tank
+17
+COLOR LAMP•judgeÑ©reasoning⁄XThe user's core intent is to understand the meaning of the 'DPF warning lamp'. The retrieved chunk contains a specific section titled 'DPF WARNING LAMP' which explicitly states: 'It blinks when the DPF regeneration process is required.' The chunk also provides information on the 'DPF MALFUNCTIONING LAMP' and 'DPF REGEN. LAMP', which are highly related but distinct from the specific lamp requested. While the chunk contains additional information about SCR and Urea lamps that wasn't requested, the specific answer is clearly and directly provided. This makes it a near-perfect match for the query.™score_band§9-10´final_score	™raw_output⁄•```json
+{
+  "reasoning": "The user's core intent is to understand the meaning of the 'DPF warning lamp'. The retrieved chunk contains a specific section titled 'DPF WARNING LAMP' which explicitly states: 'It blinks when the DPF regeneration process is required.' The chunk also provides information on the 'DPF MALFUNCTIONING LAMP' and 'DPF REGEN. LAMP', which are highly related but distinct from the specific lamp requested. While the chunk contains additional information about SCR and Urea lamps that wasn't requested, the specific answer is clearly and directly provided. This makes it a near-perfect match for the query.",
+  "score_band": "9-10",
+  "final_score": 9
+}
+```¨judge_prompt⁄jYou are an expert search evaluator and quality assurance specialist for a Retrieval-Augmented Generation (RAG) system. Your task is to evaluate the relevance and usefulness of a retrieved text chunk in relation to a specific user query.
+
+You will be provided with:
+1. [User Query]: The specific question or request made by the user.
+2. [Retrieved Chunk]: The text segment returned by the retrieval/reranking model.
+
+### Evaluation Criteria
+You must evaluate the chunk based on how effectively it helps answer the user's query. Consider the following:
+* **Topical Relevance:** Does the chunk discuss the specific entities, concepts, and intent of the query?
+* **Utility/Usefulness:** Does the chunk contain the actual information needed to generate a comprehensive and accurate answer? 
+* **Information Density:** Is the chunk highly concentrated with relevant facts, or is it mostly filler/tangential information?
+
+### Scoring Bands
+Assign a score from 0 to 10 based on the following strict bands:
+
+* **Band 0-2 (Useless & Irrelevant):** The chunk is entirely off-topic. It may share common stop words or broad domain keywords, but it provides absolutely no useful information to address the user's specific intent.
+* **Band 3-4 (Tangential & Unhelpful):** The chunk is loosely related to the topic but fails to answer the actual query. It might provide high-level background information but lacks the specific details requested. A model could not generate a meaningful answer using only this chunk.
+* **Band 5-6 (Partially Useful):** The chunk contains some relevant information that partially addresses the query. It might answer one part of a multi-part question or provide useful context, but significant details are missing. 
+* **Band 7-8 (Highly Relevant):** The chunk is very useful and directly addresses the core intent of the query. It provides almost all the necessary information to generate a strong answer, though it might contain some minor irrelevant information (fluff) or lack one minor detail.
+* **Band 9-10 (Perfect Match):** The chunk is perfectly tailored to the query. It is highly dense with relevant information, directly answers the user's intent comprehensively, and contains no distracting or irrelevant context.
+
+### Inputs
+[User Query]: What does the DPF warning lamp mean?
+
+[Retrieved Chunk]: TRACTOR INSTRUMENTS
+C
+C
+‚ñ∂SCR WARNING LAMP, DPF 
+MALFUNCTIONING LAMP
+‚Ä¢
+SCR WARNING LAMP
+This comes on when SCR(Selective 
+Catalytic Reduction) parts are 
+malfunctioning.
+Get service at workshop.
+‚Ä¢
+DPF MALFUNCTIONING LAMP
+This comes on when DPF parts are 
+malfunctioning.
+Get service at workshop.
+‚ñ∂DPF WARNING LAMP, DPF 
+REGEN. LAMP
+‚Ä¢
+DPF WARNING LAMP
+It blinks when the DPF regeneration 
+process is required.
+‚Ä¢
+DPF REGEN. LAMP
+It comes on while DPF regeneration 
+process is on progress.
+‚ñ∂UREA LEVEL LAMPS
+This indicates the amount of urea while 
+the start switch is in the "ON" position.
+‚Ä¢
+4 green lamps ON: 75% - 100% of 
+urea in tank
+‚Ä¢
+3 green lamps ON: 50% - 75% of urea 
+in tank
+‚Ä¢
+2 green lamps ON: 25% - 50% of urea 
+in tank
+‚Ä¢
+1 green lamp ON: 25% of urea in tank
+‚Ä¢
+Yellow lamp ON: 10% of urea in tank
+‚Ä¢
+Red lamp ON: 5% of urea in tank
+‚Ä¢
+Red lamp blinking: 2.5% of urea in 
+tank
+17
+COLOR LAMP
+
+### Output Format
+You must output your evaluation in strict JSON format. Do not include any conversational text outside of the JSON block.
+
+{
+  "reasoning": "First, analyze the query's core intent. Second, map the information in the chunk to that intent. Third, justify your score by referencing the specific scoring bands provided above.",
+  "score_band": "The band you selected (e.g., '6-8')",
+  "final_score": <An integer from 0 to 10>
+}á•scoreÀ?Ê∑é    ´source_fileŸ-D:\Rag_pipeline\t130sp_na_operator_manual.pdf´page_numbers®chunk_idÃƒ§text⁄uOPERATION
+D
+D
+‚ñ∂DPF WARNING CHECK
+A DPF (Diesel Particulate Filter) is a filter 
+fitted in the exhaust system of the 
+tractor.
+This filters particulate matter or soot 
+from entering the atmosphere which 
+causes health issues.
+The DPF catches pollution created by 
+the engine before it can enter the air.
+When DPF lamp on cluster comes on, 
+follow next steps.
+1.
+Park the tractor and apply parking 
+brake. Ensure that no flammable 
+materials around the muffler.
+2.
+Start regeneration process for 20 ~ 
+40min. Do not perform any other 
+work during the process.
+‚ñ∂COOLANT TEMPERATURE 
+CHECK
+If the coolant warning lamp comes on, 
+the engine is over-heated.
+Stop the tractor and check followings:
+‚Ä¢
+Radiator coolant
+‚Ä¢
+Radiator fin for clogging
+‚Ä¢
+Fan belt for looseness
+If necessary, have your tractor checked 
+by workshop.
+‚ñ∂FUEL LEVEL CHECK
+To avoid excessive condensation in the•judgeÑ©reasoning⁄mThe user's core intent is to understand the meaning and implications of the DPF warning lamp. The retrieved chunk directly addresses this by explaining what a DPF is (a filter for soot/particulate matter) and, crucially, providing the specific corrective action required when the lamp illuminates (starting the regeneration process for 20-40 minutes). This provides high utility. However, the chunk is not a 'perfect match' because it includes significant amounts of irrelevant information regarding coolant temperature and fuel level checks, which are unrelated to the DPF query. Therefore, it fits best in the 7-8 band.™score_band£7-8´final_score™raw_output⁄π```json
+{
+  "reasoning": "The user's core intent is to understand the meaning and implications of the DPF warning lamp. The retrieved chunk directly addresses this by explaining what a DPF is (a filter for soot/particulate matter) and, crucially, providing the specific corrective action required when the lamp illuminates (starting the regeneration process for 20-40 minutes). This provides high utility. However, the chunk is not a 'perfect match' because it includes significant amounts of irrelevant information regarding coolant temperature and fuel level checks, which are unrelated to the DPF query. Therefore, it fits best in the 7-8 band.",
+  "score_band": "7-8",
+  "final_score": 8
+}
+```¨judge_prompt⁄CYou are an expert search evaluator and quality assurance specialist for a Retrieval-Augmented Generation (RAG) system. Your task is to evaluate the relevance and usefulness of a retrieved text chunk in relation to a specific user query.
+
+You will be provided with:
+1. [User Query]: The specific question or request made by the user.
+2. [Retrieved Chunk]: The text segment returned by the retrieval/reranking model.
+
+### Evaluation Criteria
+You must evaluate the chunk based on how effectively it helps answer the user's query. Consider the following:
+* **Topical Relevance:** Does the chunk discuss the specific entities, concepts, and intent of the query?
+* **Utility/Usefulness:** Does the chunk contain the actual information needed to generate a comprehensive and accurate answer? 
+* **Information Density:** Is the chunk highly concentrated with relevant facts, or is it mostly filler/tangential information?
+
+### Scoring Bands
+Assign a score from 0 to 10 based on the following strict bands:
+
+* **Band 0-2 (Useless & Irrelevant):** The chunk is entirely off-topic. It may share common stop words or broad domain keywords, but it provides absolutely no useful information to address the user's specific intent.
+* **Band 3-4 (Tangential & Unhelpful):** The chunk is loosely related to the topic but fails to answer the actual query. It might provide high-level background information but lacks the specific details requested. A model could not generate a meaningful answer using only this chunk.
+* **Band 5-6 (Partially Useful):** The chunk contains some relevant information that partially addresses the query. It might answer one part of a multi-part question or provide useful context, but significant details are missing. 
+* **Band 7-8 (Highly Relevant):** The chunk is very useful and directly addresses the core intent of the query. It provides almost all the necessary information to generate a strong answer, though it might contain some minor irrelevant information (fluff) or lack one minor detail.
+* **Band 9-10 (Perfect Match):** The chunk is perfectly tailored to the query. It is highly dense with relevant information, directly answers the user's intent comprehensively, and contains no distracting or irrelevant context.
+
+### Inputs
+[User Query]: What does the DPF warning lamp mean?
+
+[Retrieved Chunk]: OPERATION
+D
+D
+‚ñ∂DPF WARNING CHECK
+A DPF (Diesel Particulate Filter) is a filter 
+fitted in the exhaust system of the 
+tractor.
+This filters particulate matter or soot 
+from entering the atmosphere which 
+causes health issues.
+The DPF catches pollution created by 
+the engine before it can enter the air.
+When DPF lamp on cluster comes on, 
+follow next steps.
+1.
+Park the tractor and apply parking 
+brake. Ensure that no flammable 
+materials around the muffler.
+2.
+Start regeneration process for 20 ~ 
+40min. Do not perform any other 
+work during the process.
+‚ñ∂COOLANT TEMPERATURE 
+CHECK
+If the coolant warning lamp comes on, 
+the engine is over-heated.
+Stop the tractor and check followings:
+‚Ä¢
+Radiator coolant
+‚Ä¢
+Radiator fin for clogging
+‚Ä¢
+Fan belt for looseness
+If necessary, have your tractor checked 
+by workshop.
+‚ñ∂FUEL LEVEL CHECK
+To avoid excessive condensation in the
+
+### Output Format
+You must output your evaluation in strict JSON format. Do not include any conversational text outside of the JSON block.
+
+{
+  "reasoning": "First, analyze the query's core intent. Second, map the information in the chunk to that intent. Third, justify your score by referencing the specific scoring bands provided above.",
+  "score_band": "The band you selected (e.g., '6-8')",
+  "final_score": <An integer from 0 to 10>
+}¨final_answer⁄Hello there! It's a pleasure to meet you.
+
+I am here to assist you with any questions regarding the TYM diesel tractor operator manual. I can provide expert guidance on operational procedures‚Äîsuch as driving on slopes or using the loader‚Äîas well as essential maintenance tasks, safety warnings for instrument indicators, and even touch monitor adjustments.
+
+What can I help you with regarding your tractor today? For example, you might ask me about the proper parking procedures or what to look for during a pre-operation inspection.≤branch:to:generate¿∞channel_versionsﬁ ©__start__Ÿ400000000000000000000000000000023.0.35591367944831254•queryŸ400000000000000000000000000000024.0.23037864363536054®messagesŸ400000000000000000000000000000028.0.20665796918887258∂branch:to:input_safetyŸ400000000000000000000000000000024.0.23037864363536054∞branch:to:routerŸ400000000000000000000000000000025.0.42046333078440135•routeŸ400000000000000000000000000000025.0.42046333078440135•labelŸ400000000000000000000000000000025.0.42046333078440135Ærouter_messageŸ400000000000000000000000000000025.0.42046333078440135±router_raw_outputŸ400000000000000000000000000000025.0.42046333078440135≠router_promptŸ400000000000000000000000000000025.0.42046333078440135ªbranch:to:greeting_responseŸ400000000000000000000000000000017.0.39849173863480647´node_resultŸ400000000000000000000000000000017.0.39849173863480647¨final_answerŸ400000000000000000000000000000017.0.39849173863480647∑branch:to:output_safetyŸ400000000000000000000000000000018.0.43140194674498344ºbranch:to:off_topic_responseŸ400000000000000000000000000000011.0.31303854773976114Øbranch:to:agentŸ400000000000000000000000000000028.0.20665796918887258Øbranch:to:toolsŸ300000000000000000000000000000027.0.0794816898967654πbranch:to:process_resultsŸ300000000000000000000000000000029.0.6177775606311895∞combined_contextŸ300000000000000000000000000000029.0.6177775606311895≤branch:to:generateŸ300000000000000000000000000000029.0.6177775606311895≠versions_seenä©__input__Ä©__start__Å©__start__Ÿ300000000000000000000000000000022.0.7528068664972138¨input_safetyÅ∂branch:to:input_safetyŸ400000000000000000000000000000023.0.35591367944831254¶routerÅ∞branch:to:routerŸ400000000000000000000000000000024.0.23037864363536054±greeting_responseÅªbranch:to:greeting_responseŸ400000000000000000000000000000016.0.21764646166774138≠output_safetyÅ∑branch:to:output_safetyŸ400000000000000000000000000000017.0.39849173863480647≤off_topic_responseÅºbranch:to:off_topic_responseŸ300000000000000000000000000000010.0.6751466054044247•agentÅØbranch:to:agentŸ300000000000000000000000000000027.0.0794816898967654•toolsÅØbranch:to:toolsŸ300000000000000000000000000000026.0.7113175624087096Øprocess_resultsÅπbranch:to:process_resultsŸ400000000000000000000000000000028.0.20665796918887258∞updated_channelsí≤branch:to:generate∞combined_context

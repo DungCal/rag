@@ -6,7 +6,7 @@ from pathlib import Path
 
 from loguru import logger
 
-from pipelines.indexing_pipeline.llm import DEFAULT_LLM_MODEL, _load_api_key_from_env_file
+from pipelines.indexing_pipeline.llm import DEFAULT_LLM_MODEL, DEFAULT_HF_INFERENCE_PROVIDER, _load_api_key_from_env_file, _load_provider_from_env_file
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
@@ -43,12 +43,13 @@ class PromptQueryRouter:
         scope: str = DEFAULT_DOCUMENT_SCOPE,
         model_name: str = DEFAULT_LLM_MODEL,
         api_key: str | None = None,
+        provider: str | None = None,
     ) -> None:
         try:
-            from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+            from huggingface_hub import InferenceClient
         except ImportError as exc:
             raise ImportError(
-                "langchain-huggingface is required for the prompt router. "
+                "huggingface_hub is required for the prompt router. "
                 "Install dependencies with `pip install -r requirements.txt`."
             ) from exc
 
@@ -64,15 +65,15 @@ class PromptQueryRouter:
         if not resolved_api_key:
             raise ValueError("Missing HF_TOKEN in the environment or .env file for Hugging Face inference access")
 
-        endpoint = HuggingFaceEndpoint(
-            repo_id=model_name,
-            huggingfacehub_api_token=resolved_api_key,
-            task="conversational",
-            max_new_tokens=8,
-            temperature=0.0,
-            do_sample=False,
+        resolved_provider = provider or os.getenv("HF_INFERENCE_PROVIDER") or _load_provider_from_env_file() or DEFAULT_HF_INFERENCE_PROVIDER
+
+        self._client = InferenceClient(
+            model=model_name,
+            token=resolved_api_key,
+            provider=resolved_provider,
         )
-        self._chat_model = ChatHuggingFace(llm=endpoint)
+        self._model_name = model_name
+        self._provider = resolved_provider
 
     def build_prompt(self, user_query: str) -> str:
         query = user_query.strip()
@@ -99,7 +100,14 @@ class PromptQueryRouter:
         
         for attempt in range(max_retries):
             try:
-                raw_output = str(self._chat_model.invoke(prompt).content).strip()
+                messages = [{"role": "user", "content": prompt}]
+                response = self._client.chat_completion(
+                    messages=messages,
+                    max_tokens=300,
+                    temperature=0.0,
+                    stream=False,
+                )
+                raw_output = str(response.choices[0].message.content or "").strip()
                 logger.info("Router raw output (attempt {}): {!r}", attempt + 1, raw_output)
                 
                 if not raw_output:

@@ -69,7 +69,8 @@ class AgentToolClient:
     async def connect(self) -> list[Any]:
         """Connect to the MCP servers and return LangChain tools.
 
-        Tools are wrapped by GuardTool only when input or output guards are enabled.
+        Only `web_search` tool is wrapped by GuardTool when input or output guards are enabled.
+        `retrieve_context` and `rerank` tools are returned raw without guards.
         """
         self._client = MultiServerMCPClient(self.servers)
         tools = await self._client.get_tools()
@@ -81,6 +82,8 @@ class AgentToolClient:
                 input_guard=SafetyInputNode() if self._enable_input_guard else None,
                 output_guard=SafetyOutputNode() if self._enable_output_guard else None,
             )
+            if tool.name == "web_search"
+            else tool
             for tool in tools
         ]
 
