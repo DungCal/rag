@@ -5,6 +5,7 @@ import json
 import os
 import sys
 import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import Annotated, Any, TypedDict
 
@@ -27,8 +28,10 @@ from pipelines.agent_pipeline.agent_rag.conversation_compaction import (
     ConversationCompactionNode,
     append_turn_to_file,
     _replace_system_context_in_file,
+    _get_next_turn_number,
     DEFAULT_HISTORY_DIR,
 )
+from pipelines.agent_pipeline.agent_rag.token_utils import count_messages_tokens, count_tokens
 from pipelines.agent_pipeline.traditional_rag.routers.routing_classification import (
     DEFAULT_DOCUMENT_SCOPE,
     PromptQueryRouter,
@@ -291,6 +294,7 @@ class AgentRAGPipeline:
         min_keep_recent_turns: int = 1,
         conversation_history_dir: str | Path | None = None,
         compaction_max_summary_tokens: int = 2048,
+        enable_token_debug_log: bool = False,
     ) -> None:
         self.prompt_path = prompt_path
         self.scope = _load_scope(scope, scope_file)
@@ -312,6 +316,7 @@ class AgentRAGPipeline:
         self.min_keep_recent_turns = min_keep_recent_turns
         self.conversation_history_dir = Path(conversation_history_dir) if conversation_history_dir else PROJECT_ROOT / "logs" / "conversation_history"
         self.compaction_max_summary_tokens = compaction_max_summary_tokens
+        self.enable_token_debug_log = enable_token_debug_log
 
         resolved_provider = provider or os.getenv("HF_INFERENCE_PROVIDER") or _load_provider_from_env_file() or DEFAULT_HF_INFERENCE_PROVIDER
 
@@ -473,11 +478,81 @@ class AgentRAGPipeline:
             logger.warning("Post-answer compaction failed (non-fatal): {}", exc)
             return {}
 
+        self._write_token_debug(
+            thread_id=active_thread_id,
+            query=query,
+            final_answer=final_answer,
+            system_context=system_context,
+            recent_turns=recent_turns,
+            result=result,
+        )
+
         return {
             "system_context": result.get("system_context"),
             "recent_turns": result.get("recent_turns", []),
             "summarized": result.get("summarized", False),
         }
+
+    def _write_token_debug(
+        self,
+        *,
+        thread_id: str,
+        query: str,
+        final_answer: str,
+        system_context: str | None,
+        recent_turns: list[BaseMessage],
+        result: dict[str, Any],
+    ) -> None:
+        if not self.enable_token_debug_log:
+            return
+        if not thread_id:
+            return
+
+        debug_dir = self.conversation_history_dir
+        debug_path = Path(debug_dir) / f"{thread_id}_tokens.md"
+        debug_path.parent.mkdir(parents=True, exist_ok=True)
+
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        turn_number = _get_next_turn_number(debug_path)
+
+        sc_tokens = count_tokens(system_context, self.model_name) if system_context else 0
+        rt_tokens = count_messages_tokens(recent_turns, self.model_name) if recent_turns else 0
+        q_tokens = count_tokens(query, self.model_name)
+        ans_tokens = count_tokens(final_answer, self.model_name)
+        total_before = sc_tokens + rt_tokens + q_tokens + ans_tokens
+        summarized = result.get("summarized", False)
+
+        lines = []
+        if not debug_path.exists() or debug_path.stat().st_size == 0:
+            lines.append("# Token Debug Log\n")
+
+        lines.append(f"## Turn {turn_number}\n")
+        lines.append(f"- **Timestamp:** {timestamp}")
+        lines.append(f"- **Query:** {query}")
+        lines.append(f"- **Query tokens:** {q_tokens}")
+        lines.append(f"- **Answer tokens:** {ans_tokens}")
+        lines.append(f"- **system_context_tokens (before):** {sc_tokens}")
+        lines.append(f"- **recent_turns_tokens (before):** {rt_tokens}")
+        lines.append(f"- **Total (before compaction):** {total_before}")
+        lines.append(f"- **Compaction triggered:** {summarized}")
+        if summarized:
+            new_sc = result.get("system_context", "")
+            new_sc_tokens = count_tokens(new_sc, self.model_name) if new_sc else 0
+            lines.append(f"- **system_context_tokens (after):** {new_sc_tokens}")
+        lines.append(f"- **Threshold:** {self._compaction_node._threshold_tokens}")
+        lines.append("")
+        lines.append("### Full Final Answer\n")
+        lines.append(final_answer)
+        lines.append("\n---\n")
+
+        existing = ""
+        if debug_path.exists() and debug_path.stat().st_size > 0:
+            existing = debug_path.read_text(encoding="utf-8").rstrip()
+            debug_path.write_text(existing + "\n\n" + "\n".join(lines).rstrip() + "\n", encoding="utf-8")
+        else:
+            debug_path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+        logger.info("Token debug log written to {}", debug_path.resolve())
 
     @staticmethod
     def _route_after_compaction(state: AgentState) -> str:
@@ -547,6 +622,18 @@ class AgentRAGPipeline:
         tool_results = extract_tool_results(agent_output)
         chunks = tool_results.get("chunks", [])
         web_results = tool_results.get("web_results", [])
+
+        # Filter to top-k chunks by score before judging to avoid judging too many chunks
+        top_k = getattr(self, 'top_k', 5)
+        if len(chunks) > top_k:
+            # Sort chunks by score (descending) and take top-k
+            sorted_chunks = sorted(
+                chunks,
+                key=lambda c: c.get("score", c.get("rerank_score", 0)),
+                reverse=True
+            )
+            chunks = sorted_chunks[:top_k]
+            logger.info("Filtered to top {} chunks by score (from {} total)", top_k, len(sorted_chunks))
 
         judged_chunks = chunks
         if self._judge is not None and chunks:
@@ -748,6 +835,7 @@ async def run_agentic_pipeline(args: argparse.Namespace) -> None:
         min_keep_recent_turns=getattr(args, 'min_keep_recent_turns', 1),
         conversation_history_dir=getattr(args, 'conversation_history_dir', None),
         compaction_max_summary_tokens=getattr(args, 'compaction_max_summary_tokens', 2048),
+        enable_token_debug_log=getattr(args, 'enable_token_debug_log', False),
     )
     payload = await pipeline.invoke(
         args.query,

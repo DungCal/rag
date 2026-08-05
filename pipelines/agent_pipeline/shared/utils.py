@@ -86,8 +86,11 @@ def is_degenerate_response(
 def extract_tool_results(agent_output: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
     """Extract tool results from LangGraph agent output.
 
-    Parses the agent's message history to find ToolMessage objects and extract
-    results from retrieve_context, rerank, and web_search tools.
+    Parses the agent's message history to find ToolMessage objects from the CURRENT TURN
+    and extract results from retrieve_context, rerank, and web_search tools.
+
+    Only processes tool messages that appear after the last HumanMessage to avoid
+    extracting duplicate chunks from previous conversation turns.
 
     Args:
         agent_output: The output from agent.ainvoke(), containing "messages" list.
@@ -102,7 +105,18 @@ def extract_tool_results(agent_output: dict[str, Any]) -> dict[str, list[dict[st
 
     messages = agent_output.get("messages", [])
 
-    for message in messages:
+    # Find the index of the last HumanMessage to only process tool messages from the current turn
+    last_human_msg_idx = -1
+    for i, message in enumerate(messages):
+        message_type = getattr(message, "type", None)
+        if message_type == "human":
+            last_human_msg_idx = i
+
+    # Only process messages after the last HumanMessage (current turn only)
+    start_idx = last_human_msg_idx + 1 if last_human_msg_idx >= 0 else 0
+
+    for msg_idx in range(start_idx, len(messages)):
+        message = messages[msg_idx]
         # Check if this is a ToolMessage by checking the type attribute
         message_type = getattr(message, "type", None)
         if message_type != "tool":
@@ -143,6 +157,10 @@ def extract_tool_results(agent_output: dict[str, Any]) -> dict[str, list[dict[st
             continue
 
         logger.debug("Successfully parsed tool result from {}: type={}", tool_name, type(tool_result))
+
+        # Track chunks/web_results added by this tool message to avoid duplicate logging
+        chunks_before = len(chunks)
+        web_results_before = len(web_results)
 
         # Extract based on tool type
         if tool_name in ["retrieve_context", "rerank"]:
@@ -208,8 +226,9 @@ def extract_tool_results(agent_output: dict[str, Any]) -> dict[str, list[dict[st
             else:
                 logger.warning("Unexpected tool result format from {}: {}", tool_name, type(tool_result))
 
-            # Log detailed chunk information
-            for chunk_idx, chunk in enumerate(chunks, start=1):
+            # Log only the NEW chunks added by this tool message
+            new_chunks = chunks[chunks_before:]
+            for chunk_idx, chunk in enumerate(new_chunks, start=1):
                 if isinstance(chunk, dict):
                     score = chunk.get("score", chunk.get("rerank_score", "N/A"))
                     page_number = chunk.get("page_number", "N/A")
@@ -277,8 +296,9 @@ def extract_tool_results(agent_output: dict[str, Any]) -> dict[str, list[dict[st
             else:
                 logger.warning("Unexpected tool result format from {}: {}", tool_name, type(tool_result))
 
-            # Log detailed web search results
-            for result_idx, result in enumerate(web_results, start=1):
+            # Log only the NEW web results added by this tool message
+            new_web_results = web_results[web_results_before:]
+            for result_idx, result in enumerate(new_web_results, start=1):
                 if isinstance(result, dict):
                     title = result.get("title", "N/A")
                     url = result.get("url", "N/A")

@@ -13,17 +13,18 @@ echo "Cleaning up old state..."
 echo "============================================"
 rm -f logs/agent_checkpoints.sqlite
 rm -f logs/conversation_history/${THREAD_ID}.md
+rm -f logs/conversation_history/${THREAD_ID}_tokens.md
 
 # Array of related queries about TYM tractor
 QUERIES=(
-  "hello"
-  "What is a TYM tractor and what is it used for?"
-  "Tell me about the safety features of the TYM tractor"
-  "How do I perform a pre-operation inspection?"
-  "What should I check before starting the engine?"
-  "How do I check the engine oil level?"
-  "What is the DPF warning lamp and what does it mean?"
-  "How do I drive the tractor on slopes safely?"
+  # "hello"
+  # "What is a TYM tractor and what is it used for?"
+  # "Tell me about the safety features of the TYM tractor"
+  # "How do I perform a pre-operation inspection?"
+  # "What should I check before starting the engine?"
+  # "How do I check the engine oil level?"
+  # "What is the DPF warning lamp and what does it mean?"
+  # "How do I drive the tractor on slopes safely?"
   "What maintenance is required for long-term storage?"
   "How do I adjust the touch monitor settings?"
 )
@@ -47,6 +48,7 @@ for i in "${!QUERIES[@]}"; do
   python -m pipelines.agent_pipeline.orchestration run \
     --turn-on-agent-rag \
     --enable-conversation-compaction \
+    --enable-token-debug-log \
     --thread-id "${THREAD_ID}" \
     --max-input-tokens "${MAX_INPUT_TOKENS}" \
     --context-token-threshold-pct "${THRESHOLD_PCT}" \
@@ -72,8 +74,14 @@ echo ""
 echo "Full conversation history saved to:"
 echo "  logs/conversation_history/${THREAD_ID}.md"
 echo ""
+echo "Token debug log saved to:"
+echo "  logs/conversation_history/${THREAD_ID}_tokens.md"
+echo ""
 echo "To view the full history:"
 echo "  cat logs/conversation_history/${THREAD_ID}.md"
+echo ""
+echo "To view token debug:"
+echo "  cat logs/conversation_history/${THREAD_ID}_tokens.md"
 echo ""
 echo "To check logs for compaction events:"
 echo "  grep -E 'Pre-answer check|Post-answer check|Compaction' logs/agent_pipeline.log | tail -20"

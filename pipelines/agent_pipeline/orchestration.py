@@ -261,6 +261,12 @@ def _add_run_arguments(parser: argparse.ArgumentParser) -> None:
         default=DEFAULT_COMPACTION_MAX_SUMMARY_TOKENS,
         help="Max output tokens for the compaction summary LLM call (default: 2048)",
     )
+    parser.add_argument(
+        "--enable-token-debug-log",
+        action="store_true",
+        default=False,
+        help="Enable per-turn token debug logging to {thread_id}_tokens.md",
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
