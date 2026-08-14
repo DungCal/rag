@@ -5966,3 +5966,118 @@ software version of to...'
 2026-08-05 01:24:08 | INFO     | pipelines.agent_pipeline.agent_rag.conversation_compaction:post_answer_check:289 | Post-answer check: system_context_tokens=0, recent_turns_tokens=430, total=430, threshold=450
 2026-08-05 01:24:08 | INFO     | pipelines.agent_pipeline.agent_rag.agent_graph:_write_token_debug:555 | Token debug log written to /home/dungx/LGI/rag/logs/conversation_history/test-compaction_tokens.md
 2026-08-05 01:24:08 | INFO     | pipelines.agent_pipeline.agent_rag.conversation_compaction:append_turn_to_file:118 | Appended turn 2 to /home/dungx/LGI/rag/logs/conversation_history/test-compaction.md
+2026-08-05 21:42:20 | INFO     | pipelines.agent_pipeline.agent_rag.token_utils:_get_tokenizer:22 | Loaded tokenizer for model=google/gemma-4-26B-A4B-it
+2026-08-05 21:42:20 | INFO     | pipelines.agent_pipeline.agent_rag.conversation_compaction:pre_answer_check:243 | Pre-answer check: system_context_tokens=0, recent_turns_tokens=0, query_tokens=10, total=10, threshold=450
+2026-08-05 21:42:21 | INFO     | pipelines.agent_pipeline.traditional_rag.routers.routing_classification:route:111 | Router raw output (attempt 1): 'related'
+2026-08-05 21:42:21 | INFO     | pipelines.agent_pipeline.agent_rag.agent_graph:_router_node_fn:565 | Agentic router decision: query='What maintenance is required for long-term storage?', route=retrieval, label=related
+2026-08-05 21:42:23 | INFO     | pipelines.agent_pipeline.agent_rag.agent_graph:_agent_node_fn:608 | Agent calling tool: retrieve_context with args={'query': 'maintenance required for long-term storage'}
+2026-08-05 21:42:55 | INFO     | pipelines.agent_pipeline.shared.utils:extract_tool_results:248 | Retrieved chunk #1: score=0.5695536136627197 page=157 chunk_id=269 source_file='D:\Rag_pipeline\t130sp_na_operator_manual.pdf' text_preview='MAINTENANCE
+E
+E
+7.
+Remove a weight.
+Detach or lower an implement.
+8.
+Chock the rear wheels.
+9.
+Remov...'
+2026-08-05 21:42:55 | INFO     | pipelines.agent_pipeline.shared.utils:extract_tool_results:248 | Retrieved chunk #2: score=0.5586869120597839 page=158 chunk_id=272 source_file='D:\Rag_pipeline\t130sp_na_operator_manual.pdf' text_preview='MAINTENANCE
+E
+32
+▶USAGE AND DISPOSAL
+It is recommended to keep the 
+followings to protect the enviro...'
+2026-08-05 21:42:55 | INFO     | pipelines.agent_pipeline.shared.utils:extract_tool_results:248 | Retrieved chunk #3: score=0.5527605414390564 page=142 chunk_id=243 source_file='D:\Rag_pipeline\t130sp_na_operator_manual.pdf' text_preview='not apply oil on it.
+2.
+Foreign materials in the cover 
+should be removed thoroughly as 
+well.
+3.
+Ma...'
+2026-08-05 21:42:55 | INFO     | pipelines.agent_pipeline.shared.utils:extract_tool_results:248 | Retrieved chunk #4: score=0.5508958101272583 page=158 chunk_id=273 source_file='D:\Rag_pipeline\t130sp_na_operator_manual.pdf' text_preview='Keep the following instructions when 
+using the tractor after its long-term 
+storage.
+1.
+Inspect the...'
+2026-08-05 21:42:55 | INFO     | pipelines.agent_pipeline.shared.utils:extract_tool_results:248 | Retrieved chunk #5: score=0.5505944490432739 page=127 chunk_id=215 source_file='D:\Rag_pipeline\t130sp_na_operator_manual.pdf' text_preview='E. MAINTENANCE
+1.
+MAINTENANCE SCHEDULE
+2.
+OPENING COVERS
+3.
+CHECK & SERVICING FOR EACH PART
+4.
+GREAS...'
+2026-08-05 21:42:55 | INFO     | pipelines.agent_pipeline.shared.utils:extract_tool_results:313 | Extracted tool results: 5 chunks, 0 web results
+2026-08-05 21:42:55 | INFO     | pipelines.agent_pipeline.agent_rag.agent_graph:_process_results_node_fn:640 | Judging 5 chunks
+2026-08-05 21:43:06 | INFO     | pipelines.agent_pipeline.shared.retriever_judge_node:_judge_item:140 | Judge result for chunk_id=269: final_score=10 score_band='9-10' reasoning='The user query asks for specific maintenance requirements for long-term storage. The retrieved chunk contains a direct section titled 'LONG-TERM STORA...'
+2026-08-05 21:43:16 | INFO     | pipelines.agent_pipeline.shared.retriever_judge_node:_judge_item:140 | Judge result for chunk_id=272: final_score=4 score_band='3-4' reasoning='The user's core intent is to find specific maintenance procedures required *for* long-term storage (e.g., fuel stabilization, battery maintenance, flu...'
+2026-08-05 21:43:26 | INFO     | pipelines.agent_pipeline.shared.retriever_judge_node:_judge_item:140 | Judge result for chunk_id=243: final_score=8 score_band='7-8' reasoning='The user query asks for maintenance requirements for long-term storage. The retrieved chunk provides specific, actionable instructions regarding the s...'
+2026-08-05 21:43:37 | INFO     | pipelines.agent_pipeline.shared.retriever_judge_node:_judge_item:140 | Judge result for chunk_id=273: final_score=7 score_band='7-8' reasoning='The user's query asks for maintenance required *for* long-term storage (preventative measures to take while the item is being stored). The retrieved c...'
+2026-08-05 21:43:45 | INFO     | pipelines.agent_pipeline.shared.retriever_judge_node:_judge_item:140 | Judge result for chunk_id=215: final_score=4 score_band='3-4' reasoning='The user's core intent is to find specific maintenance instructions or procedures required for long-term storage. The retrieved chunk is a Table of Co...'
+2026-08-05 21:43:45 | INFO     | pipelines.agent_pipeline.agent_rag.agent_graph:_process_results_node_fn:643 | Judged 5 chunks, filtered to top 3 (min_score=5)
+2026-08-05 21:43:45 | INFO     | pipelines.agent_pipeline.agent_rag.agent_graph:_generate_node_fn:653 | Generating answer from 3 context items
+2026-08-05 21:43:45 | INFO     | pipelines.agent_pipeline.shared.generation_node:run:91 | GenerationNode: generating answer from 3 context items
+2026-08-05 21:44:01 | INFO     | pipelines.agent_pipeline.agent_rag.conversation_compaction:post_answer_check:289 | Post-answer check: system_context_tokens=0, recent_turns_tokens=294, total=294, threshold=450
+2026-08-05 21:44:01 | INFO     | pipelines.agent_pipeline.agent_rag.agent_graph:_write_token_debug:555 | Token debug log written to /home/dungx/LGI/rag/logs/conversation_history/test-compaction_tokens.md
+2026-08-05 21:44:01 | INFO     | pipelines.agent_pipeline.agent_rag.conversation_compaction:append_turn_to_file:118 | Appended turn 1 to /home/dungx/LGI/rag/logs/conversation_history/test-compaction.md
+2026-08-05 21:44:20 | INFO     | pipelines.agent_pipeline.agent_rag.token_utils:_get_tokenizer:22 | Loaded tokenizer for model=google/gemma-4-26B-A4B-it
+2026-08-05 21:44:20 | INFO     | pipelines.agent_pipeline.agent_rag.conversation_compaction:pre_answer_check:243 | Pre-answer check: system_context_tokens=0, recent_turns_tokens=294, query_tokens=9, total=303, threshold=450
+2026-08-05 21:44:21 | INFO     | pipelines.agent_pipeline.traditional_rag.routers.routing_classification:route:111 | Router raw output (attempt 1): 'related'
+2026-08-05 21:44:21 | INFO     | pipelines.agent_pipeline.agent_rag.agent_graph:_router_node_fn:565 | Agentic router decision: query='How do I adjust the touch monitor settings?', route=retrieval, label=related
+2026-08-05 21:44:23 | INFO     | pipelines.agent_pipeline.agent_rag.agent_graph:_agent_node_fn:608 | Agent calling tool: retrieve_context with args={'query': 'adjust touch monitor settings'}
+2026-08-05 21:44:50 | INFO     | pipelines.agent_pipeline.shared.utils:extract_tool_results:248 | Retrieved chunk #1: score=0.7061835527420044 page=178 chunk_id=301 source_file='D:\Rag_pipeline\t130sp_na_operator_manual.pdf' text_preview='TOUCH MONITOR
+F
+20
+Change UI theme of the touch monitor.
+①
+In bright theme, background color becomes...'
+2026-08-05 21:44:50 | INFO     | pipelines.agent_pipeline.shared.utils:extract_tool_results:248 | Retrieved chunk #2: score=0.6994438171386719 page=176 chunk_id=299 source_file='D:\Rag_pipeline\t130sp_na_operator_manual.pdf' text_preview='TOUCH MONITOR
+F
+18
+System setting menu is composed of items below.
+①
+Adjust display language / speak...'
+2026-08-05 21:44:50 | INFO     | pipelines.agent_pipeline.shared.utils:extract_tool_results:248 | Retrieved chunk #3: score=0.6686670780181885 page=179 chunk_id=302 source_file='D:\Rag_pipeline\t130sp_na_operator_manual.pdf' text_preview='F
+TOUCH MONITOR
+F
+21
+Update the touch monitor to improve the stability and 
+functionality of the tou...'
+2026-08-05 21:44:50 | INFO     | pipelines.agent_pipeline.shared.utils:extract_tool_results:248 | Retrieved chunk #4: score=0.6524378061294556 page=164 chunk_id=282 source_file='D:\Rag_pipeline\t130sp_na_operator_manual.pdf' text_preview='TOUCH MONITOR
+F
+6
+Top menu will appear when you swipe down the screen from top.
+①
+Turn the screen of...'
+2026-08-05 21:44:50 | INFO     | pipelines.agent_pipeline.shared.utils:extract_tool_results:248 | Retrieved chunk #5: score=0.6422901153564453 page=180 chunk_id=303 source_file='D:\Rag_pipeline\t130sp_na_operator_manual.pdf' text_preview='TOUCH MONITOR
+F
+22
+You can reset the touch monitor or check the hardware and 
+software version of to...'
+2026-08-05 21:44:50 | INFO     | pipelines.agent_pipeline.shared.utils:extract_tool_results:313 | Extracted tool results: 5 chunks, 0 web results
+2026-08-05 21:44:50 | INFO     | pipelines.agent_pipeline.agent_rag.agent_graph:_process_results_node_fn:640 | Judging 5 chunks
+2026-08-05 21:44:59 | INFO     | pipelines.agent_pipeline.shared.retriever_judge_node:_judge_item:140 | Judge result for chunk_id=301: final_score=8 score_band='7-8' reasoning='The user's query is a broad request for instructions on how to adjust 'touch monitor settings'. The retrieved chunk provides specific examples of sett...'
+2026-08-05 21:45:07 | INFO     | pipelines.agent_pipeline.shared.retriever_judge_node:_judge_item:140 | Judge result for chunk_id=299: final_score=8 score_band='7-8' reasoning='The user's core intent is to find instructions on how to adjust the settings of a touch monitor. The retrieved chunk directly addresses this by listin...'
+2026-08-05 21:45:16 | INFO     | pipelines.agent_pipeline.shared.retriever_judge_node:_judge_item:140 | Judge result for chunk_id=302: final_score=4 score_band='3-4' reasoning='The user's core intent is to find instructions on how to 'adjust the touch monitor settings'. Upon analyzing the retrieved chunk, the text discusses t...'
+2026-08-05 21:45:27 | INFO     | pipelines.agent_pipeline.shared.retriever_judge_node:_judge_item:140 | Judge result for chunk_id=282: final_score=7 score_band='7-8' reasoning='The user's core intent is to find instructions on how to adjust settings for a touch monitor. The retrieved chunk provides a high-level overview of th...'
+2026-08-05 21:45:40 | INFO     | pipelines.agent_pipeline.shared.retriever_judge_node:_judge_item:140 | Judge result for chunk_id=303: final_score=4 score_band='3-4' reasoning='The user's core intent is to find instructions on how to 'adjust' touch monitor settings (which typically implies brightness, calibration, sensitivity...'
+2026-08-05 21:45:40 | INFO     | pipelines.agent_pipeline.agent_rag.agent_graph:_process_results_node_fn:643 | Judged 5 chunks, filtered to top 3 (min_score=5)
+2026-08-05 21:45:40 | INFO     | pipelines.agent_pipeline.agent_rag.agent_graph:_generate_node_fn:653 | Generating answer from 3 context items
+2026-08-05 21:45:40 | INFO     | pipelines.agent_pipeline.shared.generation_node:run:91 | GenerationNode: generating answer from 3 context items
+2026-08-05 21:46:19 | INFO     | pipelines.agent_pipeline.agent_rag.conversation_compaction:post_answer_check:289 | Post-answer check: system_context_tokens=0, recent_turns_tokens=414, total=414, threshold=450
+2026-08-05 21:46:19 | INFO     | pipelines.agent_pipeline.agent_rag.agent_graph:_write_token_debug:555 | Token debug log written to /home/dungx/LGI/rag/logs/conversation_history/test-compaction_tokens.md
+2026-08-05 21:46:19 | INFO     | pipelines.agent_pipeline.agent_rag.conversation_compaction:append_turn_to_file:118 | Appended turn 2 to /home/dungx/LGI/rag/logs/conversation_history/test-compaction.md
+2026-08-06 22:49:32 | INFO     | pipelines.agent_pipeline.traditional_rag.routers.routing_classification:route:111 | Router raw output (attempt 1): 'greeting'
+2026-08-06 22:50:06 | INFO     | pipelines.agent_pipeline.traditional_rag.routers.routing_classification:route:111 | Router raw output (attempt 1): 'greeting'
+2026-08-06 22:50:26 | INFO     | pipelines.agent_pipeline.traditional_rag.routers.routing_classification:route:111 | Router raw output (attempt 1): 'greeting'
+2026-08-06 22:50:47 | INFO     | pipelines.agent_pipeline.traditional_rag.routers.routing_classification:route:111 | Router raw output (attempt 1): 'greeting'
+2026-08-06 22:50:48 | INFO     | pipelines.agent_pipeline.traditional_rag.routers.routing_classification:route:111 | Router raw output (attempt 1): 'greeting'
+2026-08-06 22:50:49 | INFO     | pipelines.agent_pipeline.traditional_rag.routers.routing_classification:route:111 | Router raw output (attempt 1): 'greeting'
+2026-08-06 22:50:50 | INFO     | pipelines.agent_pipeline.traditional_rag.routers.routing_classification:route:111 | Router raw output (attempt 1): 'related'
+2026-08-06 22:50:51 | INFO     | pipelines.agent_pipeline.traditional_rag.routers.routing_classification:route:111 | Router raw output (attempt 1): 'related'
+2026-08-06 22:50:52 | INFO     | pipelines.agent_pipeline.traditional_rag.routers.routing_classification:route:111 | Router raw output (attempt 1): 'related'
+2026-08-06 22:50:53 | INFO     | pipelines.agent_pipeline.traditional_rag.routers.routing_classification:route:111 | Router raw output (attempt 1): 'off_topic'
+2026-08-06 22:50:54 | INFO     | pipelines.agent_pipeline.traditional_rag.routers.routing_classification:route:111 | Router raw output (attempt 1): 'off_topic'
+2026-08-06 22:53:06 | INFO     | pipelines.agent_pipeline.traditional_rag.routers.routing_classification:route:111 | Router raw output (attempt 1): 'greeting'
+2026-08-06 22:53:49 | INFO     | pipelines.agent_pipeline.traditional_rag.routers.routing_classification:route:111 | Router raw output (attempt 1): 'related'
