@@ -288,6 +288,7 @@ class AgentRAGPipeline:
         provider: str | None = None,
         thread_id: str | None = None,
         checkpoint_db: str | Path | None = None,
+        index_dir: str = "storage_hierarchical",
         enable_conversation_compaction: bool = False,
         max_input_tokens: int = 256_000,
         context_token_threshold_pct: float = 0.30,
@@ -310,6 +311,7 @@ class AgentRAGPipeline:
         self.judge_min_score = judge_min_score
         self.thread_id = thread_id
         self.checkpoint_db = Path(checkpoint_db) if checkpoint_db else self.DEFAULT_CHECKPOINT_DB
+        self.index_dir = index_dir
         self.enable_conversation_compaction = enable_conversation_compaction
         self.max_input_tokens = max_input_tokens
         self.context_token_threshold_pct = context_token_threshold_pct
@@ -757,6 +759,7 @@ class AgentRAGPipeline:
             tavily_api_key=self.tavily_api_key,
             enable_input_guard=self.enable_input_guard,
             enable_output_guard=self.enable_output_guard,
+            index_dir=self.index_dir,
         )
         tools = await tool_client.connect()
 
@@ -829,6 +832,7 @@ async def run_agentic_pipeline(args: argparse.Namespace) -> None:
         provider=getattr(args, 'hf_inference_provider', None),
         thread_id=getattr(args, 'thread_id', None),
         checkpoint_db=getattr(args, 'checkpoint_db', None),
+        index_dir=getattr(args, 'index_dir', 'storage_hierarchical'),
         enable_conversation_compaction=getattr(args, 'enable_conversation_compaction', False),
         max_input_tokens=getattr(args, 'max_input_tokens', 256_000),
         context_token_threshold_pct=getattr(args, 'context_token_threshold_pct', 0.30),

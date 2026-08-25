@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 
 from . import indexing, scope
+from .index_from_chunks import command_index_chunks
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -25,6 +26,19 @@ def build_parser() -> argparse.ArgumentParser:
     index_parser.add_argument("--chunk-overlap", type=int, default=150, help="Chunk overlap in characters")
     index_parser.add_argument("--use-fp16", action="store_true", help="Kept for CLI compatibility; ignored by inference providers")
     index_parser.set_defaults(func=indexing.command_index)
+
+    index_chunks_parser = subparsers.add_parser("index-chunks", help="Index pre-chunked markdown files into FAISS")
+    index_chunks_parser.add_argument("--chunks-dir", required=True, help="Directory containing index.jsonl and chunks/")
+    index_chunks_parser.add_argument("--index-dir", default="storage_hierarchical", help="Output directory for FAISS index")
+    index_chunks_parser.add_argument("--model-name", default=indexing.DEFAULT_MODEL_NAME, help="Embedding model name")
+    index_chunks_parser.add_argument(
+        "--embedding-provider",
+        default=None,
+        help="Hugging Face Hub inference provider for embeddings (e.g. 'together', 'fireworks-ai'). "
+             "Defaults to the Hugging Face Inference API.",
+    )
+    index_chunks_parser.add_argument("--use-fp16", action="store_true", help="Kept for CLI compatibility; ignored by inference providers")
+    index_chunks_parser.set_defaults(func=command_index_chunks)
 
     query_parser = subparsers.add_parser("query", help="Query an existing FAISS index")
     query_parser.add_argument("--query", required=True, help="User query text")

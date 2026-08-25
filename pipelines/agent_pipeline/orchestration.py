@@ -206,6 +206,11 @@ def _add_run_arguments(parser: argparse.ArgumentParser) -> None:
              "Can also be set via TURN_ON_AGENT_RAG env var.",
     )
     parser.add_argument(
+        "--index-dir",
+        default="storage_hierarchical",
+        help="Directory containing faiss.index and metadata.json for agentic RAG (default: storage_hierarchical)",
+    )
+    parser.add_argument(
         "--tavily-api-key",
         default=None,
         help="Tavily API key for the web_search MCP tool in agentic RAG mode",

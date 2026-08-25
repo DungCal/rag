@@ -29,7 +29,7 @@ mcp = FastMCP("retrieve_context")
 async def retrieve_context(
     query: str,
     top_k: int = 5,
-    index_dir: str = "storage",
+    index_dir: str = "storage_hierarchical",
 ) -> list[dict[str, Any]]:
     """Retrieve the most relevant document chunks from the local FAISS vector index.
 
@@ -41,7 +41,7 @@ async def retrieve_context(
     Args:
         query: The search query or user question.
         top_k: Number of most relevant chunks to return (default: 5).
-        index_dir: Directory containing faiss.index and metadata.json (default: "storage").
+        index_dir: Directory containing faiss.index and metadata.json (default: "storage_hierarchical").
 
     Returns:
         A list of retrieved chunks. Each chunk contains:

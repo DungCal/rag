@@ -42,6 +42,25 @@ DEFAULT_MCP_SERVERS: dict[str, dict[str, Any]] = {
     },
 }
 
+
+def build_mcp_servers(
+    index_dir: str | None = None,
+    tavily_api_key: str | None = None,
+) -> dict[str, dict[str, Any]]:
+    """Build MCP server config, optionally passing --index-dir to retrieve_context."""
+    import copy
+    servers = copy.deepcopy(DEFAULT_MCP_SERVERS)
+    if index_dir:
+        servers["retrieve_context"]["args"] = [
+            "mcp_servers/retrieve_context_server.py",
+            "--index-dir", index_dir,
+        ]
+    if tavily_api_key:
+        env = dict(os.environ.copy())
+        env["TAVILY_API_KEY"] = tavily_api_key
+        servers["web_search"]["env"] = env
+    return servers
+
 # query_user_data is intentionally omitted from the active agent tool set.
 
 
@@ -54,14 +73,12 @@ class AgentToolClient:
         tavily_api_key: str | None = None,
         enable_input_guard: bool = False,
         enable_output_guard: bool = False,
+        index_dir: str | None = None,
     ) -> None:
-        self.servers = dict(servers) if servers else dict(DEFAULT_MCP_SERVERS)
-        if tavily_api_key:
-            for server in self.servers.values():
-                if server["args"][0] == "mcp_servers/web_search_server.py":
-                    env = dict(server.get("env") or os.environ.copy())
-                    env["TAVILY_API_KEY"] = tavily_api_key
-                    server["env"] = env
+        self.servers = servers or build_mcp_servers(
+            index_dir=index_dir,
+            tavily_api_key=tavily_api_key,
+        )
         self._client: MultiServerMCPClient | None = None
         self._enable_input_guard = enable_input_guard
         self._enable_output_guard = enable_output_guard
