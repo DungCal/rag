@@ -47,7 +47,7 @@ Core subcommands:
 ## Index a PDF
 
 ```bash
-python -m pipelines.indexing_pipeline index --pdf path\to\document.pdf --index-dir storage
+python -m pipelines.indexing_pipeline index recursive --pdf path/to/document.pdf --index-dir storage
 ```
 
 Optional flags:
@@ -56,6 +56,14 @@ Optional flags:
 - `--chunk-overlap 150`
 - `--embedding-provider together` (Hugging Face Hub inference provider; omit for the default HF Inference API)
 - `--use-fp16` (kept for compatibility; ignored by inference providers)
+
+## Index pre-chunked markdown (hierarchical)
+
+```bash
+python -m pipelines.indexing_pipeline index hierarchical --chunks-dir output/parsed/chunks --index-dir storage_hierarchical
+```
+
+This splits at `###` headings (requires Mineru-parsed output).
 
 ## Query the index
 

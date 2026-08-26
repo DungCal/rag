@@ -82,6 +82,10 @@ def run(args: argparse.Namespace) -> None:
     elif not os.environ.get("LANGCHAIN_TRACING_V2"):
         os.environ["LANGCHAIN_TRACING_V2"] = "false"
 
+    if not is_agentic_rag_enabled(args):
+        if getattr(args, "retrieval_backend", "pinecone") == "pinecone" and not getattr(args, "pinecone_index_name", None):
+            raise ValueError("--pinecone-index-name is required when --retrieval-backend=pinecone")
+
     if is_agentic_rag_enabled(args):
         from pipelines.agent_pipeline.agent_rag.agent_graph import run_agentic_pipeline
 
@@ -120,7 +124,13 @@ def _add_run_arguments(parser: argparse.ArgumentParser) -> None:
         help="Hugging Face Hub inference provider for embeddings (e.g. 'together', 'fireworks-ai'). "
              "Defaults to the Hugging Face Inference API.",
     )
-    parser.add_argument("--pinecone-index-name", required=False, help="Pinecone index name for traditional retrieval route")
+    parser.add_argument(
+        "--retrieval-backend",
+        choices=["pinecone", "faiss"],
+        default="pinecone",
+        help="Retrieval backend: 'pinecone' (requires --pinecone-index-name) or 'faiss' (uses --index-dir)",
+    )
+    parser.add_argument("--pinecone-index-name", required=False, help="Pinecone index name (required when --retrieval-backend=pinecone)")
     parser.add_argument(
         "--pinecone-namespace",
         default=DEFAULT_PINECONE_NAMESPACE,
@@ -208,7 +218,7 @@ def _add_run_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--index-dir",
         default="storage_hierarchical",
-        help="Directory containing faiss.index and metadata.json for agentic RAG (default: storage_hierarchical)",
+        help="Directory containing faiss.index and metadata.json (for --retrieval-backend faiss or agentic RAG)",
     )
     parser.add_argument(
         "--tavily-api-key",

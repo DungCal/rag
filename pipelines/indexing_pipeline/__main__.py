@@ -12,33 +12,38 @@ def build_parser() -> argparse.ArgumentParser:
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    index_parser = subparsers.add_parser("index", help="Index a PDF into FAISS storage")
-    index_parser.add_argument("--pdf", required=True, help="Path to the input PDF file")
-    index_parser.add_argument("--index-dir", default=str(indexing.DEFAULT_INDEX_DIR), help="Directory for FAISS index and metadata")
-    index_parser.add_argument("--model-name", default=indexing.DEFAULT_MODEL_NAME, help="Embedding model name")
-    index_parser.add_argument(
-        "--embedding-provider",
-        default=None,
-        help="Hugging Face Hub inference provider for embeddings (e.g. 'together', 'fireworks-ai'). "
-             "Defaults to the Hugging Face Inference API.",
-    )
-    index_parser.add_argument("--chunk-size", type=int, default=900, help="Chunk size in characters")
-    index_parser.add_argument("--chunk-overlap", type=int, default=150, help="Chunk overlap in characters")
-    index_parser.add_argument("--use-fp16", action="store_true", help="Kept for CLI compatibility; ignored by inference providers")
-    index_parser.set_defaults(func=indexing.command_index)
+    index_parser = subparsers.add_parser("index", help="Index a document into FAISS storage")
+    index_method_parsers = index_parser.add_subparsers(dest="method", required=True)
 
-    index_chunks_parser = subparsers.add_parser("index-chunks", help="Index pre-chunked markdown files into FAISS")
-    index_chunks_parser.add_argument("--chunks-dir", required=True, help="Directory containing index.jsonl and chunks/")
-    index_chunks_parser.add_argument("--index-dir", default="storage_hierarchical", help="Output directory for FAISS index")
-    index_chunks_parser.add_argument("--model-name", default=indexing.DEFAULT_MODEL_NAME, help="Embedding model name")
-    index_chunks_parser.add_argument(
+    # index recursive: PDF → RecursiveCharacterTextSplitter → FAISS
+    recursive_parser = index_method_parsers.add_parser("recursive", help="Index a PDF using RecursiveCharacterTextSplitter")
+    recursive_parser.add_argument("--pdf", required=True, help="Path to the input PDF file")
+    recursive_parser.add_argument("--index-dir", default=str(indexing.DEFAULT_INDEX_DIR), help="Directory for FAISS index and metadata")
+    recursive_parser.add_argument("--model-name", default=indexing.DEFAULT_MODEL_NAME, help="Embedding model name")
+    recursive_parser.add_argument(
         "--embedding-provider",
         default=None,
         help="Hugging Face Hub inference provider for embeddings (e.g. 'together', 'fireworks-ai'). "
              "Defaults to the Hugging Face Inference API.",
     )
-    index_chunks_parser.add_argument("--use-fp16", action="store_true", help="Kept for CLI compatibility; ignored by inference providers")
-    index_chunks_parser.set_defaults(func=command_index_chunks)
+    recursive_parser.add_argument("--chunk-size", type=int, default=900, help="Chunk size in characters")
+    recursive_parser.add_argument("--chunk-overlap", type=int, default=150, help="Chunk overlap in characters")
+    recursive_parser.add_argument("--use-fp16", action="store_true", help="Kept for CLI compatibility; ignored by inference providers")
+    recursive_parser.set_defaults(func=indexing.command_index)
+
+    # index hierarchical: Mineru-parsed chunks → ### heading split → FAISS
+    hierarchical_parser = index_method_parsers.add_parser("hierarchical", help="Index pre-chunked markdown using ### heading split")
+    hierarchical_parser.add_argument("--chunks-dir", required=True, help="Directory containing index.jsonl and chunks/")
+    hierarchical_parser.add_argument("--index-dir", default="storage_hierarchical", help="Output directory for FAISS index")
+    hierarchical_parser.add_argument("--model-name", default=indexing.DEFAULT_MODEL_NAME, help="Embedding model name")
+    hierarchical_parser.add_argument(
+        "--embedding-provider",
+        default=None,
+        help="Hugging Face Hub inference provider for embeddings (e.g. 'together', 'fireworks-ai'). "
+             "Defaults to the Hugging Face Inference API.",
+    )
+    hierarchical_parser.add_argument("--use-fp16", action="store_true", help="Kept for CLI compatibility; ignored by inference providers")
+    hierarchical_parser.set_defaults(func=command_index_chunks)
 
     query_parser = subparsers.add_parser("query", help="Query an existing FAISS index")
     query_parser.add_argument("--query", required=True, help="User query text")

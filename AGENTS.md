@@ -35,8 +35,11 @@ If asked to change routing behavior, confirm which router.
 ## Commands
 
 ```bash
-# Index a PDF into FAISS
-python -m pipelines.indexing_pipeline index --pdf path/to.pdf --index-dir storage
+# Index a PDF using RecursiveCharacterTextSplitter
+python -m pipelines.indexing_pipeline index recursive --pdf path/to.pdf --index-dir storage
+
+# Index pre-chunked markdown using ### heading split
+python -m pipelines.indexing_pipeline index hierarchical --chunks-dir output/parsed/chunks --index-dir storage_hierarchical
 
 # Query FAISS
 python -m pipelines.indexing_pipeline query --index-dir storage --query "..."
@@ -82,6 +85,27 @@ python -m pipelines.agent_pipeline.orchestration run \
   --query "..." \
   --pinecone-index-name your-index \
   --hf-inference-provider together
+
+# Run traditional pipeline with FAISS retrieval (local index)
+python -m pipelines.agent_pipeline.orchestration run \
+  --query "..." \
+  --retrieval-backend faiss \
+  --index-dir storage_hierarchical
+
+# FAISS with reranking
+python -m pipelines.agent_pipeline.orchestration run \
+  --query "..." \
+  --retrieval-backend faiss \
+  --index-dir storage_hierarchical \
+  --enable-rerank
+
+# FAISS with reranking + judge
+python -m pipelines.agent_pipeline.orchestration run \
+  --query "..." \
+  --retrieval-backend faiss \
+  --index-dir storage_hierarchical \
+  --enable-rerank \
+  --enable-judge
 
 # Sync FAISS vectors to Pinecone
 python vector_databases/pinecone_sync.py \

@@ -148,23 +148,25 @@ class RoutedRAGPipeline:
         scope: str,
         model_name: str,
         embedding_model_name: str,
-        pinecone_index_name: str | None,
-        pinecone_namespace: str,
-        top_k: int,
-        embedding_provider: str | None,
-        use_fp16: bool,
-        enable_rerank: bool,
-        reranker_model_name: str,
-        reranker_batch_size: int,
-        reranker_max_length: int,
-        reranker_instruction: str | None,
-        reranker_use_fp16: bool,
-        reranker_apply_sigmoid: bool,
-        enable_judge: bool,
-        judge_prompt_path: str,
-        judge_model_name: str,
-        judge_top_k: int,
-        judge_min_score: int,
+        retrieval_backend: str = "pinecone",
+        index_dir: str = "storage_hierarchical",
+        pinecone_index_name: str | None = None,
+        pinecone_namespace: str = DEFAULT_PINECONE_NAMESPACE,
+        top_k: int = 5,
+        embedding_provider: str | None = None,
+        use_fp16: bool = False,
+        enable_rerank: bool = False,
+        reranker_model_name: str = "",
+        reranker_batch_size: int = 8,
+        reranker_max_length: int = 4096,
+        reranker_instruction: str | None = None,
+        reranker_use_fp16: bool = False,
+        reranker_apply_sigmoid: bool = False,
+        enable_judge: bool = False,
+        judge_prompt_path: str = "",
+        judge_model_name: str = "",
+        judge_top_k: int = 3,
+        judge_min_score: int = 5,
         enable_input_guard: bool = False,
         enable_output_guard: bool = False,
         presidio_analyzer_url: str = DEFAULT_PRESIDIO_ANALYZER_URL,
@@ -186,6 +188,8 @@ class RoutedRAGPipeline:
         self.scope = scope
         self.model_name = model_name
         self.embedding_model_name = embedding_model_name
+        self.retrieval_backend = retrieval_backend
+        self.index_dir = index_dir
         self.pinecone_index_name = pinecone_index_name
         self.pinecone_namespace = pinecone_namespace
         self.top_k = top_k
@@ -404,20 +408,31 @@ class RoutedRAGPipeline:
         return state
 
     def _run_retrieval(self, state: dict[str, Any]) -> dict[str, Any]:
-        if not self.pinecone_index_name:
-            raise ValueError("--pinecone-index-name is required when the route is retrieval")
-
         if self._retriever is None:
-            from pipelines.agent_pipeline.traditional_rag.retriever.retriever_node import RetrieverNode
+            if self.retrieval_backend == "faiss":
+                from pipelines.agent_pipeline.traditional_rag.retriever.faiss_retriever import FAISSRetrieverNode
 
-            self._retriever = RetrieverNode(
-                index_name=self.pinecone_index_name,
-                namespace=self.pinecone_namespace,
-                model_name=self.embedding_model_name,
-                provider=self.embedding_provider,
-                top_k=DEFAULT_RERANK_INPUT_TOP_K if self.enable_rerank else self.top_k,
-                use_fp16=self.use_fp16,
-            )
+                self._retriever = FAISSRetrieverNode(
+                    index_dir=self.index_dir,
+                    model_name=self.embedding_model_name,
+                    provider=self.embedding_provider,
+                    top_k=DEFAULT_RERANK_INPUT_TOP_K if self.enable_rerank else self.top_k,
+                    use_fp16=self.use_fp16,
+                )
+            else:
+                if not self.pinecone_index_name:
+                    raise ValueError("--pinecone-index-name is required when --retrieval-backend=pinecone")
+
+                from pipelines.agent_pipeline.traditional_rag.retriever.retriever_node import RetrieverNode
+
+                self._retriever = RetrieverNode(
+                    index_name=self.pinecone_index_name,
+                    namespace=self.pinecone_namespace,
+                    model_name=self.embedding_model_name,
+                    provider=self.embedding_provider,
+                    top_k=DEFAULT_RERANK_INPUT_TOP_K if self.enable_rerank else self.top_k,
+                    use_fp16=self.use_fp16,
+                )
 
         state["retriever_result"] = self._retriever.run(state["decision"], state["query"])
         if state["retriever_result"] is not None:
@@ -576,6 +591,8 @@ def run_traditional_pipeline(args: argparse.Namespace) -> None:
         scope=scope,
         model_name=args.model_name,
         embedding_model_name=args.embedding_model_name,
+        retrieval_backend=args.retrieval_backend,
+        index_dir=args.index_dir,
         pinecone_index_name=args.pinecone_index_name,
         pinecone_namespace=args.pinecone_namespace,
         top_k=args.top_k,
